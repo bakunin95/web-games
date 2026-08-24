@@ -1,17 +1,20 @@
 # web-games
 
+VFX Playground — atmospheric Canvas 2D effects with live parameter tweaking. See `README.md` for run instructions, effect API, and license policy.
+
 ## Cursor Cloud specific instructions
 
-### Current repository state
-- As of this environment setup, the repository is **empty** — it contains only `.gitignore` (and this `AGENTS.md`). There is **no application code, `package.json`, lockfile, or build config yet**.
-- Because there is no project, there is currently nothing to lint, test, build, or run. Once source is added, update this section with the real commands.
+### Services
+- **VFX Playground (Vite)** — only app in this repo. Start with `pnpm dev` (binds `0.0.0.0:5173`). Production check: `pnpm build` then `pnpm preview` on port `4173`.
 
-### Toolchain available on the VM
-- Node.js `v22`, npm `10`, pnpm `10`, and yarn `1` are preinstalled and verified working (dependency install + run confirmed for both npm and pnpm).
-- `nvm` is present. The `.gitignore` targets a JS/TS web stack (Next.js/Nuxt/Vite/Turbo entries), so `pnpm` is the preferred package manager unless a lockfile dictates otherwise.
+### Commands
+- Install: `pnpm install` (lockfile: `pnpm-lock.yaml`)
+- Typecheck: `pnpm typecheck`
+- Build: `pnpm build`
+- There is no separate lint script yet; `pnpm typecheck` / `pnpm build` are the compile gates.
+- Standard scripts and effect authoring notes live in `README.md` — prefer that over duplicating here.
 
-### Dependency refresh (startup update script)
-- The startup update script is intentionally **guarded**: it installs dependencies only when a `package.json` exists, using the package manager that matches the present lockfile (`pnpm-lock.yaml` → pnpm, `yarn.lock` → yarn, `package-lock.json` → npm; otherwise npm). This is a no-op while the repo is empty, so it stays safe until real code lands.
-
-### When code is added later
-- Add the actual dev/lint/test/build commands here (e.g. `pnpm dev`, `pnpm lint`, `pnpm test`, `pnpm build`) and confirm the guarded update script still matches the chosen package manager/lockfile.
+### Gotchas
+- Dual canvas + CSS overlay: `#world-canvas` (world FX), `#overlay-canvas` (screen FX), `#css-overlay` (DOM atmosphere). Effect modules under `src/effects/` must stay UI-free.
+- Camera: drag to pan, scroll to zoom on `#stage`. Tweakpane sits in `#panel` and should not steal canvas drags (pointer handler ignores `.tp-dfwv`).
+- After dependency changes, restart `pnpm dev` if HMR misses a new package.

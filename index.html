@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VFX Playground</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="chrome">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <div>
+            <h1>VFX Playground</h1>
+            <p>Atmospheric Canvas FX · live params · portable modules</p>
+          </div>
+        </div>
+        <div class="hint">Drag canvas to pan · scroll to zoom</div>
+      </header>
+
+      <div id="stage">
+        <canvas id="world-canvas" aria-label="World-space VFX canvas"></canvas>
+        <canvas id="overlay-canvas" aria-label="Screen-space overlay canvas"></canvas>
+        <div id="css-overlay" aria-hidden="true"></div>
+      </div>
+
+      <aside id="panel"></aside>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
