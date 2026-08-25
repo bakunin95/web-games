@@ -61,7 +61,7 @@ async function captureOne(fx) {
   // Fallback: chrome --screenshot after page settles using a tiny evaluate via remote interface.
 
   // Smoke needs longer settle for wind-sheared plume to fill the frame
-  const settle = fx === 'smoke' ? 5600 : 3200;
+  const settle = fx === 'smoke' ? 7800 : 3200;
   const pageUrl = `${BASE}/capture.html?fx=${fx}&settle=${settle}`;
 
   // Create target

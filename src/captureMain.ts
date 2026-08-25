@@ -23,7 +23,7 @@ declare global {
 const params = new URLSearchParams(location.search);
 const fx = (params.get('fx') || 'fire').toLowerCase();
 // Smoke needs a long settle so the wind-sheared plume fills the frame
-const settleMs = Number(params.get('settle') || (fx === 'smoke' ? 5200 : 2800));
+const settleMs = Number(params.get('settle') || (fx === 'smoke' ? 7500 : 2800));
 
 const canvas = document.querySelector<HTMLCanvasElement>('#c')!;
 const ctx = canvas.getContext('2d', { alpha: false })!;
@@ -69,41 +69,45 @@ function paintBg(kind: string) {
     ctx.fillRect(0, 0, W, H);
 
     // Soft continuous treeline (rolling silhouette, not hard triangles)
-    const shoreY = H * 0.38;
-    const groundH = 22;
-    ctx.fillStyle = 'rgba(10,36,20,0.88)';
+    const shoreY = H * 0.4;
+    const groundH = 28;
+    ctx.fillStyle = 'rgba(8,32,18,0.92)';
     ctx.fillRect(0, shoreY, W, groundH);
 
+    // Single continuous canopy path
     ctx.beginPath();
     ctx.moveTo(0, shoreY + groundH);
-    const steps = 80;
+    const steps = 100;
     for (let i = 0; i <= steps; i++) {
       const u = i / steps;
       const x = u * W;
-      // Low-frequency rolling canopy — continuous soft band
       const n =
-        Math.sin(u * Math.PI * 5.2) * 10 +
-        Math.sin(u * Math.PI * 11.7 + 0.7) * 6 +
-        Math.sin(u * Math.PI * 23.3 + 1.3) * 3;
-      const h = 18 + n + ((i * 17) % 7) * 0.6;
-      ctx.lineTo(x, shoreY + groundH - Math.max(10, h));
+        Math.sin(u * Math.PI * 4.5) * 14 +
+        Math.sin(u * Math.PI * 9.5 + 0.8) * 8 +
+        Math.sin(u * Math.PI * 18 + 1.4) * 3.5;
+      const h = 22 + n;
+      ctx.lineTo(x, shoreY + groundH - Math.max(12, h));
     }
     ctx.lineTo(W, shoreY + groundH);
     ctx.closePath();
-    const canopy = ctx.createLinearGradient(0, shoreY - 30, 0, shoreY + groundH);
-    canopy.addColorStop(0, 'rgba(12,44,24,0)');
-    canopy.addColorStop(0.35, 'rgba(12,44,24,0.55)');
-    canopy.addColorStop(1, 'rgba(8,32,18,0.95)');
+    const canopy = ctx.createLinearGradient(0, shoreY - 36, 0, shoreY + groundH);
+    canopy.addColorStop(0, 'rgba(10,40,22,0)');
+    canopy.addColorStop(0.4, 'rgba(10,40,22,0.65)');
+    canopy.addColorStop(1, 'rgba(6,28,16,0.98)');
     ctx.fillStyle = canopy;
     ctx.fill();
 
+    // Soft fill under canopy so silhouette reads continuous
+    ctx.fillStyle = 'rgba(8,30,16,0.75)';
+    ctx.fillRect(0, shoreY + 4, W, groundH - 4);
+
     // Soft mist veil along shore so contact isn't a hard cut
-    const mist = ctx.createLinearGradient(0, shoreY + groundH - 8, 0, shoreY + groundH + 28);
+    const mist = ctx.createLinearGradient(0, shoreY + groundH - 6, 0, shoreY + groundH + 36);
     mist.addColorStop(0, 'rgba(200,220,230,0)');
-    mist.addColorStop(0.4, 'rgba(180,210,225,0.12)');
+    mist.addColorStop(0.45, 'rgba(180,210,225,0.1)');
     mist.addColorStop(1, 'rgba(140,180,200,0)');
     ctx.fillStyle = mist;
-    ctx.fillRect(0, shoreY + groundH - 8, W, 36);
+    ctx.fillRect(0, shoreY + groundH - 6, W, 42);
     return;
   }
   if (kind === 'smoke') {
@@ -141,48 +145,59 @@ function paintBg(kind: string) {
   // Fire: night dirt ground (not a pure black void) so spill + fuel bed read
   {
     const sky = ctx.createLinearGradient(0, 0, 0, H);
-    sky.addColorStop(0, '#0a0c12');
-    sky.addColorStop(0.45, '#0c0a08');
-    sky.addColorStop(1, '#1a140e');
+    sky.addColorStop(0, '#080a10');
+    sky.addColorStop(0.4, '#0c0a08');
+    sky.addColorStop(0.58, '#16100a');
+    sky.addColorStop(1, '#1c140e');
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, W, H);
 
     // Dirt / mulch ground plane
-    const groundY = H * 0.62;
+    const groundY = H * 0.55;
     const dirt = ctx.createLinearGradient(0, groundY, 0, H);
-    dirt.addColorStop(0, '#2a1e14');
-    dirt.addColorStop(0.35, '#1e160f');
-    dirt.addColorStop(1, '#120e0a');
+    dirt.addColorStop(0, '#3a2a1a');
+    dirt.addColorStop(0.25, '#2a1c12');
+    dirt.addColorStop(0.6, '#1a120c');
+    dirt.addColorStop(1, '#100c08');
     ctx.fillStyle = dirt;
     ctx.fillRect(0, groundY, W, H - groundY);
 
-    // Soft dirt noise patches (deterministic grain)
-    for (let i = 0; i < 420; i++) {
+    // Soft dirt noise patches (deterministic grain) — must read as textured earth
+    for (let i = 0; i < 680; i++) {
       const x = ((i * 97) % W) + ((i * 13) % 17) - 8;
       const y = groundY + ((i * 53) % (H - groundY));
-      const s = 1.2 + (i % 5) * 0.9;
-      const shade = 18 + (i % 7) * 6;
-      const a = 0.08 + (i % 4) * 0.04;
-      ctx.fillStyle = `rgba(${shade + 20},${shade + 10},${shade},${a})`;
+      const s = 1.5 + (i % 6) * 1.1;
+      const shade = 22 + (i % 9) * 8;
+      const a = 0.12 + (i % 5) * 0.05;
+      ctx.fillStyle = `rgba(${shade + 28},${shade + 14},${shade - 2},${a})`;
       ctx.beginPath();
-      ctx.ellipse(x, y, s * 2.2, s * 0.9, ((i * 19) % 10) * 0.1, 0, Math.PI * 2);
+      ctx.ellipse(x, y, s * 2.8, s * 1.1, ((i * 19) % 10) * 0.12, 0, Math.PI * 2);
       ctx.fill();
     }
-    // Darker mulch flecks
-    for (let i = 0; i < 180; i++) {
+    // Darker mulch / twig flecks
+    for (let i = 0; i < 280; i++) {
       const x = ((i * 131) % W) + ((i * 7) % 11);
-      const y = groundY + 8 + ((i * 89) % (H - groundY - 8));
-      ctx.fillStyle = `rgba(8,6,4,${0.15 + (i % 3) * 0.08})`;
-      ctx.fillRect(x, y, 1 + (i % 3), 1 + (i % 2));
+      const y = groundY + 6 + ((i * 89) % (H - groundY - 6));
+      ctx.fillStyle = `rgba(6,4,2,${0.2 + (i % 4) * 0.1})`;
+      ctx.fillRect(x, y, 1 + (i % 4), 1 + (i % 2));
+    }
+    // Lighter pebbles
+    for (let i = 0; i < 90; i++) {
+      const x = ((i * 173) % W);
+      const y = groundY + 20 + ((i * 67) % (H - groundY - 30));
+      ctx.fillStyle = `rgba(${50 + (i % 5) * 8},${40 + (i % 4) * 6},${28},${0.15 + (i % 3) * 0.06})`;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 2 + (i % 3), 1.2 + (i % 2) * 0.5, 0.2, 0, Math.PI * 2);
+      ctx.fill();
     }
     // Warm campfire pit depression
-    const pit = ctx.createRadialGradient(W * 0.5, H * 0.82, 10, W * 0.5, H * 0.82, 200);
-    pit.addColorStop(0, 'rgba(40,24,12,0.55)');
-    pit.addColorStop(0.55, 'rgba(22,14,8,0.35)');
+    const pit = ctx.createRadialGradient(W * 0.5, H * 0.84, 8, W * 0.5, H * 0.84, 240);
+    pit.addColorStop(0, 'rgba(48,28,14,0.65)');
+    pit.addColorStop(0.45, 'rgba(28,16,8,0.4)');
     pit.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = pit;
     ctx.beginPath();
-    ctx.ellipse(W * 0.5, H * 0.82, 210, 48, 0, 0, Math.PI * 2);
+    ctx.ellipse(W * 0.5, H * 0.84, 230, 55, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 }
@@ -214,19 +229,19 @@ if (fx === 'fire') {
     instanceId: 'cap-smoke',
     x: W * 0.852,
     y: H * 0.205,
-    size: 1.35,
+    size: 1.25,
     spread: 0.7,
-    rise: 0.22,
-    density: 1.35,
-    turbulence: 1.05,
-    intensity: 1.2,
+    rise: 0.32,
+    density: 1.5,
+    turbulence: 1.2,
+    intensity: 1.3,
     material: createDefaultMaterial({
       name: 'Plume',
-      baseColor: '#323842',
+      baseColor: '#2c343e',
       emissive: '#d8c9a8',
       emissiveIntensity: 0.42,
       opacity: 0.97,
-      roughness: 0.93,
+      roughness: 0.94,
       metalness: 0.05,
       blend: 'normal',
     }),
@@ -237,12 +252,12 @@ if (fx === 'fire') {
     ...waterEffect.defaultParams,
     instanceId: 'cap-water',
     x: W * 0.5,
-    y: H * 0.64,
-    width: 1100,
-    height: 460,
-    waveStrength: 0.06,
-    waveScale: 0.5,
-    shoreFoam: 0.08,
+    y: H * 0.72,
+    width: 1280,
+    height: 560,
+    waveStrength: 0.05,
+    waveScale: 0.45,
+    shoreFoam: 0.05,
     intensity: 1,
   };
   drawing = (tt) => waterEffect.draw(ctx, p, tt, scene);
