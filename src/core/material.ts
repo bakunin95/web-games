@@ -173,6 +173,26 @@ export const MATERIAL_PRESETS: Record<string, EffectMaterial> = {
     metalness: 0.55,
     blend: 'normal',
   }),
+  'Grass Green': createDefaultMaterial({
+    name: 'Grass Green',
+    baseColor: '#3d8f2e',
+    emissive: '#a8e06a',
+    emissiveIntensity: 0.35,
+    opacity: 1,
+    roughness: 0.85,
+    metalness: 0.05,
+    blend: 'normal',
+  }),
+  'Flower Petal': createDefaultMaterial({
+    name: 'Flower Petal',
+    baseColor: '#ff6b8a',
+    emissive: '#ffe08a',
+    emissiveIntensity: 0.55,
+    opacity: 1,
+    roughness: 0.6,
+    metalness: 0.1,
+    blend: 'normal',
+  }),
 };
 
 export function blendToComposite(blend: BlendMode): GlobalCompositeOperation {

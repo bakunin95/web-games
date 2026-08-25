@@ -44,7 +44,7 @@ export function createScene(): SceneContext {
     camera: { x: WORLD_WIDTH / 2, y: WORLD_HEIGHT / 2 + 40, zoom: 0.85 },
     lights: createDefaultLights(),
     hazardZones: createDefaultHazards(),
-    rainWet: true,
+    rainWet: false,
     wind: { x: 0.55, y: 0.08 },
     time: 0,
     dt: 0,

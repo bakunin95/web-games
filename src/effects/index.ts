@@ -28,6 +28,8 @@ import { meteorEffect, disposeMeteorInstance } from './meteor';
 import { PACK2_EFFECTS, PACK2_DISPOSE } from './pack2';
 import { PACK3_EFFECTS, PACK3_DISPOSE } from './pack3';
 import { CREATURE_EFFECTS, CREATURE_DISPOSE } from './creatures';
+import { grassEffect, disposeGrassInstance } from './grass';
+import { flowersEffect, disposeFlowersInstance } from './flowers';
 
 import { rainEffect } from './rain';
 import { hazardAtmosphereEffect } from './hazardAtmosphere';
@@ -66,6 +68,8 @@ export const CREATABLE_EFFECTS: EffectModule[] = [
   causticsEffect as unknown as EffectModule,
   frostEffect as unknown as EffectModule,
   meteorEffect as unknown as EffectModule,
+  grassEffect as unknown as EffectModule,
+  flowersEffect as unknown as EffectModule,
   ...PACK2_EFFECTS,
   ...PACK3_EFFECTS,
   ...CREATURE_EFFECTS,
@@ -102,6 +106,8 @@ const DISPOSE: Record<string, (id: string) => void> = {
   caustics: disposeCausticsInstance,
   frost: disposeFrostInstance,
   meteor: disposeMeteorInstance,
+  grass: disposeGrassInstance,
+  flowers: disposeFlowersInstance,
   ...PACK2_DISPOSE,
   ...PACK3_DISPOSE,
   ...CREATURE_DISPOSE,
@@ -174,7 +180,9 @@ export function createRandomizedParams(
     module.id === 'fog-bank' ||
     module.id === 'heat-haze' ||
     module.id === 'caustics' ||
-    module.id === 'small-animals'
+    module.id === 'small-animals' ||
+    module.id === 'grass' ||
+    module.id === 'flowers'
   ) {
     base.y = Math.min(scene.worldHeight - 60, Math.max(760, scene.camera.y + 160));
   }
@@ -210,6 +218,8 @@ export {
   causticsEffect,
   frostEffect,
   meteorEffect,
+  grassEffect,
+  flowersEffect,
   rainEffect,
   hazardAtmosphereEffect,
   neonBloomEffect,

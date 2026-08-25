@@ -99,6 +99,10 @@ export function getPlacedBounds(
   } else if (typeId === 'comet-trail' || typeId === 'laser-grid') {
     const s = Number(params.size ?? 1) * 120;
     raw = { x: params.x - s, y: params.y - s * 0.6, w: s * 2, h: s * 1.2 };
+  } else if (typeId === 'grass' || typeId === 'flowers') {
+    const spread = Number(params.spread ?? 1) * 120;
+    const h = Number(params.height ?? params.size ?? 1) * 90;
+    raw = { x: params.x - spread, y: params.y - h - 10, w: spread * 2, h: h + 30 };
   } else {
     const s = Number(params.size ?? 1) * 80;
     raw = { x: params.x - s, y: params.y - s * 1.4, w: s * 2, h: s * 2 };

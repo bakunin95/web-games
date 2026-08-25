@@ -86,7 +86,7 @@ export const rainEffect: EffectModule<RainParams> = {
   description: 'World-space wind-driven rain streaks with optional wet-road splash.',
   space: 'world',
   defaultParams: {
-    enabled: true,
+    enabled: false,
     intensity: 0.75,
     density: 0.7,
     length: 1,
