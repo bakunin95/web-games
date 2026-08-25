@@ -60,12 +60,16 @@ async function captureOne(fx) {
   // Prefer undici/native: use CDP HTTP /json/new then connect via websockets package if present.
   // Fallback: chrome --screenshot after page settles using a tiny evaluate via remote interface.
 
+  // Smoke needs longer settle for wind-sheared plume to fill the frame
+  const settle = fx === 'smoke' ? 5600 : 3200;
+  const pageUrl = `${BASE}/capture.html?fx=${fx}&settle=${settle}`;
+
   // Create target
-  const created = await fetch(`http://127.0.0.1:${PORT}/json/new?${encodeURIComponent(`${BASE}/capture.html?fx=${fx}&settle=3200`)}`, {
+  const created = await fetch(`http://127.0.0.1:${PORT}/json/new?${encodeURIComponent(pageUrl)}`, {
     method: 'PUT',
   }).then((r) => r.json()).catch(async () => {
     // Older chrome: GET /json/new?url
-    return fetchJson(`http://127.0.0.1:${PORT}/json/new?${encodeURIComponent(`${BASE}/capture.html?fx=${fx}&settle=3200`)}`);
+    return fetchJson(`http://127.0.0.1:${PORT}/json/new?${encodeURIComponent(pageUrl)}`);
   });
 
   const wsUrl = created.webSocketDebuggerUrl;
@@ -98,7 +102,8 @@ async function captureOne(fx) {
 
   // Wait until window.__VFX_CAPTURE__.ready
   let dataUrl = '';
-  for (let i = 0; i < 60; i++) {
+  const maxTries = fx === 'smoke' ? 90 : 60;
+  for (let i = 0; i < maxTries; i++) {
     await sleep(200);
     const result = await send('Runtime.evaluate', {
       expression: `(() => {
