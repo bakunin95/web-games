@@ -31,10 +31,10 @@ function spawnPuff(rand: () => number, params: SmokeParams): Puff {
     x: (rand() - 0.5) * 12 * params.spread,
     y: (rand() - 0.5) * 6,
     life: rand() * 0.15,
-    maxLife: 2.8 + rand() * 4,
-    vx: (rand() - 0.5) * 6,
-    vy: -(6 + rand() * 14) * params.rise,
-    size: 22 + rand() * 34,
+    maxLife: 3.5 + rand() * 5,
+    vx: (rand() - 0.5) * 4,
+    vy: -(4 + rand() * 10) * params.rise,
+    size: 14 + rand() * 22,
     seed: rand() * 1000,
     bumps: 3 + Math.floor(rand() * 4),
   };
@@ -46,7 +46,7 @@ function ensurePool(params: SmokeParams): Puff[] {
     pool = [];
     pools.set(params.instanceId, pool);
   }
-  const target = Math.floor(42 + params.density * 90 * params.intensity);
+  const target = Math.floor(70 + params.density * 140 * params.intensity);
   const rand = mulberry32(params.seed | 0);
   while (pool.length < target) pool.push(spawnPuff(rand, params));
   if (pool.length > target) pool.length = target;
@@ -98,13 +98,14 @@ export const drawSmoke: DrawFn<SmokeParams> = (ctx, params, t, scene) => {
       p.life += dt;
       const n1 = fbm2(p.x * 0.018 + p.seed, t * 0.38 + p.y * 0.01, 4, params.seed);
       const n2 = fbm2(p.y * 0.018, t * 0.3 + p.seed, 3, params.seed + 17);
-      p.vx += (n1 * 28 * params.turbulence + wind * 55) * dt;
-      p.vy += (-4.5 * params.rise + n2 * 10 * params.turbulence) * dt;
-      p.vx *= 1 - 0.1 * dt;
-      p.vy *= 1 - 0.05 * dt;
+      p.vx += (n1 * 22 * params.turbulence + wind * 72) * dt;
+      p.vy += (-2.5 * params.rise + n2 * 8 * params.turbulence + Math.abs(wind) * 4 * dt) * dt;
+      p.vx *= 1 - 0.06 * dt;
+      p.vy *= 1 - 0.04 * dt;
       p.x += p.vx * dt;
       p.y += p.vy * dt;
-      p.size += (14 + params.size * 10) * soft * (0.55 + p.life * 0.22) * dt;
+      // Expand more as travels downwind
+      p.size += (16 + params.size * 12) * soft * (0.5 + p.life * 0.35) * (1 + Math.abs(wind) * 0.15) * dt;
       if (p.life >= p.maxLife) Object.assign(p, spawnPuff(rand, params));
     }
 

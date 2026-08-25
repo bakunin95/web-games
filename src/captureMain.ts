@@ -116,7 +116,7 @@ function paintBg(kind: string) {
 }
 
 const scene =
-  fx === 'smoke' ? makeScene(1.35) : fx === 'water' ? makeScene(0.05) : makeScene(0.12);
+  fx === 'smoke' ? makeScene(-1.45) : fx === 'water' ? makeScene(0.05) : makeScene(0.12);
 
 let t = 0;
 let drawing: (tt: number) => void = () => {};
@@ -139,20 +139,20 @@ if (fx === 'fire') {
   const p: SmokeParams = {
     ...smokeEffect.defaultParams,
     instanceId: 'cap-smoke',
-    x: W * 0.86,
-    y: H * 0.28,
-    size: 1.9,
-    spread: 1.5,
-    rise: 0.35,
-    density: 1.15,
-    turbulence: 0.95,
-    intensity: 1.1,
+    x: W * 0.88,
+    y: H * 0.26,
+    size: 1.55,
+    spread: 0.9,
+    rise: 0.25,
+    density: 1.25,
+    turbulence: 1.1,
+    intensity: 1.15,
     material: createDefaultMaterial({
       name: 'Plume',
-      baseColor: '#4a5360',
-      emissive: '#e0d2b4',
-      emissiveIntensity: 0.45,
-      opacity: 0.97,
+      baseColor: '#3a424c',
+      emissive: '#d8c9a8',
+      emissiveIntensity: 0.5,
+      opacity: 0.98,
       roughness: 0.92,
       metalness: 0.05,
       blend: 'normal',
