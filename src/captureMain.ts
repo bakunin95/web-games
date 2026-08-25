@@ -57,28 +57,53 @@ function makeScene(windX: number): SceneContext {
 function paintBg(kind: string) {
   // Soft dusk sky that continues into water — less "sticker on sky"
   if (kind === 'water') {
+    // Sky gradient continues through horizon into the water region
     const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#7eb6e0');
-    g.addColorStop(0.38, '#5a96c0');
-    g.addColorStop(0.55, '#2a5a78');
-    g.addColorStop(1, '#0a1828');
+    g.addColorStop(0, '#8ec4e8');
+    g.addColorStop(0.32, '#6aa8d0');
+    g.addColorStop(0.42, '#4a88b0');
+    g.addColorStop(0.52, '#2a5a78');
+    g.addColorStop(0.7, '#143848');
+    g.addColorStop(1, '#081820');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
-    // Soft far shore (no hard triangles)
-    ctx.fillStyle = 'rgba(12,40,22,0.85)';
-    ctx.fillRect(0, H * 0.36, W, 18);
-    for (let i = 0; i < 60; i++) {
-      const x = (i / 60) * W;
-      const h = 12 + ((i * 19) % 28);
-      const grd = ctx.createLinearGradient(x, H * 0.36 + 18 - h, x, H * 0.36 + 18);
-      grd.addColorStop(0, 'rgba(14,48,28,0)');
-      grd.addColorStop(1, 'rgba(14,48,28,0.9)');
-      ctx.fillStyle = grd;
-      ctx.beginPath();
-      ctx.moveTo(x, H * 0.36 + 18);
-      ctx.quadraticCurveTo(x + 6, H * 0.36 + 18 - h, x + 12, H * 0.36 + 18);
-      ctx.fill();
+
+    // Soft continuous treeline (rolling silhouette, not hard triangles)
+    const shoreY = H * 0.38;
+    const groundH = 22;
+    ctx.fillStyle = 'rgba(10,36,20,0.88)';
+    ctx.fillRect(0, shoreY, W, groundH);
+
+    ctx.beginPath();
+    ctx.moveTo(0, shoreY + groundH);
+    const steps = 80;
+    for (let i = 0; i <= steps; i++) {
+      const u = i / steps;
+      const x = u * W;
+      // Low-frequency rolling canopy — continuous soft band
+      const n =
+        Math.sin(u * Math.PI * 5.2) * 10 +
+        Math.sin(u * Math.PI * 11.7 + 0.7) * 6 +
+        Math.sin(u * Math.PI * 23.3 + 1.3) * 3;
+      const h = 18 + n + ((i * 17) % 7) * 0.6;
+      ctx.lineTo(x, shoreY + groundH - Math.max(10, h));
     }
+    ctx.lineTo(W, shoreY + groundH);
+    ctx.closePath();
+    const canopy = ctx.createLinearGradient(0, shoreY - 30, 0, shoreY + groundH);
+    canopy.addColorStop(0, 'rgba(12,44,24,0)');
+    canopy.addColorStop(0.35, 'rgba(12,44,24,0.55)');
+    canopy.addColorStop(1, 'rgba(8,32,18,0.95)');
+    ctx.fillStyle = canopy;
+    ctx.fill();
+
+    // Soft mist veil along shore so contact isn't a hard cut
+    const mist = ctx.createLinearGradient(0, shoreY + groundH - 8, 0, shoreY + groundH + 28);
+    mist.addColorStop(0, 'rgba(200,220,230,0)');
+    mist.addColorStop(0.4, 'rgba(180,210,225,0.12)');
+    mist.addColorStop(1, 'rgba(140,180,200,0)');
+    ctx.fillStyle = mist;
+    ctx.fillRect(0, shoreY + groundH - 8, W, 36);
     return;
   }
   if (kind === 'smoke') {
@@ -212,12 +237,12 @@ if (fx === 'fire') {
     ...waterEffect.defaultParams,
     instanceId: 'cap-water',
     x: W * 0.5,
-    y: H * 0.62,
-    width: 980,
-    height: 420,
-    waveStrength: 0.08,
-    waveScale: 0.55,
-    shoreFoam: 0.15,
+    y: H * 0.64,
+    width: 1100,
+    height: 460,
+    waveStrength: 0.06,
+    waveScale: 0.5,
+    shoreFoam: 0.08,
     intensity: 1,
   };
   drawing = (tt) => waterEffect.draw(ctx, p, tt, scene);
