@@ -1,7 +1,19 @@
 {
-  "infra": { "text": "PASS: materials, select/drag gizmo, minimize editor", "class": "ok" },
-  "fire": { "text": "Critic: pending A/B vs campfire.jpg", "class": "gap", "capture": "/progress/captures/fire.png" },
-  "smoke": { "text": "Critic: pending A/B vs smoke_plume.jpg", "class": "gap", "capture": "/progress/captures/smoke.png" },
-  "water": { "text": "Critic: pending A/B vs clear_water.jpg", "class": "gap", "capture": "/progress/captures/water.png" },
-  "log": "Gauntlet update:\n- Materials + Create VFX + minimize: working\n- Selection gizmo sync FIXED (panel→renderer); drag PASS\n- Quality-bar A/B loops for fire/smoke/water still pending\n- User backlog: 20 additional VFX proposals delivered in chat"
+  "infra": { "text": "PASS: materials, select/drag/scale, minimize, 66+ creatables", "class": "ok" },
+  "fire": {
+    "text": "Round3 critic: still PREFER bar. Gaps: chaotic asymmetric tongues, smoke/embers, less radial glow sticker.",
+    "class": "gap",
+    "capture": "/progress/captures/fire.png"
+  },
+  "smoke": {
+    "text": "Round3–4: rebuilt as soft circular billows (no rotated ellipse swirl). Critic pending / still vs photo bar.",
+    "class": "gap",
+    "capture": "/progress/captures/smoke.png"
+  },
+  "water": {
+    "text": "Round3 critic: still PREFER bar. Gaps: shoreline contact, true mirror, Fresnel — not oval gradient blob.",
+    "class": "gap",
+    "capture": "/progress/captures/water.png"
+  },
+  "log": "Gauntlet (ACTIVE — gate not met):\n- R1/R2/R3: photo bar preferred 3/3 (high confidence)\n- Fire: taller luminous mass + fuel logs; still reads glow-sticker\n- Smoke: killed swirl ellipses → soft circular cauliflower billows\n- Water: sky mirror + anisotropic sheen; oval clip still clipart\n- Continue builder+critic until B preferred on all three"
 }

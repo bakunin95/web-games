@@ -1,19 +1,19 @@
 {
   "infra": { "text": "PASS: materials, select/drag/scale, minimize, 66+ creatables", "class": "ok" },
   "fire": {
-    "text": "Round2 critic: PREFER bar (campfire.jpg). Gaps: need chaotic tongues + fuel bed + sparks/smoke (not teardrop glow).",
+    "text": "Round3 critic: still PREFER bar. Gaps: chaotic asymmetric tongues, smoke/embers, less radial glow sticker.",
     "class": "gap",
     "capture": "/progress/captures/fire.png"
   },
   "smoke": {
-    "text": "Round2 critic: PREFER bar (smoke_plume.jpg). Gaps: buoyant wind-sheared cauliflower, density/self-shadow, soft dissipation.",
+    "text": "Round3–4: rebuilt as soft circular billows (no rotated ellipse swirl). Critic pending / still vs photo bar.",
     "class": "gap",
     "capture": "/progress/captures/smoke.png"
   },
   "water": {
-    "text": "Round2 critic: PREFER bar (clear_water.jpg). Gaps: kill sticker oval, true mirrored shoreline, Fresnel micro-surface.",
+    "text": "Round3 critic: still PREFER bar. Gaps: shoreline contact, true mirror, Fresnel — not oval gradient blob.",
     "class": "gap",
     "capture": "/progress/captures/water.png"
   },
-  "log": "Gauntlet loop (ongoing):\n- Round1: all 3 critics preferred photo bar (high confidence)\n- Builder rewrite: fire luminous mass, smoke lobes, water mirror\n- Round2: still prefer bar — fire taller but glow-sticker; smoke white swirl; water oval clipart\n- Round3 builder: denser smoke mass, log fuel bed, continuing\n- Infra PASS; quality gate NOT met — keep iterating"
+  "log": "Gauntlet (ACTIVE — gate not met):\n- R1/R2/R3: photo bar preferred 3/3 (high confidence)\n- Fire: taller luminous mass + fuel logs; still reads glow-sticker\n- Smoke: killed swirl ellipses → soft circular cauliflower billows\n- Water: sky mirror + anisotropic sheen; oval clip still clipart\n- Continue builder+critic until B preferred on all three"
 }

@@ -54,25 +54,28 @@ function makeScene(windX: number): SceneContext {
 }
 
 function paintBg(kind: string) {
+  // Soft dusk sky that continues into water — less "sticker on sky"
   if (kind === 'water') {
-    // Soft dawn sky behind lake body
     const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#6fa8d8');
-    g.addColorStop(0.45, '#3d6a8c');
-    g.addColorStop(1, '#0c1520');
+    g.addColorStop(0, '#7eb6e0');
+    g.addColorStop(0.38, '#5a96c0');
+    g.addColorStop(0.55, '#2a5a78');
+    g.addColorStop(1, '#0a1828');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
-    // Fake far shore band for reflection context
-    ctx.fillStyle = '#0e2a18';
-    ctx.fillRect(0, H * 0.28, W, 28);
-    ctx.fillStyle = '#143820';
-    for (let i = 0; i < 40; i++) {
-      const x = (i / 40) * W;
-      const h = 20 + ((i * 17) % 35);
+    // Soft far shore (no hard triangles)
+    ctx.fillStyle = 'rgba(12,40,22,0.85)';
+    ctx.fillRect(0, H * 0.36, W, 18);
+    for (let i = 0; i < 60; i++) {
+      const x = (i / 60) * W;
+      const h = 12 + ((i * 19) % 28);
+      const grd = ctx.createLinearGradient(x, H * 0.36 + 18 - h, x, H * 0.36 + 18);
+      grd.addColorStop(0, 'rgba(14,48,28,0)');
+      grd.addColorStop(1, 'rgba(14,48,28,0.9)');
+      ctx.fillStyle = grd;
       ctx.beginPath();
-      ctx.moveTo(x, H * 0.28 + 28);
-      ctx.lineTo(x + 8, H * 0.28 + 28 - h);
-      ctx.lineTo(x + 16, H * 0.28 + 28);
+      ctx.moveTo(x, H * 0.36 + 18);
+      ctx.quadraticCurveTo(x + 6, H * 0.36 + 18 - h, x + 12, H * 0.36 + 18);
       ctx.fill();
     }
     return;
@@ -136,20 +139,20 @@ if (fx === 'fire') {
   const p: SmokeParams = {
     ...smokeEffect.defaultParams,
     instanceId: 'cap-smoke',
-    x: W * 0.82,
-    y: H * 0.62,
-    size: 1.85,
-    spread: 1.6,
-    rise: 0.45,
+    x: W * 0.86,
+    y: H * 0.28,
+    size: 1.9,
+    spread: 1.5,
+    rise: 0.35,
     density: 1.15,
-    turbulence: 1.05,
+    turbulence: 0.95,
     intensity: 1.1,
     material: createDefaultMaterial({
       name: 'Plume',
-      baseColor: '#1a1e24',
-      emissive: '#f0e4c8',
-      emissiveIntensity: 0.85,
-      opacity: 0.98,
+      baseColor: '#4a5360',
+      emissive: '#e0d2b4',
+      emissiveIntensity: 0.45,
+      opacity: 0.97,
       roughness: 0.92,
       metalness: 0.05,
       blend: 'normal',
