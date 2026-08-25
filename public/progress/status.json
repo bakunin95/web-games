@@ -4,19 +4,19 @@
     "class": "ok"
   },
   "fire": {
-    "text": "Round7 blind: PREFER photo. Soft blobs brighter but still ellipse stack — need organic silhouette, ground-contact glow, hot-core→cool tip (no lines).",
-    "class": "gap",
+    "text": "Fuel logs + denser soft mass (no flame lines). Recaptured \u2014 pending next A/B.",
+    "class": "wip",
     "capture": "/progress/captures/fire.png"
   },
   "smoke": {
-    "text": "Round7 blind: PREFER photo. Gaps: hard silhouette, tiled noise, no wind-shear taper/wisps.",
-    "class": "gap",
+    "text": "PASS (user): soft industrial plume \u2014 locked at max quality for this pass.",
+    "class": "ok",
     "capture": "/progress/captures/smoke.png"
   },
   "water": {
-    "text": "Round7 blind: PREFER photo. Gaps: sine-stripe waves, weak foam/specular, gradient banding vs photoreal.",
-    "class": "gap",
+    "text": "Irregular swell: fewer unevenly spaced rows, broken crests (less geometric stripes).",
+    "class": "wip",
     "capture": "/progress/captures/water.png"
   },
-  "log": "Gauntlet ACTIVE — Round7 0/3 vs photo bars (soft-fire direction kept).\n- Timeline: /progress/timeline/\n- Fire: brighter soft mass; still losing on organic silhouette + ground light\n- Smoke/Water: soft/ocean paths; critics still prefer photos\n- Gate: blind A/B prefer our captures"
+  "log": "Gauntlet ACTIVE\n- SMOKE: PASS / locked (user)\n- FIRE: fuel logs + denser soft mass\n- WATER: irregular uneven swell (fewer waves, broken crests)\n- Timeline: /progress/timeline/"
 }

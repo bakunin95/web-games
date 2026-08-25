@@ -52,13 +52,30 @@ function clamp(v: number, lo: number, hi: number): number {
 }
 
 function waveHeight(x: number, z: number, t: number, scale: number, strength: number, seed: number): number {
-  const s = 0.004 / Math.max(0.25, scale);
+  const s = 0.0028 / Math.max(0.25, scale);
+  // Uneven multi-scale swell — break perfect sine stacking with fbm-dominant mix
   let h = 0;
-  h += Math.sin(x * s * 1.1 + t * 1.4 + seed) * 0.45;
-  h += Math.sin(x * s * 2.3 - z * s * 0.8 + t * 2.1) * 0.28;
-  h += Math.sin(x * s * 4.7 + z * s * 1.6 + t * 3.3 + 1.7) * 0.14;
-  h += fbm2(x * s * 3.2 + t * 0.35, z * s * 2.1, 3, seed + 9) * 0.35;
+  h += Math.sin(x * s * 0.85 + t * 1.1 + seed * 0.3) * 0.35;
+  h += Math.sin(x * s * 1.55 - z * s * 0.35 + t * 1.6 + 2.1) * 0.22;
+  h += fbm2(x * s * 1.8 + t * 0.28, z * s * 1.1 + seed * 0.02, 3, seed + 9) * 0.55;
+  h += fbm2(x * s * 4.2 - t * 0.4, z * s * 2.4, 2, seed + 41) * 0.28;
   return h * strength;
+}
+
+/** Build irregular row positions (fewer, unevenly spaced). */
+function buildSwellRows(height: number, seed: number): number[] {
+  const rows: number[] = [];
+  let y = height * 0.08;
+  let i = 0;
+  while (y < height * 0.96 && rows.length < 9) {
+    rows.push(y);
+    const gap =
+      height * (0.08 + 0.1 * (0.5 + 0.5 * fbm2(i * 1.7, seed * 0.01, 2, seed + 3))) +
+      (i % 3 === 0 ? height * 0.04 : 0);
+    y += Math.max(height * 0.07, gap);
+    i++;
+  }
+  return rows;
 }
 
 export const drawWater: DrawFn<WaterParams> = (ctx, params, t, scene) => {
@@ -95,89 +112,123 @@ export const drawWater: DrawFn<WaterParams> = (ctx, params, t, scene) => {
   L.fillStyle = horizon;
   L.fillRect(0, 0, W, H * 0.22);
 
-  const rows = Math.max(18, Math.floor(H / 10));
-  for (let r = 0; r < rows; r++) {
-    const v = r / (rows - 1);
-    const y0 = v * H;
-    const amp = (6 + params.waveStrength * 28) * (0.35 + v * 0.9);
-    const cols = Math.max(24, Math.floor(W / 18));
+  // Fewer, unevenly spaced swell rows — break the equal geometric stripe look
+  const swellRows = buildSwellRows(H, params.seed);
+  for (let r = 0; r < swellRows.length; r++) {
+    const y0 = swellRows[r]!;
+    const v = y0 / H;
+    // Per-row amplitude + phase jitter so waves aren't clones
+    const rowAmp =
+      (8 + params.waveStrength * 34) *
+      (0.45 + v * 0.85) *
+      (0.7 + 0.55 * (0.5 + 0.5 * fbm2(r * 2.1, params.seed * 0.02, 2, params.seed + 7)));
+    const rowPhase = fbm2(r * 0.9, params.seed * 0.03, 2, params.seed + 13) * 40;
+    const cols = Math.max(16, Math.floor(W / 28));
 
+    // Soft trough shade (broad, not a thin stripe)
     L.beginPath();
-    L.moveTo(0, y0 + 8);
-    for (let c = 0; c <= cols; c++) {
-      const u = c / cols;
-      const x = u * W;
-      const h = waveHeight(x + left, y0 + top, t, params.waveScale, params.waveStrength, params.seed) * amp;
-      L.lineTo(x, y0 + h * 0.55 + 4);
-    }
-    L.lineTo(W, y0 + 14);
-    L.closePath();
-    L.fillStyle = withAlpha(trough, clamp(0.08 + v * 0.22, 0, 0.35) * I);
-    L.fill();
-
-    L.beginPath();
+    L.moveTo(0, y0 + 10);
     for (let c = 0; c <= cols; c++) {
       const u = c / cols;
       const x = u * W;
       const h =
-        waveHeight(x + left + 11, y0 + top, t * 1.05, params.waveScale, params.waveStrength, params.seed + 3) *
-        amp;
-      const y = y0 + h * 0.7;
-      if (c === 0) L.moveTo(x, y);
-      else L.lineTo(x, y);
+        waveHeight(x + left + rowPhase, y0 + top, t, params.waveScale, params.waveStrength, params.seed + r) *
+        rowAmp;
+      L.lineTo(x, y0 + h * 0.5 + 6);
     }
-    L.strokeStyle = withAlpha(
-      crest,
-      clamp(0.12 + (1 - v) * 0.25, 0, 0.45) * I * mat.emissiveIntensity,
-    );
-    L.lineWidth = 1.2 + (1 - v) * 1.4;
-    L.stroke();
+    L.lineTo(W, y0 + 18);
+    L.closePath();
+    L.fillStyle = withAlpha(trough, clamp(0.06 + v * 0.18, 0, 0.28) * I);
+    L.fill();
 
+    // Broken crest highlights — skip segments so it isn't one perfect continuous line
+    L.lineWidth = 1.4 + (1 - v) * 1.8;
+    L.lineCap = 'round';
+    let drawing = false;
+    for (let c = 0; c <= cols; c++) {
+      const u = c / cols;
+      const x = u * W;
+      const h =
+        waveHeight(
+          x + left + rowPhase + 9,
+          y0 + top,
+          t * 1.02,
+          params.waveScale,
+          params.waveStrength,
+          params.seed + r + 3,
+        ) * rowAmp;
+      const y = y0 + h * 0.65;
+      const peak = h / Math.max(1, rowAmp);
+      const gate = fbm2(c * 0.55 + r * 1.3, t * 0.15 + params.seed * 0.01, 2, params.seed + 19);
+      const show = peak > 0.05 && gate > -0.15;
+      if (show) {
+        const a =
+          clamp(0.1 + (1 - v) * 0.22 + peak * 0.2, 0, 0.5) * I * mat.emissiveIntensity;
+        L.strokeStyle = withAlpha(crest, a);
+        if (!drawing) {
+          L.beginPath();
+          L.moveTo(x, y);
+          drawing = true;
+        } else {
+          L.lineTo(x, y);
+        }
+      } else if (drawing) {
+        L.stroke();
+        drawing = false;
+      }
+    }
+    if (drawing) L.stroke();
+
+    // Sparse whitecaps only on strong irregular peaks
     if (foamAmt > 0.02) {
-      for (let c = 0; c < cols; c += 2) {
+      for (let c = 0; c < cols; c += 3) {
         const u = (c + 0.5) / cols;
         const x = u * W;
-        const h = waveHeight(x + left, y0 + top, t, params.waveScale, params.waveStrength, params.seed) * amp;
-        const peak = h / Math.max(1, amp);
-        if (peak < 0.35 + (1 - foamAmt) * 0.4) continue;
-        const a = foamAmt * I * (0.15 + peak * 0.45) * (0.4 + v * 0.6);
+        const h =
+          waveHeight(x + left + rowPhase, y0 + top, t, params.waveScale, params.waveStrength, params.seed + r) *
+          rowAmp;
+        const peak = h / Math.max(1, rowAmp);
+        const scatter = fbm2(c * 0.8, r * 1.1 + params.seed * 0.02, 2, params.seed + 29);
+        if (peak < 0.45 + (1 - foamAmt) * 0.25 || scatter < 0.1) continue;
+        const a = foamAmt * I * (0.12 + peak * 0.4) * (0.35 + v * 0.55);
         if (a < 0.04) continue;
-        const rw = 4 + peak * 14;
-        const rh = 1.2 + peak * 2.5;
-        const cy = y0 + h * 0.65;
+        const rw = 5 + peak * 16;
+        const rh = 1.4 + peak * 2.8;
+        const cy = y0 + h * 0.6;
         const g = L.createRadialGradient(x, cy, 0, x, cy, rw);
         g.addColorStop(0, withAlpha('#f4fbff', a));
-        g.addColorStop(0.45, withAlpha('#d0e8f2', a * 0.45));
+        g.addColorStop(0.5, withAlpha('#d0e8f2', a * 0.4));
         g.addColorStop(1, withAlpha('#d0e8f2', 0));
         L.fillStyle = g;
         L.beginPath();
-        L.ellipse(x, cy, rw, rh, 0, 0, Math.PI * 2);
+        L.ellipse(x, cy, rw, rh, scatter * 0.4, 0, Math.PI * 2);
         L.fill();
       }
     }
   }
 
-  // Specular glitter
+  // Specular glitter — fewer, more scattered
   L.globalCompositeOperation = 'lighter';
   const sunX = W * 0.5 + scene.wind.x * 40;
-  for (let i = 0; i < 70; i++) {
-    const n1 = fbm2(i * 0.7, t * 0.55 + params.seed * 0.01, 2, params.seed + 17);
-    const n2 = fbm2(i * 1.1 + 2, t * 0.4, 2, params.seed + 29);
-    const u = 0.08 + Math.abs(n1) * 0.84;
-    const v = 0.05 + Math.abs(n2) * 0.75;
+  for (let i = 0; i < 36; i++) {
+    const n1 = fbm2(i * 1.1, t * 0.45 + params.seed * 0.01, 2, params.seed + 17);
+    const n2 = fbm2(i * 1.4 + 2, t * 0.35, 2, params.seed + 29);
+    if (n1 < -0.15) continue;
+    const u = 0.1 + Math.abs(n1) * 0.8;
+    const v = 0.08 + Math.abs(n2) * 0.7;
     const x = u * W + (sunX - W * 0.5) * (1 - v) * 0.15;
     const y = v * H;
-    const spark = 0.5 + 0.5 * Math.sin(t * 9 + i * 1.7);
-    const a = 0.05 * I * mat.emissiveIntensity * spark * (1 - v * 0.55);
-    if (a < 0.008) continue;
-    const rw = 2 + (1 - v) * 10 + Math.abs(n1) * 6;
+    const spark = 0.5 + 0.5 * Math.sin(t * 7 + i * 2.1);
+    const a = 0.055 * I * mat.emissiveIntensity * spark * (1 - v * 0.5);
+    if (a < 0.01) continue;
+    const rw = 2.5 + (1 - v) * 11 + Math.abs(n1) * 5;
     const g = L.createRadialGradient(x, y, 0, x, y, rw);
     g.addColorStop(0, withAlpha('#ffffff', a));
-    g.addColorStop(0.4, withAlpha(crest, a * 0.5));
+    g.addColorStop(0.4, withAlpha(crest, a * 0.45));
     g.addColorStop(1, withAlpha(crest, 0));
     L.fillStyle = g;
     L.beginPath();
-    L.ellipse(x, y, rw, Math.max(0.6, rw * 0.18), n2 * 0.5, 0, Math.PI * 2);
+    L.ellipse(x, y, rw, Math.max(0.6, rw * 0.2), n2 * 0.5, 0, Math.PI * 2);
     L.fill();
   }
   L.globalCompositeOperation = 'source-over';
