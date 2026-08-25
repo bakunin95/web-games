@@ -43,7 +43,7 @@ type LoopApi = {
   setSpeed: (speed: number) => void;
 };
 
-const SKIP_KEYS = new Set(['enabled', 'intensity', 'instanceId', 'material']);
+const SKIP_KEYS = new Set(['enabled', 'intensity', 'instanceId', 'material', 'points', 'pathDrawing']);
 
 /**
  * Playground UI: globals, Create VFX, selected-instance editor (transform + material),
@@ -288,6 +288,39 @@ export function createPlaygroundUI(
       } else if (typeof value === 'string' && value.startsWith('#')) {
         shapeFolder.addBinding(bag, key, { view: 'color' });
       }
+    }
+
+    // Soil closed spline editor
+    if (rt.module.id === 'soil' && isPlacedParams(rt.params)) {
+      const pathBag = rt.params as unknown as Record<string, unknown> & {
+        points: { ox: number; oy: number }[];
+        pathDrawing: boolean;
+      };
+      const pathFolder = folder.addFolder({ title: 'Shape', expanded: true });
+      pathFolder.addBinding(pathBag, 'pathDrawing', { label: 'Click stage to add nodes' });
+      pathFolder.addBinding(pathBag, 'smooth', { min: 0, max: 1, step: 0.05, label: 'Spline smooth' });
+      pathFolder.addBinding(pathBag, 'texture', { min: 0, max: 1, step: 0.05, label: 'Soil grain' });
+      pathFolder
+        .addButton({ title: 'Done shape (Enter)' })
+        .on('click', () => {
+          if (pathBag.points.length >= 3) pathBag.pathDrawing = false;
+        });
+      pathFolder
+        .addButton({ title: 'Remove last node' })
+        .on('click', () => {
+          pathBag.points.pop();
+        });
+      pathFolder
+        .addButton({ title: 'Clear nodes' })
+        .on('click', () => {
+          pathBag.points.length = 0;
+          pathBag.pathDrawing = true;
+        });
+      pathFolder
+        .addButton({ title: 'Edit nodes again' })
+        .on('click', () => {
+          pathBag.pathDrawing = true;
+        });
     }
 
     folder.addButton({ title: 'Remove instance' }).on('click', () => removeRuntime(rt));

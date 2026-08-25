@@ -1,6 +1,7 @@
 import type { BaseEffectParams, EffectModule, SceneContext } from '../core/types';
 import { drawMockScene } from './mockScene';
 import { getPlacedBounds, getScale, isPlacedParams } from '../core/placed';
+import { drawSoilGizmo, isSoilParams } from '../effects/soil';
 import type { EffectMaterial } from '../core/material';
 
 export interface RendererHandles {
@@ -156,7 +157,19 @@ export function createRenderer(handles: RendererHandles) {
 
     if (opts.selectedId) {
       const selected = effects.find((e) => e.id === opts.selectedId);
-      if (selected) drawSelectionGizmo(worldCtx, selected, t, camera.zoom);
+      if (selected) {
+        drawSelectionGizmo(worldCtx, selected, t, camera.zoom);
+        if (isPlacedParams(selected.params) && isSoilParams(selected.params)) {
+          drawSoilGizmo(worldCtx, selected.params, camera.zoom, true);
+        }
+      }
+    }
+
+    for (const fx of effects) {
+      if (fx.id === opts.selectedId) continue;
+      if (!isPlacedParams(fx.params) || !isSoilParams(fx.params)) continue;
+      if (fx.params.points.length < 1) continue;
+      drawSoilGizmo(worldCtx, fx.params, camera.zoom, false);
     }
     worldCtx.restore();
 
