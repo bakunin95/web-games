@@ -4,19 +4,19 @@
     "class": "ok"
   },
   "fire": {
-    "text": "Fuel logs + denser soft mass (no flame lines). Recaptured \u2014 pending next A/B.",
+    "text": "Fuel logs + denser asymmetric soft mass (no flame lines).",
     "class": "wip",
     "capture": "/progress/captures/fire.png"
   },
   "smoke": {
-    "text": "PASS (user): soft industrial plume \u2014 locked at max quality for this pass.",
+    "text": "PASS (user): soft industrial plume \u2014 locked.",
     "class": "ok",
     "capture": "/progress/captures/smoke.png"
   },
   "water": {
-    "text": "Irregular swell: fewer unevenly spaced rows, broken crests (less geometric stripes).",
+    "text": "Reflective river: flow-aligned irregular ripples + sky/shore mirror (no vertical stripe glitch). Pending A/B vs user river bar.",
     "class": "wip",
     "capture": "/progress/captures/water.png"
   },
-  "log": "Gauntlet ACTIVE\n- SMOKE: PASS / locked (user)\n- FIRE: fuel logs + denser soft mass\n- WATER: irregular uneven swell (fewer waves, broken crests)\n- Timeline: /progress/timeline/"
+  "log": "Gauntlet ACTIVE\n- SMOKE: PASS / locked\n- WATER: NEW BAR = reflective river (user photo); flow-aligned ripple warp\n- FIRE: logs + denser soft mass\n- Timeline: /progress/timeline/"
 }

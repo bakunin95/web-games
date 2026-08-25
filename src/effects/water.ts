@@ -8,14 +8,14 @@ export interface WaterParams extends PlacedEffectParams {
   height: number;
   waveStrength: number;
   waveScale: number;
-  /** Whitecap / foam amount 0–1 */
+  /** Whitecap / foam / sparkle amount 0–1 */
   shoreFoam: number;
 }
 
 /**
- * Open-ocean water (user bar): choppy swell, whitecap foam, specular shimmer,
- * deep navy troughs / cyan crests, sharp horizon under pale sky.
- * Not an oval lake lens.
+ * Reflective river (user baseline): sample sky/shore above the waterline,
+ * flip + break with irregular flow-aligned ripples — not equal geometric
+ * wave rows or vertical column strips.
  */
 
 interface Scratch {
@@ -31,7 +31,7 @@ function scratch(key: string, w: number, h: number): Scratch {
   let s = pool.get(key);
   if (!s) {
     const canvas = document.createElement('canvas');
-    const c2d = canvas.getContext('2d');
+    const c2d = canvas.getContext('2d', { willReadFrequently: false });
     if (!c2d) throw new Error('water: scratch 2D context unavailable');
     s = { canvas, ctx: c2d };
     pool.set(key, s);
@@ -51,186 +51,216 @@ function clamp(v: number, lo: number, hi: number): number {
   return v < lo ? lo : v > hi ? hi : v;
 }
 
-function waveHeight(x: number, z: number, t: number, scale: number, strength: number, seed: number): number {
-  const s = 0.0028 / Math.max(0.25, scale);
-  // Uneven multi-scale swell — break perfect sine stacking with fbm-dominant mix
-  let h = 0;
-  h += Math.sin(x * s * 0.85 + t * 1.1 + seed * 0.3) * 0.35;
-  h += Math.sin(x * s * 1.55 - z * s * 0.35 + t * 1.6 + 2.1) * 0.22;
-  h += fbm2(x * s * 1.8 + t * 0.28, z * s * 1.1 + seed * 0.02, 3, seed + 9) * 0.55;
-  h += fbm2(x * s * 4.2 - t * 0.4, z * s * 2.4, 2, seed + 41) * 0.28;
-  return h * strength;
-}
-
-/** Build irregular row positions (fewer, unevenly spaced). */
-function buildSwellRows(height: number, seed: number): number[] {
-  const rows: number[] = [];
-  let y = height * 0.08;
-  let i = 0;
-  while (y < height * 0.96 && rows.length < 5) {
-    rows.push(y);
-    const gap =
-      height * (0.12 + 0.14 * (0.5 + 0.5 * fbm2(i * 1.7, seed * 0.01, 2, seed + 3))) +
-      (i % 2 === 0 ? height * 0.06 : 0);
-    y += Math.max(height * 0.11, gap);
-    i++;
-  }
-  return rows;
-}
-
-export const drawWater: DrawFn<WaterParams> = (ctx, params, t, scene) => {
+export const drawWater: DrawFn<WaterParams> = (ctx, params, t, _scene) => {
   if (!params.enabled || params.intensity <= 0) return;
   const mat = params.material;
   const I = clamp(params.intensity, 0, 2);
+  const target = ctx.canvas;
+  if (!target.width || !target.height) return;
+
   const W = Math.max(40, params.width);
   const H = Math.max(40, params.height);
-  const left = params.x - W * 0.5;
-  const top = params.y - H * 0.5;
-  const foamAmt = clamp(params.shoreFoam, 0, 1);
+  const worldL = params.x - W * 0.5;
+  const worldT = params.y - H * 0.5;
+
+  const m = ctx.getTransform();
+  const sx = Math.abs(m.a) || 1;
+  const sy = Math.abs(m.d) || 1;
+  const rawL = m.a * worldL + m.e;
+  const rawT = m.d * worldT + m.f;
+  const fullW = W * sx;
+  const fullH = H * sy;
+
+  const devL = Math.max(0, Math.floor(rawL));
+  const devT = Math.max(0, Math.floor(rawT));
+  const devR = Math.min(target.width, Math.ceil(rawL + fullW));
+  const devB = Math.min(target.height, Math.ceil(rawT + fullH));
+  const mw = devR - devL;
+  const mh = devB - devT;
+  if (mw < 8 || mh < 8) return;
+
+  const off = devT - rawT;
+  const inset = devL - rawL;
   const deep = mat.baseColor || '#0a2744';
   const crest = mat.emissive || '#5ec8d8';
-  const trough = '#061428';
   const mid = lerpColor(deep, crest, 0.35);
+  const strength = params.waveStrength;
+  const scale = Math.max(0.25, params.waveScale);
+  const foamAmt = clamp(params.shoreFoam, 0, 1);
 
-  const layer = scratch(params.instanceId, W, H);
+  const layer = scratch(params.instanceId, mw, mh);
   const L = layer.ctx;
 
-  // Base depth fill
-  const body = L.createLinearGradient(0, 0, 0, H);
-  body.addColorStop(0, withAlpha(lerpColor(crest, '#a8d8f0', 0.35), 0.95 * I));
-  body.addColorStop(0.12, withAlpha(mid, 0.98 * I));
-  body.addColorStop(0.45, withAlpha(deep, I));
-  body.addColorStop(1, withAlpha(trough, I));
+  // Absorbing body tint under the mirror
+  const body = L.createLinearGradient(0, 0, 0, mh);
+  body.addColorStop(0, withAlpha(lerpColor(crest, '#9ec8e0', 0.4), 0.4 * I));
+  body.addColorStop(0.3, withAlpha(mid, 0.7 * I));
+  body.addColorStop(1, withAlpha(deep, 0.96 * I));
   L.fillStyle = body;
-  L.fillRect(0, 0, W, H);
+  L.fillRect(0, 0, mw, mh);
 
-  // Horizon bright band
-  const horizon = L.createLinearGradient(0, 0, 0, H * 0.22);
-  horizon.addColorStop(0, withAlpha('#d8eef8', 0.55 * I));
-  horizon.addColorStop(0.35, withAlpha('#8ec8e0', 0.28 * I));
-  horizon.addColorStop(1, withAlpha(deep, 0));
-  L.fillStyle = horizon;
-  L.fillRect(0, 0, W, H * 0.22);
+  const waterlineY = Math.max(0, Math.floor(rawT));
+  const sampleH = Math.min(waterlineY, Math.ceil(fullH * 1.15));
+  if (sampleH > 4) {
+    const srcX = Math.max(0, Math.floor(rawL));
+    const srcW = Math.min(target.width - srcX, Math.ceil(fullW));
+    const srcY = Math.max(0, waterlineY - sampleH);
 
-  // Fewer, unevenly spaced swell rows — break the equal geometric stripe look
-  const swellRows = buildSwellRows(H, params.seed);
-  for (let r = 0; r < swellRows.length; r++) {
-    const y0 = swellRows[r]!;
-    const v = y0 / H;
-    // Per-row amplitude + phase jitter so waves aren't clones
-    const rowAmp =
-      (8 + params.waveStrength * 34) *
-      (0.45 + v * 0.85) *
-      (0.7 + 0.55 * (0.5 + 0.5 * fbm2(r * 2.1, params.seed * 0.02, 2, params.seed + 7)));
-    const rowPhase = fbm2(r * 0.9, params.seed * 0.03, 2, params.seed + 13) * 40;
-    const cols = Math.max(16, Math.floor(W / 28));
-
-    // Soft trough shade (broad, not a thin stripe)
-    L.beginPath();
-    L.moveTo(0, y0 + 14);
-    for (let c = 0; c <= cols; c++) {
-      const u = c / cols;
-      const x = u * W;
-      const h =
-        waveHeight(x + left + rowPhase, y0 + top, t, params.waveScale, params.waveStrength, params.seed + r) *
-        rowAmp;
-      L.lineTo(x, y0 + h * 0.45 + 10);
+    // Build a clean flipped mirror once (no column strips)
+    const mirror = scratch(params.instanceId + ':mirror', mw, sampleH);
+    const M = mirror.ctx;
+    M.save();
+    M.translate(0, sampleH);
+    M.scale(1, -1);
+    try {
+      M.drawImage(target, srcX, srcY, srcW, sampleH, 0, 0, mw, sampleH);
+    } catch {
+      /* tainted */
     }
-    L.lineTo(W, y0 + 28);
-    L.closePath();
-    L.fillStyle = withAlpha(trough, clamp(0.07 + v * 0.2, 0, 0.3) * I);
-    L.fill();
+    M.restore();
 
-    // Soft crest patches (blobs) — no continuous geometric stroke lines
-    for (let c = 0; c < cols; c += 2) {
-      const u = (c + 0.4) / cols;
-      const x = u * W;
-      const h =
-        waveHeight(
-          x + left + rowPhase + 9,
-          y0 + top,
-          t * 1.02,
-          params.waveScale,
-          params.waveStrength,
-          params.seed + r + 3,
-        ) * rowAmp;
-      const peak = h / Math.max(1, rowAmp);
-      const scatter = fbm2(c * 0.7 + r * 1.4, t * 0.12 + params.seed * 0.01, 2, params.seed + 19);
-      if (peak < 0.12 || scatter < -0.05) continue;
-      const a =
-        clamp(0.08 + (1 - v) * 0.18 + peak * 0.22, 0, 0.42) * I * mat.emissiveIntensity;
-      if (a < 0.03) continue;
-      const cx = x + scatter * 8;
-      const cy = y0 + h * 0.55;
-      const rw = 10 + peak * 22 + Math.abs(scatter) * 8;
-      const rh = 2 + peak * 4;
-      const g = L.createRadialGradient(cx, cy, 0, cx, cy, rw);
-      g.addColorStop(0, withAlpha(crest, a));
-      g.addColorStop(0.45, withAlpha(crest, a * 0.35));
-      g.addColorStop(1, withAlpha(crest, 0));
-      L.fillStyle = g;
-      L.beginPath();
-      L.ellipse(cx, cy, rw, rh, scatter * 0.35, 0, Math.PI * 2);
-      L.fill();
+    const fresnel =
+      clamp(0.42 + 0.48 * (1 - off / Math.max(1, fullH)), 0.32, 0.95) * I * mat.metalness;
+
+    // Base continuous mirror (no bands) — stretched into the water body
+    L.save();
+    L.globalAlpha = fresnel * 0.78;
+    try {
+      L.drawImage(mirror.canvas, 0, 0, mw, sampleH, 0, 0, mw, mh);
+    } catch {
+      /* skip */
     }
+    L.restore();
 
-    // Sparse whitecaps only on strong irregular peaks
-    if (foamAmt > 0.02) {
-      for (let c = 0; c < cols; c += 4) {
-        const u = (c + 0.5) / cols;
-        const x = u * W;
-        const h =
-          waveHeight(x + left + rowPhase, y0 + top, t, params.waveScale, params.waveStrength, params.seed + r) *
-          rowAmp;
-        const peak = h / Math.max(1, rowAmp);
-        const scatter = fbm2(c * 0.8, r * 1.1 + params.seed * 0.02, 2, params.seed + 29);
-        if (peak < 0.5 + (1 - foamAmt) * 0.2 || scatter < 0.15) continue;
-        const a = foamAmt * I * (0.12 + peak * 0.4) * (0.35 + v * 0.55);
-        if (a < 0.04) continue;
-        const rw = 6 + peak * 18;
-        const rh = 1.6 + peak * 3;
-        const cy = y0 + h * 0.55;
-        const g = L.createRadialGradient(x, cy, 0, x, cy, rw);
-        g.addColorStop(0, withAlpha('#f4fbff', a));
-        g.addColorStop(0.5, withAlpha('#d0e8f2', a * 0.4));
-        g.addColorStop(1, withAlpha('#d0e8f2', 0));
-        L.fillStyle = g;
-        L.beginPath();
-        L.ellipse(x, cy, rw, rh, scatter * 0.4, 0, Math.PI * 2);
-        L.fill();
+    // Continuous flow-aligned warp: 2px rows with smooth fbm shear.
+    // No stepped band gaps → avoids scanline / geometric stripe look.
+    const ampX = 18 * strength * scale;
+    const ampY = 3.5 * strength * scale;
+    L.save();
+    L.globalAlpha = fresnel * 0.55;
+    for (let y = 0; y < mh; y += 1) {
+      const yn = y / Math.max(1, mh);
+      // Low-freq undulation + mid-freq chop + high-freq shimmer (uneven spacing feel)
+      const flow =
+        fbm2(yn * 3.2 + t * 0.55, params.seed * 0.03, 3, params.seed + 47) * ampX +
+        fbm2(yn * 11 + t * 1.1, params.seed * 0.02, 2, params.seed + 49) * ampX * 0.35;
+      const chop =
+        fbm2(yn * 5.5 + t * 0.35, params.seed * 0.04, 2, params.seed + 53) * ampY;
+      const srcY = clamp(yn * sampleH + chop * 0.4, 0, sampleH - 2);
+      try {
+        L.drawImage(mirror.canvas, 0, srcY, mw, 2, flow, y, mw, 2);
+      } catch {
+        break;
       }
+    }
+    L.restore();
+
+    // Sparse irregular "broken mirror" patches — local re-sample with extra displace
+    const patches = Math.floor(6 + strength * 8);
+    for (let i = 0; i < patches; i++) {
+      const n1 = fbm2(i * 2.1, t * 0.2 + params.seed * 0.01, 2, params.seed + 91);
+      const n2 = fbm2(i * 1.6 + 4, t * 0.15, 2, params.seed + 97);
+      if (n1 < -0.05) continue;
+      const pw = 40 + Math.abs(n2) * 120;
+      const ph = 8 + Math.abs(n1) * 28;
+      const px = (0.05 + Math.abs(n1) * 0.85) * mw - pw * 0.5;
+      const py = (0.08 + Math.abs(n2) * 0.75) * mh - ph * 0.5;
+      const srcPy = clamp((py / Math.max(1, mh)) * sampleH, 0, sampleH - 2);
+      const jx = n2 * 14 * strength;
+      L.save();
+      L.beginPath();
+      L.ellipse(px + pw * 0.5, py + ph * 0.5, pw * 0.5, ph * 0.5, n1 * 0.4, 0, Math.PI * 2);
+      L.clip();
+      L.globalAlpha = fresnel * 0.4;
+      try {
+        L.drawImage(
+          mirror.canvas,
+          clamp(jx, -20, 20),
+          srcPy,
+          mw,
+          Math.min(ph + 4, sampleH - srcPy),
+          jx * 0.5,
+          py,
+          mw,
+          ph + 2,
+        );
+      } catch {
+        /* skip */
+      }
+      L.restore();
     }
   }
 
-  // Specular glitter — fewer, more scattered
-  L.globalCompositeOperation = 'lighter';
-  const sunX = W * 0.5 + scene.wind.x * 40;
-  for (let i = 0; i < 36; i++) {
-    const n1 = fbm2(i * 1.1, t * 0.45 + params.seed * 0.01, 2, params.seed + 17);
-    const n2 = fbm2(i * 1.4 + 2, t * 0.35, 2, params.seed + 29);
-    if (n1 < -0.15) continue;
-    const u = 0.1 + Math.abs(n1) * 0.8;
-    const v = 0.08 + Math.abs(n2) * 0.7;
-    const x = u * W + (sunX - W * 0.5) * (1 - v) * 0.15;
-    const y = v * H;
-    const spark = 0.5 + 0.5 * Math.sin(t * 7 + i * 2.1);
-    const a = 0.055 * I * mat.emissiveIntensity * spark * (1 - v * 0.5);
-    if (a < 0.01) continue;
-    const rw = 2.5 + (1 - v) * 11 + Math.abs(n1) * 5;
-    const g = L.createRadialGradient(x, y, 0, x, y, rw);
-    g.addColorStop(0, withAlpha('#ffffff', a));
-    g.addColorStop(0.4, withAlpha(crest, a * 0.45));
+  // Dark shore / deep-water absorb — forest reflections read darker near edges + near viewer
+  const absorb = L.createLinearGradient(0, 0, 0, mh);
+  absorb.addColorStop(0, withAlpha(deep, 0.05 * I));
+  absorb.addColorStop(0.35, withAlpha(deep, 0.12 * I));
+  absorb.addColorStop(0.7, withAlpha('#061018', 0.35 * I));
+  absorb.addColorStop(1, withAlpha('#03080c', 0.62 * I));
+  L.fillStyle = absorb;
+  L.fillRect(0, 0, mw, mh);
+
+  // Side bank darkening (shoreline reflections denser near left/right)
+  const leftBank = L.createLinearGradient(0, 0, mw * 0.28, 0);
+  leftBank.addColorStop(0, withAlpha('#1a2810', 0.28 * I));
+  leftBank.addColorStop(1, withAlpha('#1a2810', 0));
+  L.fillStyle = leftBank;
+  L.fillRect(0, 0, mw * 0.28, mh);
+  const rightBank = L.createLinearGradient(mw, 0, mw * 0.72, 0);
+  rightBank.addColorStop(0, withAlpha('#1a2810', 0.28 * I));
+  rightBank.addColorStop(1, withAlpha('#1a2810', 0));
+  L.fillStyle = rightBank;
+  L.fillRect(mw * 0.72, 0, mw * 0.28, mh);
+
+  // Soft elongated ripple patches (flow direction) — cluster/disperse, not a grid
+  const ripples = Math.floor(10 + strength * 10);
+  for (let i = 0; i < ripples; i++) {
+    const n1 = fbm2(i * 1.7 + t * 0.15, params.seed * 0.02, 2, params.seed + 61);
+    const n2 = fbm2(i * 2.3 + 2, t * 0.22, 2, params.seed + 67);
+    const n3 = fbm2(i * 0.9, params.seed * 0.03, 2, params.seed + 71);
+    if (n3 < -0.25) continue; // skip → irregular density
+    const cx = (0.04 + Math.abs(n1) * 0.92) * mw;
+    const cy = (0.06 + Math.abs(n2) * 0.88) * mh;
+    const rw = (18 + Math.abs(n3) * 55) * scale; // elongated with current
+    const rh = (1.5 + Math.abs(n1) * 4.5) * (0.65 + strength * 0.5);
+    const a = clamp(0.03 + Math.abs(n2) * 0.08, 0.025, 0.11) * I;
+    const g = L.createRadialGradient(cx, cy, 0, cx, cy, rw);
+    g.addColorStop(0, withAlpha('#ffffff', a * 0.55));
+    g.addColorStop(0.35, withAlpha(crest, a * 0.7));
     g.addColorStop(1, withAlpha(crest, 0));
     L.fillStyle = g;
     L.beginPath();
-    L.ellipse(x, y, rw, Math.max(0.6, rw * 0.2), n2 * 0.5, 0, Math.PI * 2);
+    L.ellipse(cx, cy, rw, rh, n2 * 0.25, 0, Math.PI * 2);
+    L.fill();
+  }
+
+  // Broken sky sparkles — bright silvery patches where sky reflection shimmers
+  L.globalCompositeOperation = 'lighter';
+  const sparks = Math.floor(10 + foamAmt * 22);
+  for (let i = 0; i < sparks; i++) {
+    const n1 = fbm2(i * 1.9, t * 0.45 + params.seed * 0.01, 2, params.seed + 79);
+    const n2 = fbm2(i * 1.4 + 3, t * 0.32, 2, params.seed + 83);
+    if (n1 < 0.08) continue;
+    const cx = (0.06 + Math.abs(n1) * 0.88) * mw;
+    const cy = (0.04 + Math.abs(n2) * 0.5) * mh; // more near far shore / sky
+    const pulse = 0.5 + 0.5 * Math.sin(t * 6.5 + i * 1.7);
+    const a = 0.1 * I * mat.emissiveIntensity * pulse * foamAmt;
+    if (a < 0.012) continue;
+    const rw = 6 + Math.abs(n2) * 22;
+    const g = L.createRadialGradient(cx, cy, 0, cx, cy, rw);
+    g.addColorStop(0, withAlpha('#ffffff', a));
+    g.addColorStop(0.4, withAlpha('#d8eef8', a * 0.45));
+    g.addColorStop(1, withAlpha(crest, 0));
+    L.fillStyle = g;
+    L.beginPath();
+    L.ellipse(cx, cy, rw, Math.max(1.2, rw * 0.18), n1 * 0.35, 0, Math.PI * 2);
     L.fill();
   }
   L.globalCompositeOperation = 'source-over';
 
   // Soft-rect feather
-  const featherX = Math.min(W * 0.08, 48);
-  const featherY = Math.min(H * 0.06, 36);
+  const featherX = Math.min(fullW * 0.1, 56 * sx);
+  const featherY = Math.min(fullH * 0.08, 40 * sy);
   L.globalCompositeOperation = 'destination-out';
   const edge = (x0: number, y0: number, x1: number, y1: number, w: number, h: number) => {
     if (w <= 0 || h <= 0) return;
@@ -241,26 +271,30 @@ export const drawWater: DrawFn<WaterParams> = (ctx, params, t, scene) => {
     L.fillStyle = g;
     L.fillRect(Math.min(x0, x1), Math.min(y0, y1), w, h);
   };
-  edge(0, 0, featherX, 0, featherX, H);
-  edge(W, 0, W - featherX, 0, featherX, H);
-  edge(0, 0, 0, featherY, W, featherY);
-  edge(0, H, 0, H - featherY * 1.4, W, featherY * 1.4);
+  const leftE = -inset;
+  const topE = -off;
+  edge(leftE, 0, leftE + featherX, 0, featherX, mh);
+  edge(leftE + fullW, 0, leftE + fullW - featherX, 0, featherX, mh);
+  edge(0, topE, 0, topE + featherY, mw, featherY);
+  edge(0, topE + fullH, 0, topE + fullH - featherY * 1.3, mw, featherY * 1.3);
 
   ctx.save();
   applyMaterial(ctx, mat);
-  ctx.drawImage(layer.canvas, left, top);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(layer.canvas, devL, devT);
   ctx.restore();
 };
 
 export function disposeWaterInstance(instanceId: string): void {
   pool.delete(instanceId);
+  pool.delete(instanceId + ':mirror');
 }
 
 export const waterEffect: EffectModule<WaterParams> = {
   id: 'water',
   name: 'Water',
   description:
-    'Open ocean: choppy swell, whitecap foam, specular glitter, deep troughs / cyan crests.',
+    'Reflective river: mirrors sky & shore with irregular flow-aligned ripples — not geometric wave rows.',
   space: 'world',
   defaultParams: {
     enabled: true,
@@ -271,17 +305,17 @@ export const waterEffect: EffectModule<WaterParams> = {
     seed: 4,
     width: 720,
     height: 280,
-    waveStrength: 0.85,
+    waveStrength: 0.75,
     waveScale: 0.9,
-    shoreFoam: 0.65,
+    shoreFoam: 0.55,
     material: createDefaultMaterial({
-      name: 'Ocean Deep',
-      baseColor: '#0a2744',
-      emissive: '#5ec8d8',
-      emissiveIntensity: 0.85,
-      opacity: 1,
-      roughness: 0.25,
-      metalness: 0.75,
+      name: 'River Glass',
+      baseColor: '#143a48',
+      emissive: '#c8e8f8',
+      emissiveIntensity: 0.7,
+      opacity: 0.98,
+      roughness: 0.2,
+      metalness: 0.85,
       blend: 'normal',
     }),
   },

@@ -57,25 +57,80 @@ function makeScene(windX: number): SceneContext {
 function paintBg(kind: string) {
   // Soft dusk sky that continues into water — less "sticker on sky"
   if (kind === 'water') {
-    // Open ocean sky → horizon → sea (user bar: Unity-like swell under pale sky)
-    const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#6eb4e8');
-    g.addColorStop(0.28, '#9ecceb');
-    g.addColorStop(0.38, '#c8e0f0');
-    g.addColorStop(0.42, '#dceaf4');
-    g.addColorStop(0.45, '#3a6a88');
-    g.addColorStop(0.55, '#0e3558');
-    g.addColorStop(0.75, '#0a2744');
-    g.addColorStop(1, '#061428');
-    ctx.fillStyle = g;
+    // River valley baseline: blue sky + clouds, autumn forest banks, water mid/lower
+    const sky = ctx.createLinearGradient(0, 0, 0, H * 0.42);
+    sky.addColorStop(0, '#5aa0e0');
+    sky.addColorStop(0.55, '#8ec8f0');
+    sky.addColorStop(1, '#c5ddf2');
+    ctx.fillStyle = sky;
     ctx.fillRect(0, 0, W, H);
-    // Soft sun glitter cue in sky
-    const sun = ctx.createRadialGradient(W * 0.72, H * 0.22, 4, W * 0.72, H * 0.22, 160);
-    sun.addColorStop(0, 'rgba(255,255,255,0.55)');
-    sun.addColorStop(0.25, 'rgba(255,240,200,0.2)');
-    sun.addColorStop(1, 'rgba(255,240,200,0)');
-    ctx.fillStyle = sun;
-    ctx.fillRect(W * 0.4, 0, W * 0.55, H * 0.45);
+
+    // Soft cumulus
+    for (let i = 0; i < 7; i++) {
+      const cx = ((i * 137) % W) + 40;
+      const cy = 40 + (i % 3) * 28;
+      const g = ctx.createRadialGradient(cx, cy, 4, cx, cy, 70 + (i % 4) * 20);
+      g.addColorStop(0, 'rgba(255,255,255,0.75)');
+      g.addColorStop(0.5, 'rgba(255,255,255,0.25)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 80 + (i % 5) * 12, 28 + (i % 3) * 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Far forested hill
+    const hillY = H * 0.34;
+    ctx.beginPath();
+    ctx.moveTo(0, hillY + 50);
+    for (let i = 0; i <= 40; i++) {
+      const u = i / 40;
+      const x = u * W;
+      const n = Math.sin(u * Math.PI * 2.2) * 18 + Math.sin(u * Math.PI * 5.5 + 0.4) * 8;
+      ctx.lineTo(x, hillY - n);
+    }
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    const hill = ctx.createLinearGradient(0, hillY - 40, 0, H * 0.55);
+    hill.addColorStop(0, '#3d6b28');
+    hill.addColorStop(0.45, '#2a5018');
+    hill.addColorStop(1, '#1a3010');
+    ctx.fillStyle = hill;
+    ctx.fill();
+
+    // Dense autumn canopy along both banks (river baseline)
+    const shoreY = H * 0.42;
+    for (let side = 0; side < 2; side++) {
+      const x0 = side === 0 ? 0 : W * 0.68;
+      const bw = W * 0.34;
+      for (let i = 0; i < 48; i++) {
+        const x = x0 + ((i * 53) % bw);
+        const y = shoreY - 12 - ((i * 37) % 95);
+        const col =
+          i % 6 === 0
+            ? '#c45a1a'
+            : i % 6 === 1
+              ? '#d4a017'
+              : i % 6 === 2
+                ? '#2f6b28'
+                : i % 6 === 3
+                  ? '#8a3a12'
+                  : i % 6 === 4
+                    ? '#e07020'
+                    : '#3d7a22';
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.ellipse(x, y, 16 + (i % 5) * 5, 26 + (i % 6) * 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Ground strip just above water
+    ctx.fillStyle = '#2a1c10';
+    ctx.fillRect(0, shoreY, W, 18);
+    ctx.fillStyle = '#1a4018';
+    ctx.fillRect(0, shoreY - 8, W, 10);
     return;
   }
   if (kind === 'smoke') {
@@ -182,19 +237,19 @@ if (fx === 'fire') {
     x: W * 0.5,
     y: H * 0.72,
     width: 1600,
-    height: 520,
-    waveStrength: 1.05,
-    waveScale: 0.85,
-    shoreFoam: 0.75,
+    height: 420,
+    waveStrength: 0.85,
+    waveScale: 1.0,
+    shoreFoam: 0.65,
     intensity: 1,
     material: createDefaultMaterial({
-      name: 'Ocean Deep',
-      baseColor: '#0a2744',
-      emissive: '#5ec8d8',
-      emissiveIntensity: 0.9,
-      opacity: 1,
-      roughness: 0.25,
-      metalness: 0.75,
+      name: 'River Glass',
+      baseColor: '#143a48',
+      emissive: '#c8e8f8',
+      emissiveIntensity: 0.75,
+      opacity: 0.98,
+      roughness: 0.2,
+      metalness: 0.88,
       blend: 'normal',
     }),
   };

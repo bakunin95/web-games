@@ -204,34 +204,38 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
   // Bed glow under flame
   softBlob(ctx, bx, logY - 4 * S, 58 * S * Sp, 18 * S, 0, hot, 0.55 * bright * ei, mid, 0.28 * bright, deep, 0.06);
 
-  // ── Dense soft flame mass ──
-  const tongues = Math.floor(14 + Sp * 8);
+  // ── Dense soft flame mass — asymmetric tongue lengths (organic silhouette) ──
+  const tongues = Math.floor(12 + Sp * 7);
   for (let i = 0; i < tongues; i++) {
     const u = (i + 0.5) / tongues - 0.5;
     const phase = t * (1.35 + (i % 4) * 0.28) + i * 1.4 + params.seed * 0.01;
-    const wobble = Math.sin(phase) * 14 * Sp * params.turbulence;
-    const riseN = 0.5 + 0.5 * (0.5 + 0.5 * Math.sin(phase * 0.65 + i * 0.7));
-    const h = (85 + riseN * 125 * params.rise) * S;
-    // Cluster denser near center
-    const densU = u * (0.55 + Math.abs(u) * 0.7);
-    const cx = bx + densU * 85 * Sp * S + lean * (0.2 + riseN * 0.6) + wobble;
-    const cy = by - h * 0.52 - 8 * S;
-    const rx = (26 + (1 - Math.abs(u)) * 32) * S * Sp * (0.9 + 0.18 * Math.sin(phase * 1.2));
-    const ry = h * 0.58;
-    const rot = lean * 0.004 + densU * 0.18 + Math.sin(phase) * 0.1;
+    const wobble = Math.sin(phase) * 16 * Sp * params.turbulence;
+    // Per-tongue height noise so silhouette isn't a uniform oval stack
+    const lengthBias =
+      0.55 +
+      0.55 * (0.5 + 0.5 * Math.sin(phase * 0.65 + i * 0.7)) +
+      0.35 * fbm2(i * 0.8, t * 0.4 + params.seed * 0.02, 2, params.seed + 5);
+    const h = (70 + lengthBias * 145 * params.rise) * S;
+    const sidePush = u * (0.35 + Math.abs(u) * 1.1); // push outer tongues sideways
+    const densU = sidePush;
+    const cx = bx + densU * 95 * Sp * S + lean * (0.15 + lengthBias * 0.65) + wobble;
+    const cy = by - h * 0.5 - 10 * S;
+    const rx = (20 + (1 - Math.abs(u)) * 28 + fbm2(i, t * 0.3, 2, params.seed + 8) * 10) * S * Sp;
+    const ry = h * (0.48 + 0.12 * Math.abs(fbm2(i * 1.2, t * 0.25, 2, params.seed + 9)));
+    const rot = lean * 0.004 + densU * 0.22 + Math.sin(phase) * 0.12;
 
-    softBlob(ctx, cx, cy, rx, ry, rot, hot, 0.55 * bright * ei, mid, 0.32 * bright, deep, 0.06 * bright);
+    softBlob(ctx, cx, cy, rx, ry, rot, hot, 0.58 * bright * ei, mid, 0.34 * bright, deep, 0.06 * bright);
     softBlob(
       ctx,
       cx + lean * 0.06,
-      cy - ry * 0.18,
-      rx * 0.62,
-      ry * 0.75,
+      cy - ry * 0.2,
+      rx * 0.58,
+      ry * 0.72,
       rot,
       tip,
-      0.4 * bright * ei,
+      0.42 * bright * ei,
       hot,
-      0.22 * bright,
+      0.24 * bright,
       mid,
       0.05 * bright,
     );
