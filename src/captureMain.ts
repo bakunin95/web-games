@@ -105,7 +105,7 @@ function paintBg(kind: string) {
 }
 
 const scene =
-  fx === 'smoke' ? makeScene(1.15) : fx === 'water' ? makeScene(0.08) : makeScene(0.15);
+  fx === 'smoke' ? makeScene(1.35) : fx === 'water' ? makeScene(0.05) : makeScene(0.12);
 
 let t = 0;
 let drawing: (tt: number) => void = () => {};
@@ -115,33 +115,33 @@ if (fx === 'fire') {
     ...fireEffect.defaultParams,
     instanceId: 'cap-fire',
     x: W * 0.5,
-    y: H * 0.72,
-    size: 1.6,
-    spread: 1.05,
-    rise: 0.9,
-    intensity: 1,
-    embers: 0.85,
-    turbulence: 0.95,
+    y: H * 0.78,
+    size: 2.4,
+    spread: 1.25,
+    rise: 0.75,
+    intensity: 1.15,
+    embers: 0.9,
+    turbulence: 1.05,
   };
   drawing = (tt) => fireEffect.draw(ctx, p, tt, scene);
 } else if (fx === 'smoke') {
   const p: SmokeParams = {
     ...smokeEffect.defaultParams,
     instanceId: 'cap-smoke',
-    x: W * 0.78,
-    y: H * 0.55,
-    size: 1.35,
-    spread: 1.4,
-    rise: 0.55,
-    density: 1,
-    turbulence: 0.9,
-    intensity: 1,
+    x: W * 0.82,
+    y: H * 0.62,
+    size: 1.85,
+    spread: 1.6,
+    rise: 0.45,
+    density: 1.15,
+    turbulence: 1.05,
+    intensity: 1.1,
     material: createDefaultMaterial({
       name: 'Plume',
-      baseColor: '#2a3038',
-      emissive: '#e8dcc0',
-      emissiveIntensity: 0.65,
-      opacity: 0.95,
+      baseColor: '#1a1e24',
+      emissive: '#f0e4c8',
+      emissiveIntensity: 0.85,
+      opacity: 0.98,
       roughness: 0.92,
       metalness: 0.05,
       blend: 'normal',
@@ -153,12 +153,12 @@ if (fx === 'fire') {
     ...waterEffect.defaultParams,
     instanceId: 'cap-water',
     x: W * 0.5,
-    y: H * 0.62,
-    width: 860,
-    height: 320,
-    waveStrength: 0.18,
-    waveScale: 0.7,
-    shoreFoam: 0.35,
+    y: H * 0.58,
+    width: 920,
+    height: 380,
+    waveStrength: 0.12,
+    waveScale: 0.65,
+    shoreFoam: 0.25,
     intensity: 1,
   };
   drawing = (tt) => waterEffect.draw(ctx, p, tt, scene);
