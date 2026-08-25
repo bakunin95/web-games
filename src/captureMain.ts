@@ -68,46 +68,42 @@ function paintBg(kind: string) {
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
 
-    // Soft continuous treeline (rolling silhouette, not hard triangles)
-    const shoreY = H * 0.4;
-    const groundH = 28;
-    ctx.fillStyle = 'rgba(8,32,18,0.92)';
+    // Soft continuous treeline — one rolling silhouette path (no lobe stamps)
+    const shoreY = H * 0.42;
+    const groundH = 34;
+    const ground = ctx.createLinearGradient(0, shoreY, 0, shoreY + groundH);
+    ground.addColorStop(0, 'rgba(8,32,18,0.55)');
+    ground.addColorStop(1, 'rgba(6,26,14,0.96)');
+    ctx.fillStyle = ground;
     ctx.fillRect(0, shoreY, W, groundH);
 
-    // Single continuous canopy path
     ctx.beginPath();
     ctx.moveTo(0, shoreY + groundH);
-    const steps = 100;
-    for (let i = 0; i <= steps; i++) {
-      const u = i / steps;
+    for (let i = 0; i <= 64; i++) {
+      const u = i / 64;
       const x = u * W;
       const n =
-        Math.sin(u * Math.PI * 4.5) * 14 +
-        Math.sin(u * Math.PI * 9.5 + 0.8) * 8 +
-        Math.sin(u * Math.PI * 18 + 1.4) * 3.5;
-      const h = 22 + n;
-      ctx.lineTo(x, shoreY + groundH - Math.max(12, h));
+        Math.sin(u * Math.PI * 3.6) * 11 +
+        Math.sin(u * Math.PI * 7.5 + 0.5) * 6 +
+        Math.sin(u * Math.PI * 14 + 1.1) * 2.5;
+      ctx.lineTo(x, shoreY + groundH - (18 + n));
     }
     ctx.lineTo(W, shoreY + groundH);
     ctx.closePath();
-    const canopy = ctx.createLinearGradient(0, shoreY - 36, 0, shoreY + groundH);
+    const canopy = ctx.createLinearGradient(0, shoreY - 28, 0, shoreY + groundH);
     canopy.addColorStop(0, 'rgba(10,40,22,0)');
-    canopy.addColorStop(0.4, 'rgba(10,40,22,0.65)');
+    canopy.addColorStop(0.45, 'rgba(10,40,22,0.7)');
     canopy.addColorStop(1, 'rgba(6,28,16,0.98)');
     ctx.fillStyle = canopy;
     ctx.fill();
 
-    // Soft fill under canopy so silhouette reads continuous
-    ctx.fillStyle = 'rgba(8,30,16,0.75)';
-    ctx.fillRect(0, shoreY + 4, W, groundH - 4);
-
     // Soft mist veil along shore so contact isn't a hard cut
-    const mist = ctx.createLinearGradient(0, shoreY + groundH - 6, 0, shoreY + groundH + 36);
+    const mist = ctx.createLinearGradient(0, shoreY + groundH - 4, 0, shoreY + groundH + 44);
     mist.addColorStop(0, 'rgba(200,220,230,0)');
-    mist.addColorStop(0.45, 'rgba(180,210,225,0.1)');
+    mist.addColorStop(0.4, 'rgba(190,215,230,0.16)');
     mist.addColorStop(1, 'rgba(140,180,200,0)');
     ctx.fillStyle = mist;
-    ctx.fillRect(0, shoreY + groundH - 6, W, 42);
+    ctx.fillRect(0, shoreY + groundH - 4, W, 48);
     return;
   }
   if (kind === 'smoke') {
@@ -203,7 +199,7 @@ function paintBg(kind: string) {
 }
 
 const scene =
-  fx === 'smoke' ? makeScene(-1.5) : fx === 'water' ? makeScene(0.05) : makeScene(0.12);
+  fx === 'smoke' ? makeScene(-1.5) : fx === 'water' ? makeScene(0.05) : makeScene(0.85);
 
 let t = 0;
 let drawing: (tt: number) => void = () => {};
@@ -214,12 +210,12 @@ if (fx === 'fire') {
     instanceId: 'cap-fire',
     x: W * 0.5,
     y: H * 0.86,
-    size: 3.05,
-    spread: 1.35,
-    rise: 0.72,
-    intensity: 1.2,
-    embers: 1.0,
-    turbulence: 1.1,
+    size: 2.75,
+    spread: 1.4,
+    rise: 0.68,
+    intensity: 1.0,
+    embers: 1.15,
+    turbulence: 1.2,
   };
   drawing = (tt) => fireEffect.draw(ctx, p, tt, scene);
 } else if (fx === 'smoke') {
@@ -252,12 +248,13 @@ if (fx === 'fire') {
     ...waterEffect.defaultParams,
     instanceId: 'cap-water',
     x: W * 0.5,
-    y: H * 0.72,
-    width: 1280,
-    height: 560,
-    waveStrength: 0.05,
-    waveScale: 0.45,
-    shoreFoam: 0.05,
+    // Shore ~H*0.42+32≈301; lake top meets shore, fills to frame bottom
+    y: H * 0.88,
+    width: 1600,
+    height: 640,
+    waveStrength: 0.07,
+    waveScale: 0.55,
+    shoreFoam: 0.04,
     intensity: 1,
   };
   drawing = (tt) => waterEffect.draw(ctx, p, tt, scene);

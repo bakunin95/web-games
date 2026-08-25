@@ -76,14 +76,16 @@ function spawnTongue(rand: () => number): Tongue {
 }
 
 function spawnSpark(rand: () => number, params: FireParams): Spark {
+  // Start mid-rise so trails are visible in still captures
+  const y0 = -(20 + rand() * 70) * params.size;
   return {
-    x: (rand() - 0.5) * 40 * params.spread,
-    y: -rand() * 5,
-    vx: (rand() - 0.5) * 70,
-    vy: -(80 + rand() * 160) * params.rise,
-    life: rand() * 0.3,
-    maxLife: 0.7 + rand() * 2.2,
-    size: 0.7 + rand() * 2.0,
+    x: (rand() - 0.5) * 48 * params.spread,
+    y: y0,
+    vx: (rand() - 0.5) * 90,
+    vy: -(40 + rand() * 90) * params.rise,
+    life: 0.15 + rand() * 0.4,
+    maxLife: 0.9 + rand() * 2.4,
+    size: 0.9 + rand() * 2.2,
     wobble: 2 + rand() * 8,
     trail: [],
   };
@@ -100,7 +102,7 @@ function ensureState(params: FireParams): FireState {
   while (state.tongues.length < tongueTarget) state.tongues.push(spawnTongue(rand));
   if (state.tongues.length > tongueTarget) state.tongues.length = tongueTarget;
 
-  const sparkTarget = Math.floor(12 + params.embers * 60 * params.intensity);
+  const sparkTarget = Math.floor(8 + params.embers * 36 * params.intensity);
   while (state.sparks.length < sparkTarget) state.sparks.push(spawnSpark(rand, params));
   if (state.sparks.length > sparkTarget) state.sparks.length = sparkTarget;
   return state;
@@ -211,32 +213,21 @@ function drawFuelBed(
       ctx.stroke();
     }
 
-    // Ember glow in crack along top
+    // Ember glow in crack — soft pocket, not a bright stroked stick
     const pulse = 0.45 + 0.55 * Math.sin(t * (4.2 + i * 0.8) + i * 1.1);
-    ctx.strokeStyle = withAlpha('#ff9020', 0.55 * pulse * I * ei);
-    ctx.lineWidth = Math.max(1.2, 1.8 * S);
-    ctx.beginPath();
-    ctx.moveTo(-lw * 0.6, -lh * 0.4);
-    ctx.quadraticCurveTo(-lw * 0.1, -lh * 0.85, lw * 0.55, -lh * 0.3);
-    ctx.stroke();
-    ctx.strokeStyle = withAlpha(coreYellow, 0.75 * pulse * I * ei);
-    ctx.lineWidth = Math.max(0.6, 0.85 * S);
-    ctx.stroke();
-
-    // Hot spots in log hollows
     softBlob(
       ctx,
-      (randish(i) - 0.5) * lw * 0.6,
-      -lh * 0.15,
-      lw * 0.25,
-      lh * 0.55,
+      0,
+      -lh * 0.25,
+      lw * 0.4,
+      lh * 0.85,
       0,
       coreYellow,
       0.4 * pulse * I * ei,
       colorHot,
       0.2 * pulse * I,
       colorDeep,
-      0,
+      0.05 * pulse * I,
     );
 
     ctx.restore();
@@ -276,19 +267,14 @@ function drawFuelBed(
     11 * S,
     0,
     colorHot,
-    0.55 * I * ei,
+    0.28 * I * ei,
     '#ff6a10',
-    0.28 * I,
+    0.14 * I,
     colorDeep,
-    0.05 * I,
+    0.03 * I,
   );
 
   ctx.restore();
-}
-
-function randish(i: number): number {
-  const x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
-  return x - Math.floor(x);
 }
 
 export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
@@ -320,9 +306,9 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
   const Sp = params.spread;
 
   const massLean =
-    fbm2(t * 0.42, params.seed * 0.02, 3, params.seed + 3) * 26 * Sp +
-    Math.sin(t * 0.88) * 9 * Sp +
-    wind * 16;
+    fbm2(t * 0.42, params.seed * 0.02, 3, params.seed + 3) * 32 * Sp +
+    Math.sin(t * 0.88) * 12 * Sp +
+    wind * 22;
 
   // ── 1. Strong textured warm ground spill ──
   ctx.save();
@@ -467,7 +453,7 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
       Math.sin(t * f.swayB * 0.28 + f.phase) * 3.5 * S * p;
 
     // Very low alphas — additive must merge soft, not blow white
-    const roleA = f.role === 0 ? 0.055 : f.role === 1 ? 0.065 : f.role === 2 ? 0.05 : 0.12;
+    const roleA = f.role === 0 ? 0.048 : f.role === 1 ? 0.055 : f.role === 2 ? 0.04 : 0.1;
     const alpha = age * roleA * I * ei;
     const roleScale = f.role === 0 ? 2.5 : f.role === 1 ? 1.6 : f.role === 2 ? 0.55 : 0.24;
     const radius = f.size * S * roleScale * (0.5 + age * 0.55) * ragged;
@@ -480,9 +466,10 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
       c1 = corePale;
       c2 = coreYellow;
     } else if (f.role === 2) {
-      c0 = coreYellow;
-      c1 = colorAmber;
-      c2 = colorHot;
+      // Keep inner hot orange — avoid pale yellow that stacks to white mid-flame
+      c0 = colorAmber;
+      c1 = colorHot;
+      c2 = colorOrange;
     } else if (f.role === 1) {
       c0 = colorAmber;
       c1 = colorHot;
@@ -494,12 +481,12 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
     }
 
     const stretchY =
-      (f.role === 0 ? 1.55 : f.role === 1 ? 1.95 : f.role === 2 ? 1.35 : 0.9) *
-      f.stretch *
-      (1.0 + p * 0.95);
+      (f.role === 0 ? 1.25 : f.role === 1 ? 1.45 : f.role === 2 ? 1.15 : 0.85) *
+      Math.min(1.55, f.stretch) *
+      (0.95 + p * 0.55);
     const stretchX =
-      (f.role === 0 ? 1.3 : f.role === 1 ? 0.88 : 0.48) *
-      (0.7 + Math.abs(f.bias) * 0.1 + (1 - p) * 0.35);
+      (f.role === 0 ? 1.35 : f.role === 1 ? 1.05 : 0.65) *
+      (0.75 + Math.abs(f.bias) * 0.1 + (1 - p) * 0.3);
 
     softBlob(
       ctx,
@@ -516,16 +503,16 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
       alpha * 0.12,
     );
 
-    // Tip wisps on fringe/body — separate rising tongues
-    if (f.role <= 1 && p > 0.18 && p < 0.92) {
-      const tipA = alpha * 0.55;
+    // Soft tip bloom — keep roundish, not needle-thin
+    if (f.role <= 1 && p > 0.22 && p < 0.85) {
+      const tipA = alpha * 0.4;
       softBlob(
         ctx,
-        px + sway * 0.12 + f.lean * 6,
-        py - radius * stretchY * 0.62,
-        radius * stretchX * 0.38,
-        radius * stretchY * 0.65,
-        sway * 0.03,
+        px + sway * 0.1 + f.lean * 5,
+        py - radius * stretchY * 0.45,
+        radius * stretchX * 0.55,
+        radius * stretchY * 0.5,
+        sway * 0.025,
         c0,
         tipA,
         c1,
@@ -544,8 +531,8 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
       fbm2(t * 2.5, params.seed * 0.03, 2, params.seed + 9) * 6 * Sp +
       massLean * 0.12;
     const cy = params.y + 2 * S + fbm2(t * 3.2, params.seed * 0.04, 2, params.seed + 13) * 2 * S;
-    softBlob(ctx, cx, cy - 2 * S, 14 * S * Sp, 9 * S, 0, colorAmber, 0.08 * I * ei, colorHot, 0.04 * I, colorOrange, 0.012 * I);
-    softBlob(ctx, cx, cy, 3.2 * S * Sp, 2.4 * S, 0, coreWhite, 0.4 * I * ei, corePale, 0.2 * I * ei, coreYellow, 0.04 * I);
+    softBlob(ctx, cx, cy - 2 * S, 12 * S * Sp, 8 * S, 0, colorAmber, 0.06 * I * ei, colorHot, 0.03 * I, colorOrange, 0.01 * I);
+    softBlob(ctx, cx, cy, 2.6 * S * Sp, 2.0 * S, 0, coreWhite, 0.35 * I * ei, corePale, 0.16 * I * ei, coreYellow, 0.03 * I);
   }
   ctx.restore();
 
@@ -563,17 +550,27 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
       ctx.save();
       ctx.translate(lx, ly);
       ctx.rotate(rot);
-      ctx.fillStyle = withAlpha('#080301', 0.72 * Math.min(1, I));
+      // Solid charcoal body
+      ctx.fillStyle = withAlpha('#060201', 0.88 * Math.min(1, I));
       ctx.beginPath();
       ctx.ellipse(0, 0, lw, lh, 0, 0, Math.PI * 2);
       ctx.fill();
+      // Soft ember pocket (blob, not stroke — strokes read as white sticks)
       const pulse = 0.5 + 0.5 * Math.sin(t * 4.8 + i * 1.4);
-      ctx.strokeStyle = withAlpha(coreYellow, 0.55 * pulse * I * ei);
-      ctx.lineWidth = Math.max(1, 1.2 * S);
-      ctx.beginPath();
-      ctx.moveTo(-lw * 0.55, -lh * 0.35);
-      ctx.quadraticCurveTo(0, -lh * 0.75, lw * 0.5, -lh * 0.25);
-      ctx.stroke();
+      softBlob(
+        ctx,
+        0,
+        -lh * 0.2,
+        lw * 0.35,
+        lh * 0.7,
+        0,
+        coreYellow,
+        0.35 * pulse * I * ei,
+        colorHot,
+        0.18 * pulse * I,
+        colorDeep,
+        0.04 * pulse * I,
+      );
       ctx.restore();
     }
     ctx.restore();
@@ -604,44 +601,53 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
     const a = (1 - ep) * 1.0 * I * Math.max(0.55, params.embers) * ei;
     if (a <= 0.01) continue;
 
-    // Always draw a velocity streak even if trail is short (capture freeze)
-    const len = (14 + (1 - ep) * 22) * S;
     const hx = params.x + e.x;
     const hy = params.y + e.y;
-    ctx.strokeStyle = withAlpha(ep < 0.25 ? '#fff8e0' : coreYellow, a * 0.9);
-    ctx.lineWidth = Math.max(1.2, e.size * 1.8 * S);
-    ctx.beginPath();
-    ctx.moveTo(hx, hy);
-    ctx.lineTo(hx - e.vx * 0.025 * len, hy - e.vy * 0.025 * len);
-    ctx.stroke();
+    // Only draw long trails once sparks clear the luminous mass —
+    // dense mid-core streaks read as a bundle of white sticks.
+    const aboveMass = e.y < -28 * S;
+    const strokeW = Math.max(0.6, Math.min(2.2, e.size * 0.45 * Math.sqrt(S)));
 
-    if (e.trail.length >= 2) {
-      for (let i = 1; i < e.trail.length; i++) {
-        const a0 = e.trail[i - 1]!;
-        const a1 = e.trail[i]!;
-        const ta = a * (i / e.trail.length) * 0.9;
-        ctx.strokeStyle = withAlpha(ep < 0.35 ? corePale : colorHot, ta);
-        ctx.lineWidth = e.size * (1.0 + (i / e.trail.length) * 2.0) * S;
-        ctx.beginPath();
-        ctx.moveTo(a0.x, a0.y);
-        ctx.lineTo(a1.x, a1.y);
-        ctx.stroke();
+    if (aboveMass) {
+      const len = (10 + (1 - ep) * 18) * S;
+      ctx.strokeStyle = withAlpha(ep < 0.25 ? '#fff8e0' : coreYellow, a * 0.9);
+      ctx.lineWidth = strokeW;
+      ctx.beginPath();
+      ctx.moveTo(hx, hy);
+      ctx.lineTo(hx - e.vx * 0.028 * len, hy - e.vy * 0.028 * len);
+      ctx.stroke();
+
+      if (e.trail.length >= 2) {
+        for (let i = 1; i < e.trail.length; i++) {
+          const a0 = e.trail[i - 1]!;
+          const a1 = e.trail[i]!;
+          const ta = a * (i / e.trail.length) * 0.8;
+          ctx.strokeStyle = withAlpha(ep < 0.35 ? corePale : colorHot, ta);
+          ctx.lineWidth = strokeW * (0.5 + (i / e.trail.length) * 0.9);
+          ctx.beginPath();
+          ctx.moveTo(a0.x, a0.y);
+          ctx.lineTo(a1.x, a1.y);
+          ctx.stroke();
+        }
       }
     }
 
+    const er = aboveMass
+      ? Math.min(3.2 * S, e.size * 1.0 * Math.sqrt(S))
+      : Math.min(2.0 * S, e.size * 0.55 * Math.sqrt(S));
     softBlob(
       ctx,
       hx,
       hy,
-      e.size * 2.6 * S,
-      e.size * 2.8 * S,
+      er,
+      er * (aboveMass ? 1.2 : 1.0),
       0,
       ep < 0.2 ? coreWhite : coreYellow,
-      a,
+      a * (aboveMass ? 0.9 : 0.35),
       colorHot,
-      a * 0.4,
+      a * (aboveMass ? 0.3 : 0.12),
       colorFringe,
-      a * 0.06,
+      a * 0.04,
     );
   }
   ctx.restore();
