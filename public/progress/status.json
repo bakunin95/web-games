@@ -4,19 +4,19 @@
     "class": "ok"
   },
   "fire": {
-    "text": "Round3 critic: still PREFER bar. Gaps: chaotic asymmetric tongues, smoke/embers, less radial glow sticker.",
+    "text": "Round6 blind: PREFER photo bar. Gaps: radial glow blob vs wispy thread flame; fuel bed flat; ellipse spill stamps. NEW BAR: user fire (tangled luminous threads) + fire-ash (ember streaks) refs.",
     "class": "gap",
     "capture": "/progress/captures/fire.png"
   },
   "smoke": {
-    "text": "Round5: dense soft-particle plume (no concentric discs). Still vs photo bar.",
+    "text": "Round6 blind: PREFER photo bar. Gaps: flat gray wedge (no cauliflower volume); no wind shear/rollover; hard edge + banding vs wispy dissipation.",
     "class": "gap",
     "capture": "/progress/captures/smoke.png"
   },
   "water": {
-    "text": "Round3 critic: still PREFER bar. Gaps: shoreline contact, true mirror, Fresnel \u2014 not oval gradient blob.",
+    "text": "Round6 blind: PREFER photo bar. Gaps: no sky/shore mirror; no shoreline contact geometry; flat gradient (no Fresnel).",
     "class": "gap",
     "capture": "/progress/captures/water.png"
   },
-  "log": "Gauntlet ACTIVE \u2014 critics still prefer photo bar 0/3.\n- Multiple builder passes on fire/smoke/water\n- Smoke: particle mass + wind shear; fire: logs+luminous mass; water: mirror/sheen\n- Gate: blind A/B must prefer our captures over refs/"
+  "log": "Gauntlet ACTIVE — Round6 critics still prefer photo bar 0/3.\n- Fire: adopt user refs — FIRE = wispy tangled orange thread mass; ASH = sparse ember/spark streaks (separate look)\n- Smoke: volumetric billows + shear; Water: true mirror + Fresnel\n- Builders fanned out after Round6; progress captures refresh on commit\n- Gate: blind A/B must prefer our captures over refs/"
 }
