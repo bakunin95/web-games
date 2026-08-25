@@ -89,20 +89,24 @@ function drawDepthBody(
     Math.max(hw, hh) * 1.08,
   );
   bank.addColorStop(0, withAlpha(colorDeep, 0));
-  bank.addColorStop(0.5, withAlpha(colorShallow, 0));
-  bank.addColorStop(0.78, withAlpha(lerpColor(colorShallow, colorSky, 0.4), 0.28 * I));
-  bank.addColorStop(1, withAlpha(lerpColor(colorShallow, '#c8e8f2', 0.45), 0.48 * I));
+  bank.addColorStop(0.45, withAlpha(colorShallow, 0));
+  bank.addColorStop(0.72, withAlpha(lerpColor(colorShallow, colorSky, 0.35), 0.18 * I));
+  bank.addColorStop(0.9, withAlpha(lerpColor(colorShallow, '#b8dce8', 0.35), 0.32 * I));
+  bank.addColorStop(1, withAlpha(lerpColor(colorShallow, '#c8e8f2', 0.4), 0.4 * I));
   ctx.fillStyle = bank;
   ctx.fillRect(cx - hw, cy - hh, hw * 2, hh * 2);
 
+  // Soft lateral shallowing (elongated, not circular blobs)
   for (const side of [-1, 1] as const) {
-    const gx = cx + side * hw * 0.9;
-    const g = ctx.createRadialGradient(gx, cy + hh * 0.05, 0, gx, cy, hw * 0.62);
-    g.addColorStop(0, withAlpha(lerpColor(colorShallow, '#c8e8f0', 0.35), 0.4 * I));
-    g.addColorStop(0.5, withAlpha(colorShallow, 0.14 * I));
+    const gx = cx + side * hw * 0.88;
+    const g = ctx.createRadialGradient(gx, cy + hh * 0.08, 0, gx, cy, hw * 0.7);
+    g.addColorStop(0, withAlpha(lerpColor(colorShallow, '#c8e8f0', 0.3), 0.22 * I));
+    g.addColorStop(0.45, withAlpha(colorShallow, 0.08 * I));
     g.addColorStop(1, withAlpha(colorShallow, 0));
     ctx.fillStyle = g;
-    ctx.fillRect(cx - hw, cy - hh, hw * 2, hh * 2);
+    ctx.beginPath();
+    ctx.ellipse(gx, cy + hh * 0.05, hw * 0.42, hh * 0.85, 0, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   const near = ctx.createLinearGradient(cx, cy + hh * 0.2, cx, cy + hh);
@@ -186,14 +190,16 @@ function drawShoreReflections(
 
   ctx.save();
 
-  const canopy = ctx.createLinearGradient(cx, waterline, cx, waterline + canopyH);
-  canopy.addColorStop(0, withAlpha('#081a12', baseA * 0.9));
-  canopy.addColorStop(0.08, withAlpha('#0c2418', baseA * 0.7));
-  canopy.addColorStop(0.35, withAlpha('#123024', baseA * 0.28));
-  canopy.addColorStop(0.7, withAlpha('#0a1820', baseA * 0.08));
+  // Soft canopy veil — feathered into sky mirror (no hard waterline bar)
+  const canopy = ctx.createLinearGradient(cx, waterline - hh * 0.04, cx, waterline + canopyH);
+  canopy.addColorStop(0, withAlpha('#081a12', 0));
+  canopy.addColorStop(0.08, withAlpha('#081a12', baseA * 0.55));
+  canopy.addColorStop(0.18, withAlpha('#0c2418', baseA * 0.62));
+  canopy.addColorStop(0.4, withAlpha('#123024', baseA * 0.22));
+  canopy.addColorStop(0.72, withAlpha('#0a1820', baseA * 0.06));
   canopy.addColorStop(1, withAlpha('#061018', 0));
   ctx.fillStyle = canopy;
-  ctx.fillRect(cx - hw, waterline, hw * 2, canopyH);
+  ctx.fillRect(cx - hw, waterline - hh * 0.04, hw * 2, canopyH + hh * 0.04);
 
   const count = 26;
   for (let i = 0; i < count; i++) {
@@ -393,18 +399,28 @@ function drawAnisotropicSpeculars(
     const a = (0.05 + (i % 4) * 0.012) * aBase * pulse * (0.5 + calm * 0.5);
     const ang = Math.sin(t * 0.18 + i) * 0.05;
 
-    ctx.strokeStyle = withAlpha('#ffffff', a);
-    ctx.lineWidth = 0.7 + ((i * 13) % 3) * 0.25;
+    // Wavy anisotropic filament (not a straight ruler line)
+    ctx.strokeStyle = withAlpha('#ffffff', a * 1.15);
+    ctx.lineWidth = 0.85 + ((i * 13) % 3) * 0.3;
     ctx.beginPath();
-    ctx.moveTo(px - Math.cos(ang) * len, py - Math.sin(ang) * len * 0.15);
-    ctx.lineTo(px + Math.cos(ang) * len, py + Math.sin(ang) * len * 0.15);
+    const segsH = 6;
+    for (let s = 0; s <= segsH; s++) {
+      const v = s / segsH;
+      const x = px + Math.cos(ang) * len * (v * 2 - 1);
+      const y =
+        py +
+        Math.sin(ang) * len * 0.12 * (v * 2 - 1) +
+        Math.sin(v * Math.PI * 2 + t * 0.6 + i) * (0.6 + params.waveStrength * 1.5);
+      if (s === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
     ctx.stroke();
 
-    ctx.strokeStyle = withAlpha('#cfe8ff', a * 0.45);
-    ctx.lineWidth = 1.4;
+    ctx.strokeStyle = withAlpha('#cfe8ff', a * 0.4);
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(px - Math.cos(ang) * len * 0.7, py - Math.sin(ang) * len * 0.1);
-    ctx.lineTo(px + Math.cos(ang) * len * 0.7, py + Math.sin(ang) * len * 0.1);
+    ctx.moveTo(px - Math.cos(ang) * len * 0.55, py - Math.sin(ang) * len * 0.08);
+    ctx.lineTo(px + Math.cos(ang) * len * 0.55, py + Math.sin(ang) * len * 0.08);
     ctx.stroke();
   }
 
