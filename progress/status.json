@@ -1,7 +1,19 @@
 {
-  "infra": { "text": "PASS: materials, select/drag gizmo, minimize editor", "class": "ok" },
-  "fire": { "text": "Critic: pending A/B vs campfire.jpg", "class": "gap", "capture": "/progress/captures/fire.png" },
-  "smoke": { "text": "Critic: pending A/B vs smoke_plume.jpg", "class": "gap", "capture": "/progress/captures/smoke.png" },
-  "water": { "text": "Critic: pending A/B vs clear_water.jpg", "class": "gap", "capture": "/progress/captures/water.png" },
-  "log": "Gauntlet update:\n- Materials + Create VFX + minimize: working\n- Selection gizmo sync FIXED (panel→renderer); drag PASS\n- Quality-bar A/B loops for fire/smoke/water still pending\n- User backlog: 20 additional VFX proposals delivered in chat"
+  "infra": { "text": "PASS: materials, select/drag/scale, minimize, 66+ creatables", "class": "ok" },
+  "fire": {
+    "text": "Round2 critic: PREFER bar (campfire.jpg). Gaps: need chaotic tongues + fuel bed + sparks/smoke (not teardrop glow).",
+    "class": "gap",
+    "capture": "/progress/captures/fire.png"
+  },
+  "smoke": {
+    "text": "Round2 critic: PREFER bar (smoke_plume.jpg). Gaps: buoyant wind-sheared cauliflower, density/self-shadow, soft dissipation.",
+    "class": "gap",
+    "capture": "/progress/captures/smoke.png"
+  },
+  "water": {
+    "text": "Round2 critic: PREFER bar (clear_water.jpg). Gaps: kill sticker oval, true mirrored shoreline, Fresnel micro-surface.",
+    "class": "gap",
+    "capture": "/progress/captures/water.png"
+  },
+  "log": "Gauntlet loop (ongoing):\n- Round1: all 3 critics preferred photo bar (high confidence)\n- Builder rewrite: fire luminous mass, smoke lobes, water mirror\n- Round2: still prefer bar — fire taller but glow-sticker; smoke white swirl; water oval clipart\n- Round3 builder: denser smoke mass, log fuel bed, continuing\n- Infra PASS; quality gate NOT met — keep iterating"
 }

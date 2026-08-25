@@ -264,8 +264,42 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
     );
   }
 
-  // ── 3. Ember bed — wide low glow at logs ──
+  // ── 3. Ember bed / fuel logs — fire sits on something real ──
   {
+    const logY = params.y + 8;
+    ctx.save();
+    ctx.globalCompositeOperation = 'source-over';
+    for (let i = 0; i < 5; i++) {
+      const lx = params.x + (i - 2) * 11 * S * Sp + Math.sin(i * 1.7) * 3;
+      const ly = logY + (i % 2) * 3;
+      const lw = (18 + (i % 3) * 6) * S;
+      const lh = (5 + (i % 2) * 2) * S;
+      const g = ctx.createLinearGradient(lx - lw, ly, lx + lw, ly);
+      g.addColorStop(0, withAlpha('#1a0e08', 0.85 * I));
+      g.addColorStop(0.4, withAlpha('#3a2214', 0.9 * I));
+      g.addColorStop(0.7, withAlpha('#2a180c', 0.85 * I));
+      g.addColorStop(1, withAlpha('#120804', 0.7 * I));
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(lx, ly, lw, lh, (i - 2) * 0.08, 0, Math.PI * 2);
+      ctx.fill();
+      // ember glow on log tops
+      softBlob(
+        ctx,
+        lx,
+        ly - 2,
+        lw * 0.6,
+        lh * 0.8,
+        0,
+        colorHot,
+        0.25 * I * ei,
+        colorMid,
+        0.1 * I,
+        colorDeep,
+        0,
+      );
+    }
+    ctx.restore();
     softBlob(
       ctx,
       params.x,
@@ -298,7 +332,7 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
 
   // ── 4. Luminous mass: wide dense soft kernels (campfire mound) ──
   const ordered = [...state.kernels].sort((a, b) => a.role - b.role);
-  const riseBase = (0.32 + params.rise * 0.42) * S;
+  const riseBase = (0.85 + params.rise * 0.85) * S;
 
   for (const f of ordered) {
     if (!scene.paused) {
@@ -318,35 +352,36 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
 
     const p = f.life / f.maxLife;
     const age = 1 - p;
-    const roleRise = f.role === 0 ? 0.4 : f.role === 1 ? 0.7 : f.role === 2 ? 0.85 : 0.55;
-    const height = (14 + f.size * 1.6) * riseBase * roleRise * (0.55 + f.oy * 0.5);
+    const roleRise = f.role === 0 ? 0.55 : f.role === 1 ? 0.85 : f.role === 2 ? 1.05 : 0.7;
+    const height = (32 + f.size * 2.8) * riseBase * roleRise * (0.6 + f.oy * 0.55);
     const turb =
       fbm2(f.ox * 2.4 + f.phase, t * (1.5 + params.turbulence * 0.8) + f.phase, 3, params.seed) *
       params.turbulence *
-      10 *
+      12 *
       Sp;
     const sway =
-      Math.sin(t * 2.8 + f.phase) * 2.8 * Sp +
-      wind * (6 + p * 16) +
+      Math.sin(t * 2.8 + f.phase) * 3.5 * Sp +
+      wind * (8 + p * 22) +
       turb +
-      f.lean * 5 * p;
+      f.lean * 7 * p;
 
     const lateral =
-      f.role === 0 ? 1.35 : f.role === 1 ? 1.0 : f.role === 2 ? 0.55 : 0.28;
-    const pinch = 1 - p * 0.28;
+      f.role === 0 ? 1.25 : f.role === 1 ? 0.95 : f.role === 2 ? 0.5 : 0.25;
+    const pinch = 1 - p * 0.4;
     const px =
       params.x +
-      f.ox * 22 * Sp * lateral * (0.55 + p * 0.35) * pinch +
-      sway * p * 0.7;
-    const py = params.y - p * height - f.oy * 4 * S * (1 - p * 0.3);
+      f.ox * 20 * Sp * lateral * (0.5 + p * 0.4) * pinch +
+      sway * p * 0.75;
+    const py = params.y - p * height - f.oy * 6 * S * (1 - p * 0.25);
 
     const roleA =
-      f.role === 0 ? 0.11 : f.role === 1 ? 0.2 : f.role === 2 ? 0.32 : 0.48;
+      f.role === 0 ? 0.14 : f.role === 1 ? 0.24 : f.role === 2 ? 0.36 : 0.52;
     const alpha = age * roleA * I * ei;
 
     const roleScale =
-      f.role === 0 ? 2.1 : f.role === 1 ? 1.45 : f.role === 2 ? 0.9 : 0.48;
-    const radius = f.size * S * roleScale * (0.75 + age * 0.4) * pinch;
+      f.role === 0 ? 1.85 : f.role === 1 ? 1.35 : f.role === 2 ? 0.85 : 0.5;
+    // Tall soft ellipses so mass reads as rising flame not a ground orb
+    const radius = f.size * S * roleScale * (0.7 + age * 0.45) * pinch;
 
     // White/pale core → yellow body → saturated orange ONLY on fringe
     let c0: string;
@@ -370,15 +405,16 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
       c2 = colorDeep;
     }
 
-    const stretchY = f.role === 0 ? 0.95 : f.role === 1 ? 1.1 : f.role === 2 ? 1.2 : 1.05;
-    const stretchX = f.role === 0 ? 1.15 : f.role === 1 ? 0.95 : 0.78;
+    const stretchY =
+      (f.role === 0 ? 1.15 : f.role === 1 ? 1.45 : f.role === 2 ? 1.7 : 1.35) * (1.2 + p * 0.6);
+    const stretchX = f.role === 0 ? 1.05 : f.role === 1 ? 0.85 : 0.65;
     softBlob(
       ctx,
       px,
       py,
       radius * stretchX,
       radius * stretchY,
-      sway * 0.008,
+      sway * 0.01,
       c0,
       alpha,
       c1,

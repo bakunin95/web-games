@@ -78,17 +78,25 @@ function paintBg(kind: string) {
     return;
   }
   if (kind === 'smoke') {
+    // Dusk industrial sky so dark smoke mass reads (matches plume ref mood)
     const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#2a3344');
-    g.addColorStop(0.5, '#1a2030');
-    g.addColorStop(1, '#0a0c12');
+    g.addColorStop(0, '#5a6a7e');
+    g.addColorStop(0.35, '#3a4558');
+    g.addColorStop(0.65, '#1e2634');
+    g.addColorStop(1, '#0c1018');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
-    // Industrial silhouette base
+    // Warm horizon haze
+    const haze = ctx.createLinearGradient(0, H * 0.35, 0, H * 0.7);
+    haze.addColorStop(0, 'rgba(200,160,100,0)');
+    haze.addColorStop(0.5, 'rgba(180,130,70,0.18)');
+    haze.addColorStop(1, 'rgba(20,16,12,0)');
+    ctx.fillStyle = haze;
+    ctx.fillRect(0, H * 0.35, W, H * 0.4);
     ctx.fillStyle = '#050608';
     ctx.fillRect(0, H * 0.72, W, H * 0.28);
-    ctx.fillRect(W * 0.72, H * 0.35, 36, H * 0.4);
-    ctx.fillRect(W * 0.78, H * 0.28, 18, H * 0.45);
+    ctx.fillRect(W * 0.78, H * 0.32, 42, H * 0.42);
+    ctx.fillRect(W * 0.84, H * 0.22, 16, H * 0.52);
     return;
   }
   // Fire: night ground
@@ -153,12 +161,12 @@ if (fx === 'fire') {
     ...waterEffect.defaultParams,
     instanceId: 'cap-water',
     x: W * 0.5,
-    y: H * 0.58,
-    width: 920,
-    height: 380,
-    waveStrength: 0.12,
-    waveScale: 0.65,
-    shoreFoam: 0.25,
+    y: H * 0.62,
+    width: 980,
+    height: 420,
+    waveStrength: 0.08,
+    waveScale: 0.55,
+    shoreFoam: 0.15,
     intensity: 1,
   };
   drawing = (tt) => waterEffect.draw(ctx, p, tt, scene);
