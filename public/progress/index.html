@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VFX Gauntlet — Live Progress</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #070b14;
+        --ink: #e8eefc;
+        --muted: #8b97b8;
+        --ok: #3dff9a;
+        --gap: #ff7a5c;
+        --accent: #3de7ff;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        background: radial-gradient(ellipse at top, #121a2c, var(--bg));
+        color: var(--ink);
+        padding: 1.5rem;
+        line-height: 1.45;
+      }
+      h1 { margin: 0 0 0.25rem; letter-spacing: 0.04em; text-transform: uppercase; font-size: 1.4rem; }
+      .sub { color: var(--muted); margin-bottom: 1.5rem; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+      section {
+        background: rgba(12, 18, 32, 0.85);
+        border: 1px solid rgba(139, 151, 184, 0.25);
+        padding: 1rem;
+      }
+      section h2 { margin: 0 0 0.75rem; font-size: 0.95rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+      .status { font-size: 0.85rem; }
+      .status.ok { color: var(--ok); }
+      .status.gap { color: var(--gap); }
+      .status.wip { color: #ffd27a; }
+      img.ref, img.out {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        background: #000;
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+      .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+      .pair label { display: block; font-size: 0.7rem; color: var(--muted); margin-bottom: 0.25rem; text-transform: uppercase; }
+      ul { margin: 0; padding-left: 1.1rem; font-size: 0.88rem; color: var(--muted); }
+      li { margin: 0.35rem 0; }
+      li strong { color: var(--ink); }
+      a { color: var(--accent); }
+      #log { font-family: ui-monospace, monospace; font-size: 0.78rem; white-space: pre-wrap; max-height: 280px; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>VFX Gauntlet — Live Progress</h1>
+    <p class="sub">
+      Blind A/B bar: real campfire / smoke plume / clear water stills in <code>refs/</code>.
+      Playground: <a href="http://localhost:5173/">localhost:5173</a>
+    </p>
+
+    <div class="grid">
+      <section>
+        <h2>Infrastructure</h2>
+        <p class="status wip" id="infra-status">Materials · select/move · minimize — shipping</p>
+        <ul>
+          <li><strong>Material</strong> model (baseColor, emissive, opacity, roughness, metalness, blend)</li>
+          <li><strong>Select + drag</strong> placed VFX on canvas</li>
+          <li><strong>Minimize editor</strong> button</li>
+          <li>Selected inspector: transform + material presets</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Fire vs bar</h2>
+        <div class="pair">
+          <div>
+            <label>Bar — campfire</label>
+            <img class="ref" src="/refs/campfire.jpg" alt="Campfire reference" />
+          </div>
+          <div>
+            <label>Ours — latest capture</label>
+            <img class="out" id="fire-out" src="/progress/captures/fire.png" alt="Our fire" />
+          </div>
+        </div>
+        <p class="status gap" id="fire-status">Critic: pending first A/B</p>
+      </section>
+
+      <section>
+        <h2>Smoke vs bar</h2>
+        <div class="pair">
+          <div>
+            <label>Bar — smoke plume</label>
+            <img class="ref" src="/refs/smoke_plume.jpg" alt="Smoke reference" />
+          </div>
+          <div>
+            <label>Ours — latest capture</label>
+            <img class="out" id="smoke-out" src="/progress/captures/smoke.png" alt="Our smoke" />
+          </div>
+        </div>
+        <p class="status gap" id="smoke-status">Critic: pending first A/B</p>
+      </section>
+
+      <section>
+        <h2>Water vs bar</h2>
+        <div class="pair">
+          <div>
+            <label>Bar — clear water</label>
+            <img class="ref" src="/refs/clear_water.jpg" alt="Water reference" />
+          </div>
+          <div>
+            <label>Ours — latest capture</label>
+            <img class="out" id="water-out" src="/progress/captures/water.png" alt="Our water" />
+          </div>
+        </div>
+        <p class="status gap" id="water-status">Critic: pending first A/B</p>
+      </section>
+
+      <section style="grid-column: 1 / -1">
+        <h2>Loop log</h2>
+        <div id="log">Booting gauntlet…</div>
+      </section>
+    </div>
+
+    <script>
+      // Live-ish: reload status JSON if present
+      async function tick() {
+        try {
+          const res = await fetch('/progress/status.json?' + Date.now());
+          if (!res.ok) return;
+          const data = await res.json();
+          const log = document.getElementById('log');
+          if (data.log) log.textContent = data.log;
+          for (const key of ['fire', 'smoke', 'water', 'infra']) {
+            const el = document.getElementById(key + '-status');
+            if (el && data[key]) {
+              el.textContent = data[key].text;
+              el.className = 'status ' + (data[key].class || 'wip');
+            }
+          }
+          for (const key of ['fire', 'smoke', 'water']) {
+            const img = document.getElementById(key + '-out');
+            if (img && data[key]?.capture) {
+              img.src = data[key].capture + '?' + Date.now();
+            }
+          }
+        } catch (_) { /* ignore */ }
+      }
+      tick();
+      setInterval(tick, 4000);
+    </script>
+  </body>
+</html>

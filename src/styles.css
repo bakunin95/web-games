@@ -179,16 +179,55 @@ body {
   mix-blend-mode: screen;
 }
 
+.chrome-btns {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.ghost-btn {
+  appearance: none;
+  border: 1px solid rgba(139, 151, 184, 0.4);
+  background: rgba(10, 14, 28, 0.55);
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+}
+
+.ghost-btn:hover,
+.ghost-btn[aria-pressed='true'] {
+  color: var(--ink);
+  border-color: rgba(61, 231, 255, 0.45);
+}
+
 #panel {
   position: absolute;
   z-index: 6;
   top: 5.5rem;
   right: 1rem;
-  width: min(320px, calc(100vw - 1.5rem));
+  width: min(340px, calc(100vw - 1.5rem));
   max-height: calc(100vh - 6.5rem);
   overflow: auto;
   pointer-events: auto;
 }
+
+#panel.panel-shell {
+  display: flex;
+  flex-direction: column;
+}
+
+#panel.minimized .panel-pane-host {
+  display: none;
+}
+
+#panel.minimized {
+  width: auto;
+  max-height: none;
+  overflow: visible;
+}
+
 
 /* Tweakpane dark glass */
 #panel .tp-dfwv {

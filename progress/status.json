@@ -1,0 +1,7 @@
+{
+  "infra": { "text": "WIP: materials + select/move + minimize landing", "class": "wip" },
+  "fire": { "text": "Critic: pending first A/B", "class": "gap", "capture": "/progress/captures/fire.png" },
+  "smoke": { "text": "Critic: pending first A/B", "class": "gap", "capture": "/progress/captures/smoke.png" },
+  "water": { "text": "Critic: pending first A/B", "class": "gap", "capture": "/progress/captures/water.png" },
+  "log": "Gauntlet started.\n- Quality bar refs downloaded (campfire, smoke_plume, clear_water).\n- Progress page online at /progress/.\n- Next: ship select/move/materials/minimize, then builder+critic loops."
+}

@@ -1,5 +1,7 @@
 import type { BaseEffectParams, EffectModule, SceneContext } from '../core/types';
 import { drawMockScene } from './mockScene';
+import { getPlacedBounds, isPlacedParams } from '../core/placed';
+import type { EffectMaterial } from '../core/material';
 
 export interface RendererHandles {
   world: HTMLCanvasElement;
@@ -8,20 +10,21 @@ export interface RendererHandles {
 }
 
 export interface EffectRuntime {
-  /** Unique instance id (for creatable emitters). */
   id: string;
   module: EffectModule;
   params: BaseEffectParams;
-  /** User-spawned via Create VFX — can be removed from the panel. */
   removable?: boolean;
   label?: string;
 }
 
+export interface RenderOptions {
+  selectedId: string | null;
+  cssIntensity: number;
+  cssEnabled: boolean;
+}
+
 /**
- * Full-bleed dual-canvas renderer:
- * - world canvas: mock scene + world-space FX (camera transform applied)
- * - overlay canvas: screen-space FX (identity)
- * - css overlay: optional DOM/CSS atmosphere layer
+ * Full-bleed dual-canvas renderer with selection gizmo for placed VFX.
  */
 export function createRenderer(handles: RendererHandles) {
   const worldCtx = handles.world.getContext('2d', { alpha: false })!;
@@ -60,12 +63,58 @@ export function createRenderer(handles: RendererHandles) {
     `;
   };
 
-  const render = (scene: SceneContext, t: number, effects: EffectRuntime[], cssIntensity: number, cssEnabled: boolean) => {
-    const { camera, viewportWidth: vw, viewportHeight: vh } = scene;
+  const drawSelectionGizmo = (ctx: CanvasRenderingContext2D, rt: EffectRuntime, t: number) => {
+    if (!isPlacedParams(rt.params)) return;
+    const b = getPlacedBounds(rt.module.id, rt.params as never);
+    const pulse = 0.55 + Math.sin(t * 4) * 0.2;
+    ctx.save();
+    ctx.strokeStyle = `rgba(61, 231, 255, ${0.55 + pulse * 0.35})`;
+    ctx.lineWidth = 2 / Math.max(0.4, 1); // world space; camera zoom applied already
+    ctx.setLineDash([8, 5]);
+    ctx.strokeRect(b.x, b.y, b.w, b.h);
+    ctx.setLineDash([]);
 
-    // --- World layer ---
-    worldCtx.setTransform(1, 0, 0, 1, 0, 0);
+    // Corner handles
+    const hs = 6;
+    ctx.fillStyle = 'rgba(61, 231, 255, 0.95)';
+    const corners = [
+      [b.x, b.y],
+      [b.x + b.w, b.y],
+      [b.x, b.y + b.h],
+      [b.x + b.w, b.y + b.h],
+    ];
+    for (const [hx, hy] of corners) {
+      ctx.fillRect(hx! - hs / 2, hy! - hs / 2, hs, hs);
+    }
+
+    // Center crosshair
+    const cx = b.x + b.w / 2;
+    const cy = b.y + b.h / 2;
+    ctx.strokeStyle = 'rgba(255, 79, 216, 0.85)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 10, cy);
+    ctx.lineTo(cx + 10, cy);
+    ctx.moveTo(cx, cy - 10);
+    ctx.lineTo(cx, cy + 10);
+    ctx.stroke();
+
+    // Label
+    ctx.font = '12px sans-serif';
+    ctx.fillStyle = 'rgba(232, 238, 252, 0.95)';
+    ctx.fillText(rt.label ?? rt.module.name, b.x, b.y - 8);
+    ctx.restore();
+  };
+
+  const render = (
+    scene: SceneContext,
+    t: number,
+    effects: EffectRuntime[],
+    opts: RenderOptions,
+  ) => {
+    const { camera, viewportWidth: vw, viewportHeight: vh } = scene;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
     worldCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     worldCtx.fillStyle = '#05060c';
     worldCtx.fillRect(0, 0, vw, vh);
@@ -82,9 +131,13 @@ export function createRenderer(handles: RendererHandles) {
       if (!fx.params.enabled) continue;
       fx.module.draw(worldCtx, fx.params, t, scene);
     }
+
+    if (opts.selectedId) {
+      const selected = effects.find((e) => e.id === opts.selectedId);
+      if (selected) drawSelectionGizmo(worldCtx, selected, t);
+    }
     worldCtx.restore();
 
-    // --- Screen overlay layer ---
     overlayCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     overlayCtx.clearRect(0, 0, vw, vh);
     for (const fx of effects) {
@@ -93,8 +146,10 @@ export function createRenderer(handles: RendererHandles) {
       fx.module.draw(overlayCtx, fx.params, t, scene);
     }
 
-    applyCssOverlay(scene, cssIntensity, cssEnabled);
+    applyCssOverlay(scene, opts.cssIntensity, opts.cssEnabled);
   };
 
   return { resize, render };
 }
+
+export type { EffectMaterial };
