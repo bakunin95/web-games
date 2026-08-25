@@ -124,14 +124,15 @@ export function createPlaygroundUI(
   });
 
   const createFolder = pane.addFolder({ title: 'Create VFX', expanded: true });
-  const createProxy = { type: 'fire' };
-  createFolder.addBinding(createProxy as unknown as Record<string, unknown>, 'type', {
-    label: 'type',
-    options: Object.fromEntries(CREATABLE_EFFECTS.map((e) => [e.name, e.id])),
-  });
-  createFolder.addButton({ title: '+ Create new VFX' }).on('click', () => {
-    createVfx(createProxy.type);
-  });
+  createFolder
+    .addButton({ title: `+ Create new VFX (${CREATABLE_EFFECTS.length} types)` })
+    .on('click', () => {
+      const anchor =
+        createButton ??
+        (paneHost.querySelector('button') as HTMLElement | null) ??
+        paneHost;
+      openCreateMenu(anchor, (typeId) => createVfx(typeId));
+    });
   createFolder.addButton({ title: 'Reset all VFX' }).on('click', () => {
     resetAll();
   });
@@ -409,23 +410,79 @@ function openCreateMenu(anchor: HTMLElement, onPick: (typeId: string) => void): 
   const menu = document.createElement('div');
   menu.className = 'create-menu';
   menu.setAttribute('role', 'menu');
-  for (const effect of CREATABLE_EFFECTS) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'create-menu-item';
-    btn.textContent = effect.name;
-    btn.title = effect.description;
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      onPick(effect.id);
-      menu.remove();
-    });
-    menu.appendChild(btn);
-  }
+
+  const head = document.createElement('div');
+  head.className = 'create-menu-head';
+  const title = document.createElement('div');
+  title.className = 'create-menu-title';
+  title.textContent = `Create VFX · ${CREATABLE_EFFECTS.length}`;
+  const search = document.createElement('input');
+  search.type = 'search';
+  search.className = 'create-menu-search';
+  search.placeholder = 'Filter effects…';
+  search.autocomplete = 'off';
+  head.append(title, search);
+  menu.appendChild(head);
+
+  const list = document.createElement('div');
+  list.className = 'create-menu-list';
+  menu.appendChild(list);
+
+  const render = (query: string) => {
+    list.replaceChildren();
+    const q = query.trim().toLowerCase();
+    const matches = CREATABLE_EFFECTS.filter(
+      (e) =>
+        !q ||
+        e.name.toLowerCase().includes(q) ||
+        e.id.toLowerCase().includes(q) ||
+        e.description.toLowerCase().includes(q),
+    );
+    if (matches.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'create-menu-empty';
+      empty.textContent = 'No matches';
+      list.appendChild(empty);
+      return;
+    }
+    for (const effect of matches) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'create-menu-item';
+      btn.setAttribute('role', 'menuitem');
+      btn.textContent = effect.name;
+      btn.title = effect.description;
+      btn.dataset.effectId = effect.id;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onPick(effect.id);
+        menu.remove();
+      });
+      list.appendChild(btn);
+    }
+  };
+
+  render('');
+  search.addEventListener('input', () => render(search.value));
+
   const rect = anchor.getBoundingClientRect();
-  menu.style.top = `${rect.bottom + 8}px`;
-  menu.style.left = `${Math.max(8, rect.left)}px`;
+  const menuWidth = 280;
+  const left = Math.min(
+    Math.max(8, rect.left),
+    Math.max(8, window.innerWidth - menuWidth - 8),
+  );
+  menu.style.top = `${Math.min(rect.bottom + 8, window.innerHeight - 24)}px`;
+  menu.style.left = `${left}px`;
   document.body.appendChild(menu);
+
+  // Keep menu on-screen vertically
+  const bounds = menu.getBoundingClientRect();
+  if (bounds.bottom > window.innerHeight - 8) {
+    menu.style.top = `${Math.max(8, window.innerHeight - bounds.height - 8)}px`;
+  }
+
+  search.focus();
+
   const close = (ev: MouseEvent) => {
     if (ev.target === anchor || menu.contains(ev.target as Node)) return;
     menu.remove();
