@@ -328,7 +328,21 @@ export function createPlaygroundUI(
 }
 
 function numericMax(key: string): number {
-  if (key === 'count' || key === 'density' || key === 'threshold' || key === 'embers') return 1;
+  if (
+    key === 'count' ||
+    key === 'density' ||
+    key === 'threshold' ||
+    key === 'embers' ||
+    key === 'branches' ||
+    key === 'flicker' ||
+    key === 'crackle' ||
+    key === 'debris' ||
+    key === 'runes' ||
+    key === 'crystals' ||
+    key === 'rays'
+  ) {
+    return 1;
+  }
   if (
     key === 'length' ||
     key === 'size' ||
@@ -342,7 +356,21 @@ function numericMax(key: string): number {
     key === 'speed' ||
     key === 'waveStrength' ||
     key === 'waveScale' ||
-    key === 'shoreFoam'
+    key === 'shoreFoam' ||
+    key === 'frequency' ||
+    key === 'drift' ||
+    key === 'strength' ||
+    key === 'radius' ||
+    key === 'spin' ||
+    key === 'swirl' ||
+    key === 'span' ||
+    key === 'thickness' ||
+    key === 'tumble' ||
+    key === 'wander' ||
+    key === 'scale' ||
+    key === 'growth' ||
+    key === 'trail' ||
+    key === 'depth'
   ) {
     return 2;
   }

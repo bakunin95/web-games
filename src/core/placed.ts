@@ -37,10 +37,33 @@ export function getPlacedBounds(
   typeId: string,
   params: PlacedEffectParams & Record<string, unknown>,
 ): WorldBounds {
-  if (typeId === 'water') {
-    const w = Number(params.width ?? 420);
-    const h = Number(params.height ?? 160);
-    return { x: params.x - w / 2 - 8, y: params.y - h / 2 - 8, w: w + 16, h: h + 16 };
+  const width = Number(params.width ?? 0);
+  const height = Number(params.height ?? 0);
+  if (width > 0 && height > 0) {
+    return {
+      x: params.x - width / 2 - 10,
+      y: params.y - height / 2 - 10,
+      w: width + 20,
+      h: height + 20,
+    };
+  }
+
+  if (typeId === 'lightning') {
+    const s = Number(params.size ?? 1) * 100;
+    return { x: params.x - s * 0.5, y: params.y - s * 2.2, w: s, h: s * 2.4 };
+  }
+  if (typeId === 'god-rays') {
+    const len = Number(params.length ?? 1) * 180;
+    const spread = Number(params.spread ?? 1) * 80;
+    return { x: params.x - spread, y: params.y - 20, w: spread * 2, h: len + 40 };
+  }
+  if (typeId === 'magic-aura' || typeId === 'frost') {
+    const r = Number(params.radius ?? 1) * 90;
+    return { x: params.x - r, y: params.y - r, w: r * 2, h: r * 2 };
+  }
+  if (typeId === 'electric-arcs') {
+    const span = Number(params.span ?? 1) * 80;
+    return { x: params.x - span - 20, y: params.y - 40, w: span * 2 + 40, h: 80 };
   }
   if (typeId === 'smoke') {
     const s = Number(params.size ?? 1) * 110;
@@ -50,8 +73,13 @@ export function getPlacedBounds(
     const s = Number(params.size ?? 1) * 80;
     return { x: params.x - s * 0.7, y: params.y - s * 2.2, w: s * 1.4, h: s * 2.5 };
   }
-  const s = Number(params.size ?? 1) * 70;
-  return { x: params.x - s, y: params.y - s * 1.6, w: s * 2, h: s * 2.1 };
+  if (typeId === 'meteor') {
+    const s = Number(params.size ?? 1) * 100;
+    return { x: params.x - s, y: params.y - s * 1.5, w: s * 2, h: s * 1.8 };
+  }
+
+  const s = Number(params.size ?? 1) * 80;
+  return { x: params.x - s, y: params.y - s * 1.4, w: s * 2, h: s * 2 };
 }
 
 export function pointInBounds(px: number, py: number, b: WorldBounds): boolean {
