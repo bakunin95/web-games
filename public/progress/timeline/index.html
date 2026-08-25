@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VFX Gauntlet — Evolution Timeline</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #060912;
+        --panel: rgba(14, 20, 36, 0.92);
+        --ink: #eef3ff;
+        --muted: #8b97b8;
+        --accent: #3de7ff;
+        --fire: #ff7a3d;
+        --smoke: #a8b4c8;
+        --water: #4ec4e0;
+        --line: rgba(139, 151, 184, 0.28);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(ellipse 80% 50% at 20% -10%, #1a1430 0%, transparent 55%),
+          radial-gradient(ellipse 70% 45% at 90% 0%, #0d2a3a 0%, transparent 50%),
+          var(--bg);
+        padding: 1.75rem clamp(1rem, 3vw, 2.5rem) 3rem;
+        line-height: 1.45;
+      }
+      header {
+        max-width: 1200px;
+        margin: 0 auto 2rem;
+      }
+      h1 {
+        margin: 0 0 0.35rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-size: clamp(1.3rem, 2.5vw, 1.85rem);
+      }
+      .sub { color: var(--muted); max-width: 62ch; }
+      .nav { margin-top: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+
+      .track {
+        max-width: 1200px;
+        margin: 0 auto 2.25rem;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        padding: 1.1rem 1.1rem 1.35rem;
+        position: relative;
+      }
+      .track h2 {
+        margin: 0 0 0.85rem;
+        font-size: 0.95rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .track.fire h2 { color: var(--fire); }
+      .track.smoke h2 { color: var(--smoke); }
+      .track.water h2 { color: var(--water); }
+
+      .rail {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(200px, 1fr);
+        gap: 0.85rem;
+        overflow-x: auto;
+        padding-bottom: 0.35rem;
+        scroll-snap-type: x proximity;
+      }
+      .step {
+        scroll-snap-align: start;
+        min-width: 200px;
+        position: relative;
+      }
+      .step::before {
+        content: "";
+        position: absolute;
+        top: -0.55rem;
+        left: 0;
+        right: -0.85rem;
+        height: 2px;
+        background: linear-gradient(90deg, var(--accent), transparent);
+        opacity: 0.35;
+        pointer-events: none;
+      }
+      .track.fire .step::before { background: linear-gradient(90deg, var(--fire), transparent); }
+      .track.smoke .step::before { background: linear-gradient(90deg, var(--smoke), transparent); }
+      .track.water .step::before { background: linear-gradient(90deg, var(--water), transparent); }
+
+      .step .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent);
+        margin-bottom: 0.55rem;
+        box-shadow: 0 0 12px rgba(61, 231, 255, 0.45);
+      }
+      .track.fire .dot { background: var(--fire); box-shadow: 0 0 12px rgba(255, 122, 61, 0.5); }
+      .track.smoke .dot { background: var(--smoke); box-shadow: 0 0 12px rgba(168, 180, 200, 0.35); }
+      .track.water .dot { background: var(--water); box-shadow: 0 0 12px rgba(78, 196, 224, 0.45); }
+
+      .step img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        background: #000;
+        border: 1px solid rgba(255,255,255,0.08);
+        display: block;
+      }
+      .step .meta {
+        margin-top: 0.45rem;
+      }
+      .step .when {
+        font-size: 0.68rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .step .title {
+        font-size: 0.88rem;
+        font-weight: 600;
+        margin: 0.15rem 0;
+      }
+      .step .note {
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .step.now img {
+        outline: 1px solid var(--accent);
+        outline-offset: 1px;
+      }
+      .badge {
+        display: inline-block;
+        font-size: 0.65rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.12rem 0.4rem;
+        border: 1px solid rgba(61,231,255,0.45);
+        color: var(--accent);
+        margin-left: 0.35rem;
+        vertical-align: middle;
+      }
+
+      .bars {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+      }
+      .bars section {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        padding: 1rem;
+      }
+      .bars h2 {
+        margin: 0 0 0.65rem;
+        font-size: 0.85rem;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .bars img {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: #000;
+      }
+      .bars p { margin: 0.5rem 0 0; font-size: 0.8rem; color: var(--muted); }
+
+      footer {
+        max-width: 1200px;
+        margin: 2rem auto 0;
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Evolution Timeline</h1>
+      <p class="sub">
+        From the first gauntlet captures to now — fire, smoke, and water stills over time.
+        Scroll each row sideways to walk the journey.
+      </p>
+      <div class="nav">
+        <a href="/progress/">← Live progress</a>
+        <a href="/">Playground</a>
+        <a href="/progress.html">Progress (flat)</a>
+      </div>
+    </header>
+
+    <section class="track fire">
+      <h2>Fire</h2>
+      <div class="rail">
+        <article class="step">
+          <div class="dot"></div>
+          <img src="./fire_01_early.png" alt="Early fire capture" />
+          <div class="meta">
+            <div class="when">~02:41 · first gauntlet pass</div>
+            <div class="title">Early campfire</div>
+            <div class="note">First quality rewrite still — starting point.</div>
+          </div>
+        </article>
+        <article class="step">
+          <div class="dot"></div>
+          <img src="./fire_02_logs.png" alt="Fire with fuel logs" />
+          <div class="meta">
+            <div class="when">~02:45 · round 3</div>
+            <div class="title">Fuel logs + denser mass</div>
+            <div class="note">Added charcoal bed / log read under the glow.</div>
+          </div>
+        </article>
+        <article class="step">
+          <div class="dot"></div>
+          <img src="./fire_03_campfire_mass.png" alt="Deep orange campfire mass" />
+          <div class="meta">
+            <div class="when">~03:26 · mass pass</div>
+            <div class="title">Deep orange luminous mass</div>
+            <div class="note">Dirt staging, charcoal bed, brighter spill — still had spark lines.</div>
+          </div>
+        </article>
+        <article class="step now">
+          <div class="dot"></div>
+          <img src="./fire_04_soft.png" alt="Soft fire capture" />
+          <div class="meta">
+            <div class="when">~03:52 · now <span class="badge">current</span></div>
+            <div class="title">Soft luminous blobs</div>
+            <div class="note">User ask: simple soft fire — no threads / stick lines.</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="track smoke">
+      <h2>Smoke</h2>
+      <div class="rail">
+        <article class="step">
+          <div class="dot"></div>
+          <img src="./smoke_01_early.png" alt="Early smoke" />
+          <div class="meta">
+            <div class="when">~02:41 · first pass</div>
+            <div class="title">Early plume</div>
+            <div class="note">Initial gauntlet smoke still.</div>
+          </div>
+        </article>
+        <article class="step">
+          <div class="dot"></div>
+          <img src="./smoke_02_circular.png" alt="Circular soft smoke" />
+          <div class="meta">
+            <div class="when">~02:50</div>
+            <div class="title">Soft circular billows</div>
+            <div class="note">Killed marble-sphere / concentric rims.</div>
+          </div>
+        </article>
+        <article class="step">
+          <div class="dot"></div>
+          <img src="./smoke_03_wind_shear.png" alt="Wind-sheared smoke" />
+          <div class="meta">
+            <div class="when">~02:51</div>
+            <div class="title">Wind-sheared trail</div>
+            <div class="note">Horizontal advection — plume starts to lean.</div>
+          </div>
+        </article>
+        <article class="step">
+          <div class="dot"></div>
+          <img src="./smoke_04_industrial.png" alt="Industrial cauliflower smoke" />
+          <div class="meta">
+            <div class="when">~03:22</div>
+            <div class="title">Industrial cauliflower</div>
+            <div class="note">Chimney mouth + denser soft volume.</div>
+          </div>
+        </article>
+        <article class="step now">
+          <div class="dot"></div>
+          <img src="./smoke_05_soft.png" alt="Soft smoke" />
+          <div class="meta">
+            <div class="when">~03:52 · now <span class="badge">current</span></div>
+            <div class="title">Softer edges</div>
+            <div class="note">Fluffier softBlob falloff to match soft fire direction.</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="track water">
+      <h2>Water</h2>
+      <div class="rail">
+        <article class="step">
+          <div class="dot"></div>
+          <img src="./water_01_early.png" alt="Early water" />
+          <div class="meta">
+            <div class="when">~02:41 · first pass</div>
+            <div class="title">Early water body</div>
+            <div class="note">First lake-style capture.</div>
+          </div>
+        </article>
+        <article class="step">
+          <div class="dot"></div>
+          <img src="./water_02_lake_mirror.png" alt="Reflective lake" />
+          <div class="meta">
+            <div class="when">~03:26</div>
+            <div class="title">Reflective lake polish</div>
+            <div class="note">Soft-rect mirror / Fresnel experiments (critics still preferred photo).</div>
+          </div>
+        </article>
+        <article class="step now">
+          <div class="dot"></div>
+          <img src="./water_03_ocean.png" alt="Ocean water" />
+          <div class="meta">
+            <div class="when">~03:45 · now <span class="badge">current</span></div>
+            <div class="title">Open ocean swell</div>
+            <div class="note">User bar: choppy sea, whitecaps, speculars, sharp horizon.</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <div class="bars">
+      <section>
+        <h2>Quality bar — fire</h2>
+        <img src="./bar_campfire.jpg" alt="Campfire photo bar" />
+        <p>Photo campfire still used in blind A/B (plus user soft-fire direction).</p>
+      </section>
+      <section>
+        <h2>Quality bar — smoke</h2>
+        <img src="./bar_smoke_plume.jpg" alt="Smoke plume photo bar" />
+        <p>Industrial / real plume photo bar.</p>
+      </section>
+      <section>
+        <h2>Quality bar — water (earlier)</h2>
+        <img src="./bar_clear_water.jpg" alt="Clear water photo bar" />
+        <p>Original clear-lake photo bar — later steered toward open-ocean look.</p>
+      </section>
+    </div>
+
+    <footer>
+      Stills pulled from git milestones on <code>cursor/vfx-playground-6097</code>.
+      Gate still open: blind critics must prefer our captures over the bars.
+    </footer>
+  </body>
+</html>
