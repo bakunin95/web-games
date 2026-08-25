@@ -132,9 +132,9 @@ export const drawSmoke: DrawFn<SmokeParams> = (ctx, params, t, scene) => {
     const cx = params.x + windSign * s;
     const cy = params.y - s * rise + n * envH * 0.1;
 
-    const trail = along > 0.5 ? Math.max(0.12, 1 - (along - 0.5) / 0.6) : 1;
+    const trail = along > 0.38 ? Math.max(0.05, 1 - (along - 0.38) / 0.72) : 1;
     const baseA =
-      (0.58 - along * 0.2) * params.intensity * (0.85 + params.density * 0.4) * trail * mat.opacity;
+      (0.58 - along * 0.28) * params.intensity * (0.85 + params.density * 0.4) * trail * mat.opacity;
     if (baseA < 0.02) continue;
 
     const stretch = 1.45 + windAbs * 0.5 + along * 1.35;
@@ -206,7 +206,7 @@ export const drawSmoke: DrawFn<SmokeParams> = (ctx, params, t, scene) => {
     const birth = k < 0.05 ? k / 0.05 : 1;
     const deathStart = p.role === 0 ? 0.3 : 0.48;
     const death = k > deathStart ? Math.max(0, (1 - k) / (1 - deathStart)) : 1;
-    const trail = along > 0.5 ? Math.max(0, 1 - (along - 0.5) / 0.65) : 1;
+    const trail = along > 0.35 ? Math.max(0, 1 - (along - 0.35) / 0.75) : 1;
     const envelope = birth * death * trail;
     if (envelope < 0.02) continue;
 
