@@ -21,8 +21,12 @@ export interface SoilParams extends PlacedEffectParams {
   pathDrawing: boolean;
 }
 
-function shapeReady(params: SoilParams): boolean {
-  return params.points.length >= 3 && !params.pathDrawing;
+function hasFillShape(params: SoilParams): boolean {
+  return params.points.length >= 3;
+}
+
+function isClosed(params: SoilParams): boolean {
+  return hasFillShape(params) && !params.pathDrawing;
 }
 
 function drawSolidSoilFill(
@@ -87,24 +91,29 @@ function drawSolidSoilFill(
 
 export const drawSoil: DrawFn<SoilParams> = (ctx, params, _t, _scene) => {
   if (!params.enabled || params.intensity <= 0) return;
-  if (!shapeReady(params)) return;
+  if (!hasFillShape(params)) return;
 
   const wp = pathWorldPoints(params);
+  const preview = params.pathDrawing;
+  const I = params.intensity * (preview ? 0.72 : 1);
+
   ctx.save();
   applyMaterial(ctx, params.material);
   ctx.globalCompositeOperation = 'source-over';
 
   ctx.beginPath();
   traceClosedPath(ctx, wp, params.smooth, 16);
-  ctx.fillStyle = withAlpha(params.material.baseColor, params.intensity);
+  ctx.fillStyle = withAlpha(params.material.baseColor, I);
   ctx.fill();
 
-  drawSolidSoilFill(ctx, wp, params);
+  if (!preview) {
+    drawSolidSoilFill(ctx, wp, { ...params, intensity: I });
+  }
 
   ctx.beginPath();
   traceClosedPath(ctx, wp, params.smooth, 16);
-  ctx.strokeStyle = withAlpha('#120c08', 0.35 * params.intensity);
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = withAlpha('#120c08', (preview ? 0.22 : 0.35) * params.intensity);
+  ctx.lineWidth = preview ? 1.5 : 2;
   ctx.stroke();
 
   ctx.restore();
@@ -119,7 +128,7 @@ export function drawSoilGizmo(
   const wp = pathWorldPoints(params);
   if (wp.length === 0) return;
   const inv = 1 / Math.max(0.35, zoom);
-  const ready = shapeReady(params);
+  const ready = isClosed(params);
 
   ctx.save();
   if (wp.length >= 2) {
@@ -152,13 +161,23 @@ export function drawSoilGizmo(
     ctx.stroke();
   }
 
-  if (params.pathDrawing && wp.length >= 1 && wp.length < 3) {
+  if (params.pathDrawing && wp.length >= 3) {
+    ctx.font = `${Math.round(12 * inv)}px sans-serif`;
+    ctx.fillStyle = 'rgba(232, 220, 200, 0.95)';
+    ctx.fillText('Click first node · Enter · or Close shape', wp[0]!.x + 12 * inv, wp[0]!.y - 14 * inv);
+  } else if (params.pathDrawing && wp.length >= 1 && wp.length < 3) {
     ctx.font = `${Math.round(12 * inv)}px sans-serif`;
     ctx.fillStyle = 'rgba(232, 220, 200, 0.9)';
     const hint = wp.length === 1 ? 'Add nodes… (need 3+ to fill)' : 'One more node to close';
     ctx.fillText(hint, wp[0]!.x + 12 * inv, wp[0]!.y - 14 * inv);
   }
   ctx.restore();
+}
+
+export function closeSoilShape(params: SoilParams): boolean {
+  if (params.points.length < 3) return false;
+  params.pathDrawing = false;
+  return true;
 }
 
 export function disposeSoilInstance(_id: string): void {
@@ -197,6 +216,12 @@ export const soilEffect: EffectModule<SoilParams> = {
   draw: drawSoil,
 };
 
-export function isSoilParams(p: PlacedEffectParams): p is SoilParams {
-  return Array.isArray((p as SoilParams).points) && 'texture' in p;
+export function isSoilParams(p: unknown): p is SoilParams {
+  return (
+    typeof p === 'object' &&
+    p !== null &&
+    Array.isArray((p as SoilParams).points) &&
+    'texture' in p &&
+    'pathDrawing' in p
+  );
 }

@@ -297,11 +297,11 @@ export function createPlaygroundUI(
         pathDrawing: boolean;
       };
       const pathFolder = folder.addFolder({ title: 'Shape', expanded: true });
-      pathFolder.addBinding(pathBag, 'pathDrawing', { label: 'Click stage to add nodes' });
+      pathFolder.addBinding(pathBag, 'pathDrawing', { label: 'Add nodes (click stage)' });
       pathFolder.addBinding(pathBag, 'smooth', { min: 0, max: 1, step: 0.05, label: 'Spline smooth' });
       pathFolder.addBinding(pathBag, 'texture', { min: 0, max: 1, step: 0.05, label: 'Soil grain' });
       pathFolder
-        .addButton({ title: 'Done shape (Enter)' })
+        .addButton({ title: 'Close shape & fill (Enter)' })
         .on('click', () => {
           if (pathBag.points.length >= 3) pathBag.pathDrawing = false;
         });

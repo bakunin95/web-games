@@ -18,7 +18,7 @@ import {
   pointInClosedPoly,
   pathWorldPoints,
 } from '../core/path';
-import { isSoilParams } from '../effects/soil';
+import { isSoilParams, closeSoilShape } from '../effects/soil';
 import type { EffectRuntime } from './renderer';
 
 export interface SelectionState {
@@ -129,8 +129,19 @@ export function attachStageInteractions(
       }
     }
 
-    // Path point handle on selected soil
+    // Path point handle on selected soil — click first node again to close shape
     const sel = selectedRuntime();
+    if (sel && isSoilParams(sel.params) && sel.params.pathDrawing && sel.params.points.length >= 3) {
+      const closeIdx = hitPathPointIndex(sel.params, world.x, world.y, scene.camera.zoom);
+      if (closeIdx === 0) {
+        closeSoilShape(sel.params);
+        mode = 'none';
+        state.dragging = false;
+        e.preventDefault();
+        return;
+      }
+    }
+
     if (sel && isPathParams(sel.params) && sel.params.points.length > 0) {
       const idx = hitPathPointIndex(sel.params, world.x, world.y, scene.camera.zoom);
       if (idx !== null) {
@@ -264,16 +275,27 @@ export function attachStageInteractions(
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
+    if (
+      e.target instanceof HTMLInputElement ||
+      e.target instanceof HTMLTextAreaElement ||
+      (e.target as HTMLElement).isContentEditable
+    ) {
+      return;
+    }
     const rt = selectedRuntime();
-    if (!rt || !isPathParams(rt.params)) return;
-    if (e.key === 'Enter' && rt.params.points.length >= 3) {
-      rt.params.pathDrawing = false;
+    if (!rt || !isSoilParams(rt.params)) return;
+    if ((e.key === 'Enter' || e.key === 'NumpadEnter') && rt.params.points.length >= 3) {
+      closeSoilShape(rt.params);
       e.preventDefault();
     } else if (e.key === 'Backspace' && rt.params.points.length > 0) {
       rt.params.points.pop();
       e.preventDefault();
     } else if (e.key === 'Escape') {
-      rt.params.pathDrawing = false;
+      if (rt.params.pathDrawing && rt.params.points.length >= 3) {
+        closeSoilShape(rt.params);
+      } else {
+        rt.params.pathDrawing = false;
+      }
       e.preventDefault();
     }
   };
@@ -283,7 +305,7 @@ export function attachStageInteractions(
   el.addEventListener('pointerup', onUp);
   el.addEventListener('pointercancel', onUp);
   el.addEventListener('wheel', onWheel, { passive: false });
-  window.addEventListener('keydown', onKeyDown);
+  window.addEventListener('keydown', onKeyDown, true);
 
   return {
     state,
@@ -294,7 +316,7 @@ export function attachStageInteractions(
       el.removeEventListener('pointerup', onUp);
       el.removeEventListener('pointercancel', onUp);
       el.removeEventListener('wheel', onWheel);
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keydown', onKeyDown, true);
     },
   };
 }
