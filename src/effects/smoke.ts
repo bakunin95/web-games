@@ -180,16 +180,16 @@ function drawLobe(
   ctx.ellipse(lx, ly + lry * 0.25, lrx * 0.9, lry * 0.6, rot * 0.3, 0, Math.PI * 2);
   ctx.fill();
 
-  const litA = alpha * (0.25 + L.litBias * 0.55) * emissiveIntensity;
+  const litA = alpha * (0.55 + L.litBias * 0.9) * Math.max(0.85, emissiveIntensity) * 1.65;
   if (litA > 0.02) {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     const rimX = lx - windSign * lrx * 0.18;
     const rimY = ly - lry * (0.45 + L.bumpAy * 0.15);
     const rim = ctx.createRadialGradient(rimX, rimY, 0, lx, ly - lry * 0.15, R * 0.8);
-    rim.addColorStop(0, withAlpha(colorLit, litA));
-    rim.addColorStop(0.3, withAlpha(colorLit, litA * 0.4));
-    rim.addColorStop(0.65, withAlpha(colorLit, litA * 0.08));
+    rim.addColorStop(0, withAlpha(colorLit, Math.min(1, litA * 1.15)));
+    rim.addColorStop(0.22, withAlpha(colorLit, litA * 0.7));
+    rim.addColorStop(0.5, withAlpha(colorLit, litA * 0.22));
     rim.addColorStop(1, withAlpha(colorLit, 0));
     ctx.fillStyle = rim;
     ctx.beginPath();
@@ -225,8 +225,8 @@ export const drawSmoke: DrawFn<SmokeParams> = (ctx, params, t, scene) => {
   if (!params.enabled || params.intensity <= 0) return;
   const mat = params.material;
   const colorCore = mat.baseColor;
-  const colorLit = lerpColor(mat.emissive, '#f6f0e4', 0.42);
-  const colorDark = lerpColor(mat.baseColor, '#030508', 0.65);
+  const colorLit = lerpColor(mat.emissive, '#fffaf0', 0.55);
+  const colorDark = lerpColor(mat.baseColor, '#010204', 0.72);
   const colorMid = lerpColor(mat.baseColor, mat.emissive, 0.1);
   const soft = 0.5 + mat.roughness * 0.5;
   const pool = ensurePool(params);
@@ -277,16 +277,16 @@ export const drawSmoke: DrawFn<SmokeParams> = (ctx, params, t, scene) => {
     }
 
     const k = p.life / p.maxLife;
-    const densNear = p.kind === 'wisp' ? 0.48 - k * 0.3 : 1.6 - k * 1.05;
+    const densNear = p.kind === 'wisp' ? 0.55 - k * 0.3 : 1.85 - k * 1.15;
     const birth = k < 0.045 ? k / 0.045 : 1;
     const death = k > 0.4 ? Math.max(0, (1 - k) / 0.6) : 1;
     const envelope = birth * death;
     const alpha =
       envelope *
-      (p.kind === 'wisp' ? 0.2 : 0.4) *
+      (p.kind === 'wisp' ? 0.28 : 0.58) *
       params.intensity *
       densNear *
-      (0.75 + params.density * 0.55) *
+      (0.85 + params.density * 0.55) *
       mat.opacity;
     if (alpha <= 0.01) continue;
 
