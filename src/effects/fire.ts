@@ -12,13 +12,15 @@ export interface FireParams extends PlacedEffectParams {
   embers: number;
 }
 
-interface Flame {
+/** Soft luminous kernel — dense overlaps merge into one mass (not tongues). */
+interface Kernel {
   ox: number;
   life: number;
   maxLife: number;
   phase: number;
   size: number;
-  layer: 0 | 1 | 2 | 3;
+  /** 0 outer glow · 1 body · 2 inner · 3 hot core */
+  role: 0 | 1 | 2 | 3;
   lean: number;
 }
 
@@ -33,7 +35,7 @@ interface Ember {
 }
 
 interface FireState {
-  flames: Flame[];
+  kernels: Kernel[];
   embers: Ember[];
 }
 
@@ -42,29 +44,30 @@ const states = new Map<string, FireState>();
 function ensureState(params: FireParams): FireState {
   let state = states.get(params.instanceId);
   if (!state) {
-    state = { flames: [], embers: [] };
+    state = { kernels: [], embers: [] };
     states.set(params.instanceId, state);
   }
 
-  // Dense overlapping tongues → long-exposure luminous mass
-  const flameTarget = Math.floor(55 + params.intensity * 110 * params.size);
+  // Dense soft kernels → additive luminous mass (campfire, not torch)
+  const kernelTarget = Math.floor(70 + params.intensity * 140 * params.size);
   const rand = mulberry32(params.seed | 0);
-  while (state.flames.length < flameTarget) {
+  while (state.kernels.length < kernelTarget) {
     const r = rand();
-    const layer = (r < 0.28 ? 0 : r < 0.55 ? 1 : r < 0.82 ? 2 : 3) as 0 | 1 | 2 | 3;
-    state.flames.push({
+    // Bias toward body/inner so the mass reads continuous; fewer outer + core
+    const role = (r < 0.22 ? 0 : r < 0.58 ? 1 : r < 0.86 ? 2 : 3) as 0 | 1 | 2 | 3;
+    state.kernels.push({
       ox: (rand() - 0.5) * 2,
       life: rand(),
-      maxLife: 0.4 + rand() * 0.75,
+      maxLife: 0.45 + rand() * 0.9,
       phase: rand() * Math.PI * 2,
-      size: 5 + rand() * 18,
-      layer,
-      lean: (rand() - 0.5) * 0.8,
+      size: 6 + rand() * 20,
+      role,
+      lean: (rand() - 0.5) * 0.55,
     });
   }
-  if (state.flames.length > flameTarget) state.flames.length = flameTarget;
+  if (state.kernels.length > kernelTarget) state.kernels.length = kernelTarget;
 
-  const emberTarget = Math.floor(params.embers * 36 * params.intensity);
+  const emberTarget = Math.floor(params.embers * 22 * params.intensity);
   while (state.embers.length < emberTarget) {
     state.embers.push(spawnEmber(rand, params));
   }
@@ -75,14 +78,43 @@ function ensureState(params: FireParams): FireState {
 
 function spawnEmber(rand: () => number, params: FireParams): Ember {
   return {
-    x: (rand() - 0.5) * 22 * params.spread,
-    y: -rand() * 12,
-    vx: (rand() - 0.5) * 50,
-    vy: -(50 + rand() * 100) * params.rise,
+    x: (rand() - 0.5) * 18 * params.spread,
+    y: -rand() * 10,
+    vx: (rand() - 0.5) * 42,
+    vy: -(40 + rand() * 80) * params.rise,
     life: 0,
-    maxLife: 0.9 + rand() * 1.8,
-    size: 0.8 + rand() * 2.4,
+    maxLife: 0.7 + rand() * 1.4,
+    size: 0.6 + rand() * 1.8,
   };
+}
+
+/** Soft additive ellipse with soft radial falloff (no hard contour). */
+function softBlob(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  rx: number,
+  ry: number,
+  rot: number,
+  c0: string,
+  a0: number,
+  c1: string,
+  a1: number,
+  c2: string,
+  a2: number,
+): void {
+  if (a0 <= 0.004 && a1 <= 0.004) return;
+  const R = Math.max(rx, ry);
+  if (R < 0.5) return;
+  const g = ctx.createRadialGradient(x, y, 0, x, y, R);
+  g.addColorStop(0, withAlpha(c0, a0));
+  g.addColorStop(0.35, withAlpha(c1, a1));
+  g.addColorStop(0.72, withAlpha(c2, a2));
+  g.addColorStop(1, withAlpha(c2, 0));
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, rot, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
@@ -90,167 +122,323 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
   const mat = params.material;
   const colorHot = mat.emissive;
   const colorMid = mat.baseColor;
-  const colorCool = lerpColor(mat.baseColor, '#4a0a00', 0.35);
-  const colorDeep = lerpColor(mat.baseColor, '#1a0200', 0.55);
+  // Fringe / cool rim — saturated orange only lives here
+  const colorFringe = lerpColor(mat.baseColor, '#ff6a18', 0.25);
+  const colorDeep = lerpColor(mat.baseColor, '#3a0800', 0.45);
+  // Near-clipped core: white → pale yellow (orange only at outer fringe)
+  const coreWhite = '#ffffff';
+  const corePale = '#fff6c4';
+  const coreYellow = '#ffe08a';
   const state = ensureState(params);
   const dt = scene.dt || 1 / 60;
   const rand = mulberry32((params.seed + 42) | 0);
   const wind = scene.wind.x;
   const ei = mat.emissiveIntensity;
   const flicker =
-    0.88 +
-    0.12 * Math.sin(t * 11.3) +
-    0.06 * fbm2(t * 2.1, params.seed * 0.01, 2, params.seed);
+    0.9 +
+    0.08 * Math.sin(t * 9.7) +
+    0.05 * fbm2(t * 1.8, params.seed * 0.01, 2, params.seed);
   const I = params.intensity * flicker;
+  const S = params.size;
+  const Sp = params.spread;
 
   ctx.save();
   applyMaterial(ctx, mat);
 
-  // Broad warm ground spill (campfire illuminates dirt/rock)
-  const spillR = 78 * params.size * params.spread;
-  const spill = ctx.createRadialGradient(params.x, params.y + 10, 2, params.x, params.y + 10, spillR);
-  spill.addColorStop(0, withAlpha(colorMid, 0.55 * I * ei));
-  spill.addColorStop(0.35, withAlpha(colorCool, 0.22 * I));
-  spill.addColorStop(0.7, withAlpha(colorDeep, 0.08 * I));
-  spill.addColorStop(1, withAlpha(colorDeep, 0));
-  ctx.fillStyle = spill;
-  ctx.beginPath();
-  ctx.ellipse(params.x, params.y + 12, spillR, spillR * 0.32, 0, 0, Math.PI * 2);
-  ctx.fill();
+  // ── 1. Ground spill: textured warm light, strong at base, inverse-square ──
+  {
+    const spillR = 92 * S * Sp;
+    const by = params.y + 10;
+    const bx = params.x;
+    // Broad soft ellipse base (warm, never grey)
+    const baseG = ctx.createRadialGradient(bx, by, 1, bx, by, spillR);
+    baseG.addColorStop(0, withAlpha(colorMid, 0.48 * I * ei));
+    baseG.addColorStop(0.28, withAlpha(colorFringe, 0.22 * I));
+    baseG.addColorStop(0.55, withAlpha(colorDeep, 0.09 * I));
+    baseG.addColorStop(1, withAlpha(colorDeep, 0));
+    ctx.fillStyle = baseG;
+    ctx.beginPath();
+    ctx.ellipse(bx, by + 2, spillR, spillR * 0.28, 0, 0, Math.PI * 2);
+    ctx.fill();
 
-  // Soft volumetric haze column above the fire (subtle smoke glow)
-  ctx.save();
-  ctx.globalCompositeOperation = 'lighter';
-  const hazeH = 95 * params.size * params.rise;
-  const haze = ctx.createLinearGradient(params.x, params.y, params.x + wind * 40, params.y - hazeH);
-  haze.addColorStop(0, withAlpha(colorHot, 0.18 * I * ei));
-  haze.addColorStop(0.35, withAlpha(colorMid, 0.08 * I));
-  haze.addColorStop(1, withAlpha(colorCool, 0));
-  ctx.fillStyle = haze;
-  ctx.beginPath();
-  ctx.ellipse(params.x + wind * 18, params.y - hazeH * 0.45, 28 * params.size * params.spread, hazeH * 0.55, wind * 0.04, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
+    // Noise-textured warm patches (inverse-square falloff from base)
+    const patches = Math.floor(28 + 18 * S);
+    for (let i = 0; i < patches; i++) {
+      const ang = (i / patches) * Math.PI * 2 + fbm2(i * 0.7, t * 0.15, 2, params.seed) * 0.4;
+      const u = ((i * 17 + 3) % patches) / patches;
+      const dist = (0.12 + u * 0.88) * spillR;
+      // inverse-square: strong near base
+      const invSq = 1 / (1 + (dist / (spillR * 0.35)) ** 2);
+      const n =
+        0.55 +
+        0.45 * fbm2(Math.cos(ang) * 2.2 + i * 0.13, Math.sin(ang) * 2.2 + t * 0.35, 3, params.seed + 9);
+      const a = invSq * n * 0.2 * I * ei;
+      if (a < 0.012) continue;
+      const px = bx + Math.cos(ang) * dist * 0.95;
+      const py = by + Math.sin(ang) * dist * 0.26 + 2;
+      const pr = (7 + n * 14) * S * (0.55 + invSq * 0.6);
+      softBlob(
+        ctx,
+        px,
+        py,
+        pr,
+        pr * 0.38,
+        ang * 0.15,
+        i % 3 === 0 ? colorHot : colorMid,
+        a * 0.85,
+        colorFringe,
+        a * 0.45,
+        colorDeep,
+        a * 0.12,
+      );
+    }
+  }
 
-  // Ember bed / log glow at base
-  const bed = ctx.createRadialGradient(params.x, params.y + 4, 0, params.x, params.y + 4, 22 * params.size);
-  bed.addColorStop(0, withAlpha('#fff8e0', 0.7 * I * ei));
-  bed.addColorStop(0.4, withAlpha(colorHot, 0.55 * I * ei));
-  bed.addColorStop(0.75, withAlpha(colorMid, 0.25 * I));
-  bed.addColorStop(1, withAlpha(colorDeep, 0));
-  ctx.fillStyle = bed;
-  ctx.beginPath();
-  ctx.ellipse(params.x, params.y + 5, 26 * params.size * params.spread, 10 * params.size, 0, 0, Math.PI * 2);
-  ctx.fill();
+  // ── 2. Volumetric glow: large low-alpha bloom, vertical heat loft ──
+  {
+    const bloomH = 70 * S * (0.55 + params.rise * 0.45);
+    const bloomW = 48 * S * Sp;
+    const loftX = params.x + wind * 14;
+    const loftY = params.y - bloomH * 0.38;
+    // Outer ambient bloom — no hard contour
+    softBlob(
+      ctx,
+      loftX,
+      loftY,
+      bloomW * 1.15,
+      bloomH * 0.85,
+      wind * 0.03,
+      colorHot,
+      0.1 * I * ei,
+      colorMid,
+      0.055 * I,
+      colorDeep,
+      0.018 * I,
+    );
+    // Slightly tighter warm loft column
+    softBlob(
+      ctx,
+      params.x + wind * 8,
+      params.y - bloomH * 0.28,
+      bloomW * 0.72,
+      bloomH * 0.7,
+      wind * 0.025,
+      coreYellow,
+      0.08 * I * ei,
+      colorHot,
+      0.045 * I,
+      colorMid,
+      0.015 * I,
+    );
+  }
 
-  const ordered = [...state.flames].sort((a, b) => a.layer - b.layer);
+  // ── 3. Ember bed / log glow (compact bright base) ──
+  {
+    softBlob(
+      ctx,
+      params.x,
+      params.y + 3,
+      30 * S * Sp,
+      11 * S,
+      0,
+      corePale,
+      0.55 * I * ei,
+      colorHot,
+      0.4 * I * ei,
+      colorMid,
+      0.12 * I,
+    );
+    softBlob(
+      ctx,
+      params.x,
+      params.y + 1,
+      16 * S * Sp,
+      6.5 * S,
+      0,
+      coreWhite,
+      0.7 * I * ei,
+      corePale,
+      0.45 * I * ei,
+      colorHot,
+      0.1 * I,
+    );
+  }
+
+  // ── 4. Luminous mass: dense overlapping soft kernels ──
+  const ordered = [...state.kernels].sort((a, b) => a.role - b.role);
+  // Compact campfire rise (not tall torch)
+  const riseBase = (0.38 + params.rise * 0.55) * S;
 
   for (const f of ordered) {
     if (!scene.paused) {
       f.life += dt;
       if (f.life >= f.maxLife) {
         f.life = 0;
-        f.maxLife = 0.35 + rand() * 0.7;
+        f.maxLife = 0.4 + rand() * 0.85;
         f.ox = (rand() - 0.5) * 2;
         f.phase = rand() * Math.PI * 2;
-        f.size = 5 + rand() * 18;
-        f.lean = (rand() - 0.5) * 0.8;
+        f.size = 6 + rand() * 20;
+        f.lean = (rand() - 0.5) * 0.55;
         const r = rand();
-        f.layer = (r < 0.28 ? 0 : r < 0.55 ? 1 : r < 0.82 ? 2 : 3) as 0 | 1 | 2 | 3;
+        f.role = (r < 0.22 ? 0 : r < 0.58 ? 1 : r < 0.86 ? 2 : 3) as 0 | 1 | 2 | 3;
       }
     }
 
     const p = f.life / f.maxLife;
     const age = 1 - p;
-    // Compact campfire: modest rise, dense base
-    const riseMul = (0.42 + params.rise * 0.7) * (1.2 - f.layer * 0.08);
-    const height = (22 + f.size * 2.6) * params.size * riseMul;
+    // Height stays compact; outer roles sit lower/wider, core sits central/low
+    const roleRise = f.role === 0 ? 0.55 : f.role === 1 ? 0.85 : f.role === 2 ? 1.0 : 0.72;
+    const height = (18 + f.size * 2.1) * riseBase * roleRise;
     const turb =
-      fbm2(f.ox * 3.5 + f.phase, t * (2.2 + params.turbulence) + f.phase, 4, params.seed) *
+      fbm2(f.ox * 2.8 + f.phase, t * (1.8 + params.turbulence * 0.9) + f.phase, 3, params.seed) *
       params.turbulence *
-      18 *
-      params.spread;
+      12 *
+      Sp;
     const sway =
-      Math.sin(t * 4.1 + f.phase) * 5 * params.spread +
-      wind * (14 + p * 36) +
+      Math.sin(t * 3.4 + f.phase) * 3.5 * Sp +
+      wind * (8 + p * 22) +
       turb +
-      f.lean * 10 * p;
+      f.lean * 6 * p;
 
-    const pinch = 1 - p * 0.55;
-    const px = params.x + f.ox * 18 * params.spread * (0.55 + p * 0.6) * pinch + sway * p;
+    // Lateral: outer kernels spread wider; core stays near axis
+    const lateral =
+      f.role === 0 ? 1.15 : f.role === 1 ? 0.85 : f.role === 2 ? 0.45 : 0.22;
+    const pinch = 1 - p * 0.4;
+    const px = params.x + f.ox * 16 * Sp * lateral * (0.5 + p * 0.45) * pinch + sway * p * 0.85;
     const py = params.y - p * height;
 
-    const layerAlpha =
-      f.layer === 0 ? 0.16 : f.layer === 1 ? 0.28 : f.layer === 2 ? 0.42 : 0.62;
-    const alpha = age * layerAlpha * I * ei;
-    const radius =
-      f.size *
-      params.size *
-      (f.layer === 0 ? 1.7 : f.layer === 1 ? 1.25 : f.layer === 2 ? 0.9 : 0.55) *
-      (0.65 + age * 0.55) *
-      (1 + p * 0.2) *
-      pinch;
+    // Soft alphas — overlaps merge; never hard silhouette tongues
+    const roleA =
+      f.role === 0 ? 0.09 : f.role === 1 ? 0.16 : f.role === 2 ? 0.28 : 0.42;
+    const alpha = age * roleA * I * ei;
 
-    const color =
-      f.layer === 3 ? colorHot : f.layer === 2 ? colorMid : f.layer === 1 ? colorCool : colorDeep;
-    const coreHex = f.layer >= 3 ? '#ffffff' : f.layer === 2 ? '#fff6c8' : color;
+    const roleScale =
+      f.role === 0 ? 1.85 : f.role === 1 ? 1.25 : f.role === 2 ? 0.78 : 0.42;
+    const radius = f.size * S * roleScale * (0.7 + age * 0.45) * pinch;
 
-    const g = ctx.createRadialGradient(px, py, 0, px, py, radius);
-    g.addColorStop(0, withAlpha(coreHex, alpha));
-    g.addColorStop(0.2, withAlpha(f.layer >= 2 ? colorHot : color, alpha * 0.9));
-    g.addColorStop(0.55, withAlpha(color, alpha * 0.45));
-    g.addColorStop(0.82, withAlpha(colorCool, alpha * 0.18));
-    g.addColorStop(1, withAlpha(colorDeep, 0));
-    ctx.fillStyle = g;
-    // Tall soft ellipses that stack into a luminous mass
-    const stretch = 1.35 + p * 0.55;
-    ctx.beginPath();
-    ctx.ellipse(px, py, radius * 0.55 * pinch, radius * stretch, sway * 0.012, 0, Math.PI * 2);
-    ctx.fill();
+    // Color by role: white/pale core → yellow mid → saturated orange ONLY on fringe
+    let c0: string;
+    let c1: string;
+    let c2: string;
+    if (f.role === 3) {
+      c0 = coreWhite;
+      c1 = corePale;
+      c2 = coreYellow;
+    } else if (f.role === 2) {
+      c0 = corePale;
+      c1 = coreYellow;
+      c2 = colorHot;
+    } else if (f.role === 1) {
+      c0 = coreYellow;
+      c1 = colorHot;
+      c2 = colorFringe;
+    } else {
+      c0 = colorHot;
+      c1 = colorFringe;
+      c2 = colorDeep;
+    }
+
+    // Slight vertical stretch for heat loft; keep blobs fat so they merge
+    const stretchY = f.role === 0 ? 1.15 : f.role === 1 ? 1.25 : f.role === 2 ? 1.35 : 1.2;
+    const stretchX = f.role === 0 ? 0.95 : 0.72;
+    softBlob(
+      ctx,
+      px,
+      py,
+      radius * stretchX,
+      radius * stretchY,
+      sway * 0.01,
+      c0,
+      alpha,
+      c1,
+      alpha * 0.72,
+      c2,
+      alpha * 0.22,
+    );
   }
 
-  // Blown-out white/yellow core (campfire signature)
-  const coreR = 22 * params.size;
-  const core = ctx.createRadialGradient(params.x, params.y - 6, 0, params.x, params.y - 6, coreR);
-  core.addColorStop(0, withAlpha('#ffffff', 0.95 * I * ei));
-  core.addColorStop(0.18, withAlpha('#fff8d6', 0.85 * I * ei));
-  core.addColorStop(0.4, withAlpha(colorHot, 0.65 * I * ei));
-  core.addColorStop(0.7, withAlpha(colorMid, 0.28 * I));
-  core.addColorStop(1, withAlpha(colorMid, 0));
-  ctx.fillStyle = core;
-  ctx.beginPath();
-  ctx.ellipse(params.x, params.y - 4, coreR * 0.72, coreR * 1.05, 0, 0, Math.PI * 2);
-  ctx.fill();
+  // ── 5. Near-clipped white→pale-yellow core bloom (campfire signature) ──
+  {
+    const cx = params.x + wind * 2;
+    const cy = params.y - 8 * S;
+    // Tight clipped white heart
+    softBlob(
+      ctx,
+      cx,
+      cy,
+      10 * S,
+      12 * S,
+      0,
+      coreWhite,
+      0.95 * I * ei,
+      corePale,
+      0.75 * I * ei,
+      coreYellow,
+      0.2 * I,
+    );
+    // Soft pale bloom around heart — orange only at far fringe
+    softBlob(
+      ctx,
+      cx,
+      cy - 2 * S,
+      22 * S * Sp,
+      26 * S,
+      0,
+      corePale,
+      0.45 * I * ei,
+      coreYellow,
+      0.28 * I * ei,
+      colorHot,
+      0.08 * I,
+    );
+    // Outer fringe orange veil (very soft)
+    softBlob(
+      ctx,
+      cx,
+      cy - 4 * S,
+      34 * S * Sp,
+      38 * S,
+      0,
+      colorHot,
+      0.12 * I * ei,
+      colorFringe,
+      0.06 * I,
+      colorDeep,
+      0.015 * I,
+    );
+  }
 
-  // Rising sparks / embers
+  // ── 6. Embers / sparks (secondary) ──
   for (const e of state.embers) {
     if (!scene.paused) {
       e.life += dt;
-      const n = fbm2(e.x * 0.05, t * 1.6 + e.y * 0.02, 2, params.seed + 7);
-      e.vx += (n * 70 + wind * 30) * dt;
-      e.vy -= 30 * params.rise * dt;
+      const n = fbm2(e.x * 0.05, t * 1.5 + e.y * 0.02, 2, params.seed + 7);
+      e.vx += (n * 55 + wind * 24) * dt;
+      e.vy -= 24 * params.rise * dt;
       e.x += e.vx * dt;
       e.y += e.vy * dt;
-      if (e.life >= e.maxLife || e.y < -180) Object.assign(e, spawnEmber(rand, params));
+      if (e.life >= e.maxLife || e.y < -140) Object.assign(e, spawnEmber(rand, params));
     }
     const ep = e.life / e.maxLife;
-    const a = (1 - ep) * 0.95 * I * params.embers * ei;
+    const a = (1 - ep) * 0.7 * I * params.embers * ei;
     if (a <= 0.02) continue;
-    const glow = ctx.createRadialGradient(
-      params.x + e.x,
-      params.y + e.y,
+    const ex = params.x + e.x;
+    const ey = params.y + e.y;
+    const er = e.size * 2.6 * (1 - ep * 0.35);
+    softBlob(
+      ctx,
+      ex,
+      ey,
+      er,
+      er,
       0,
-      params.x + e.x,
-      params.y + e.y,
-      e.size * 3,
+      ep < 0.3 ? coreWhite : colorHot,
+      a,
+      colorMid,
+      a * 0.4,
+      colorFringe,
+      a * 0.08,
     );
-    glow.addColorStop(0, withAlpha(ep < 0.35 ? '#ffffff' : colorHot, a));
-    glow.addColorStop(0.4, withAlpha(colorMid, a * 0.5));
-    glow.addColorStop(1, withAlpha(colorMid, 0));
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(params.x + e.x, params.y + e.y, e.size * 3 * (1 - ep * 0.4), 0, Math.PI * 2);
-    ctx.fill();
   }
 
   ctx.restore();
@@ -263,7 +451,8 @@ export function disposeFireInstance(instanceId: string): void {
 export const fireEffect: EffectModule<FireParams> = {
   id: 'fire',
   name: 'Fire',
-  description: 'Campfire-style luminous mass: blown-out core, soft tongues, ground spill.',
+  description:
+    'Commercial campfire: soft additive luminous mass, volumetric bloom, textured ground spill.',
   space: 'world',
   defaultParams: {
     enabled: true,
