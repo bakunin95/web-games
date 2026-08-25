@@ -12,7 +12,7 @@ const ROOT = new URL('..', import.meta.url).pathname;
 const OUT_PROGRESS = join(ROOT, 'progress', 'captures');
 const OUT_PUBLIC = join(ROOT, 'public', 'progress', 'captures');
 const PORT = 9222;
-const BASE = 'http://127.0.0.1:5173';
+const BASE = 'http://127.0.0.1:5288';
 
 const targets = process.argv[2] && process.argv[2] !== 'all'
   ? [process.argv[2]]
