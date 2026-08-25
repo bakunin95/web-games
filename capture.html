@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VFX Capture</title>
+    <style>
+      html, body { margin: 0; background: #05070c; overflow: hidden; width: 100%; height: 100%; }
+      canvas { display: block; width: 100vw; height: 100vh; }
+      #meta { display: none; }
+    </style>
+  </head>
+  <body>
+    <canvas id="c" width="960" height="640"></canvas>
+    <div id="meta"></div>
+    <script type="module" src="/src/captureMain.ts"></script>
+  </body>
+</html>

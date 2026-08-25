@@ -85,6 +85,17 @@ export function getPlacedBounds(
   } else if (typeId === 'meteor') {
     const s = Number(params.size ?? 1) * 100;
     raw = { x: params.x - s, y: params.y - s * 1.5, w: s * 2, h: s * 1.8 };
+  } else if (typeId === 'aurora' || typeId === 'starfield') {
+    const s = Number(params.size ?? 1) * 140;
+    const spread = Number(params.spread ?? params.density ?? 1) * 120;
+    raw = { x: params.x - spread, y: params.y - s * 0.6, w: spread * 2, h: s * 1.2 };
+  } else if (typeId === 'tornado' || typeId === 'energy-beam' || typeId === 'hologram') {
+    const h = Number(params.height ?? params.length ?? 1) * 160;
+    const s = Number(params.size ?? 1) * 70;
+    raw = { x: params.x - s, y: params.y - h - 20, w: s * 2, h: h + 40 };
+  } else if (typeId === 'black-hole' || typeId === 'ember-ring' || typeId === 'lava-glow') {
+    const r = Number(params.radius ?? params.size ?? 1) * 90;
+    raw = { x: params.x - r, y: params.y - r * 0.7, w: r * 2, h: r * 1.4 };
   } else {
     const s = Number(params.size ?? 1) * 80;
     raw = { x: params.x - s, y: params.y - s * 1.4, w: s * 2, h: s * 2 };
