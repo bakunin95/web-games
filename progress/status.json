@@ -4,19 +4,19 @@
     "class": "ok"
   },
   "fire": {
-    "text": "Round6 blind: PREFER photo bar. Gaps: radial glow blob vs wispy thread flame; fuel bed flat; ellipse spill stamps. NEW BAR: user fire (tangled luminous threads) + fire-ash (ember streaks) refs.",
+    "text": "Round6 blind: PREFER photo bar. NEW BAR: fire = wispy tangled luminous threads; ash = ember streak particles (separate).",
     "class": "gap",
     "capture": "/progress/captures/fire.png"
   },
   "smoke": {
-    "text": "Round6 blind: PREFER photo bar. Gaps: flat gray wedge (no cauliflower volume); no wind shear/rollover; hard edge + banding vs wispy dissipation.",
+    "text": "Round6 blind: PREFER photo bar. Gaps: flat wedge vs cauliflower volume, wind shear, wispy dissipation.",
     "class": "gap",
     "capture": "/progress/captures/smoke.png"
   },
   "water": {
-    "text": "Round6 blind: PREFER photo bar. Gaps: no sky/shore mirror; no shoreline contact geometry; flat gradient (no Fresnel).",
+    "text": "NEW BAR (user): open ocean — choppy swell, whitecap foam, specular shimmer, deep troughs / cyan crests, sharp horizon under pale sky. Not oval lake lens.",
     "class": "gap",
     "capture": "/progress/captures/water.png"
   },
-  "log": "Gauntlet ACTIVE — Round6 critics still prefer photo bar 0/3.\n- Fire: adopt user refs — FIRE = wispy tangled orange thread mass; ASH = sparse ember/spark streaks (separate look)\n- Smoke: volumetric billows + shear; Water: true mirror + Fresnel\n- Builders fanned out after Round6; progress captures refresh on commit\n- Gate: blind A/B must prefer our captures over refs/"
+  "log": "Gauntlet ACTIVE — Round6 score 0/3 vs prior photo bars.\n- User bars updated: FIRE=wispy threads · ASH=ember streaks · WATER=choppy ocean (Unity-like swell/foam/specular)\n- Smoke still vs industrial plume photo\n- Builders were stopped; waiting to adopt new bars before next capture pass\n- Gate: blind A/B prefer our captures over bars"
 }
