@@ -33,6 +33,8 @@ function drawBlade(
   by: number,
   nx: number,
   ny: number,
+  tx: number,
+  ty: number,
   h: number,
   lean: number,
   width: number,
@@ -42,36 +44,44 @@ function drawBlade(
   mat: GrassPathParams['material'],
   intensity: number,
 ): void {
-  const windSway = Math.sin(t * 2.4 + lean * 3) * swayAmt * h * 0.02;
-  const tx = -ny;
-  const ty = nx;
-  const tipX = bx + (tx * windSway + nx * lean * 0.35) * h * 0.45;
-  const tipY = by + (-h + ty * windSway * 0.3);
-  const midX = bx + (tx * windSway * 0.5 + nx * lean * 0.2) * h * 0.25;
-  const midY = by + tipY * 0.55 * 0.5 - h * 0.25;
+  const windSway = Math.sin(t * 2.4 + lean * 3) * swayAmt * h * 0.018;
+  const leanOff = (lean + windSway) * h * 0.38;
+
+  // Grow along path normal (ny ≤ 0 → upward on screen, same as ground grass patch)
+  const tipX = bx + nx * h + tx * leanOff;
+  const tipY = by + ny * h + ty * leanOff * 0.2;
+  const midX = bx + nx * h * 0.52 + tx * leanOff * 0.45;
+  const midY = by + ny * h * 0.52 + ty * leanOff * 0.1;
 
   ctx.beginPath();
-  ctx.moveTo(bx - width * 0.5, by);
-  ctx.quadraticCurveTo(midX - width * 0.12, midY, tipX, tipY);
-  ctx.quadraticCurveTo(midX + width * 0.12, midY, bx + width * 0.5, by);
+  ctx.moveTo(bx - tx * width * 0.5, by - ty * width * 0.5);
+  ctx.quadraticCurveTo(midX - nx * width * 0.14, midY - ny * width * 0.14, tipX, tipY);
+  ctx.quadraticCurveTo(midX + nx * width * 0.14, midY + ny * width * 0.14, bx + tx * width * 0.5, by + ty * width * 0.5);
   ctx.closePath();
-  ctx.fillStyle = withAlpha(mat.baseColor, (0.5 + 0.45 * shade) * intensity);
+  ctx.fillStyle = withAlpha(mat.baseColor, (0.55 + 0.4 * shade) * intensity);
   ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(bx, by);
+  ctx.quadraticCurveTo(midX, midY, tipX, tipY);
+  ctx.strokeStyle = withAlpha(mat.emissive, 0.22 * intensity * shade);
+  ctx.lineWidth = 0.85;
+  ctx.stroke();
 }
 
 function sampleOpenPolyline(
   wp: { x: number; y: number }[],
   smooth: number,
   stepsPerSeg = 12,
-): { x: number; y: number; nx: number; ny: number }[] {
+): { x: number; y: number; nx: number; ny: number; tx: number; ty: number }[] {
   if (wp.length < 2) return [];
-  const out: { x: number; y: number; nx: number; ny: number }[] = [];
+  const out: { x: number; y: number; nx: number; ny: number; tx: number; ty: number }[] = [];
   const n = wp.length;
   const total = (n - 1) * stepsPerSeg;
   for (let i = 0; i <= total; i++) {
     const t = i / total;
     const s = samplePath(wp, t, smooth);
-    if (s) out.push({ x: s.x, y: s.y, nx: s.nx, ny: s.ny });
+    if (s) out.push({ x: s.x, y: s.y, nx: s.nx, ny: s.ny, tx: s.tx, ty: s.ty });
   }
   return out;
 }
@@ -92,27 +102,56 @@ function drawGrassRibbon(
   const rand = mulberry32(params.seed | 0);
   const wind = sceneWind * params.sway;
   const band = params.bandWidth * getScale(params);
-  const bladeCount = Math.floor(16 + params.density * 72);
+  const bladeCount = Math.floor(28 + params.density * 110);
 
   for (let i = 0; i < bladeCount; i++) {
     const u = rand();
     const idx = Math.min(samples.length - 1, Math.floor(u * samples.length));
     const s = samples[idx]!;
     const lateral = (rand() - 0.5) * band;
+    const h = (34 + rand() * 56) * params.height;
     drawBlade(
       ctx,
       s.x + s.nx * lateral,
       s.y + s.ny * lateral * 0.35,
       s.nx,
       s.ny,
-      (24 + rand() * 44) * params.height,
+      s.tx,
+      s.ty,
+      h,
       (rand() - 0.5) * 0.65,
-      1.1 + rand() * 1.7,
+      1.8 + rand() * 2.4,
       0.5 + rand() * 0.5,
       t + rand() * 2,
       wind + Math.sin(t * 1.7 + idx * 0.08) * 0.15,
       mat,
       I,
+    );
+  }
+
+  // Second layer for thickness — slightly shorter, offset along normal
+  for (let i = 0; i < Math.floor(bladeCount * 0.55); i++) {
+    const u = rand();
+    const idx = Math.min(samples.length - 1, Math.floor(u * samples.length));
+    const s = samples[idx]!;
+    const lateral = (rand() - 0.5) * band * 1.15;
+    const h = (22 + rand() * 38) * params.height;
+    drawBlade(
+      ctx,
+      s.x + s.nx * lateral,
+      s.y + s.ny * lateral * 0.35 + s.ny * 4,
+      s.nx,
+      s.ny,
+      s.tx,
+      s.ty,
+      h,
+      (rand() - 0.5) * 0.5,
+      1.5 + rand() * 2,
+      0.4 + rand() * 0.45,
+      t + rand() * 2.5,
+      wind * 0.9,
+      mat,
+      I * 0.88,
     );
   }
 }
@@ -166,9 +205,11 @@ function drawHillFillBelowPath(
       by,
       0,
       -1,
-      (16 + rand() * 34) * params.height,
+      1,
+      0,
+      (22 + rand() * 40) * params.height,
       (rand() - 0.5) * 0.35,
-      1 + rand() * 1.3,
+      1.6 + rand() * 2.2,
       0.42 + rand() * 0.5,
       t + rand() * 3,
       wind,
@@ -286,10 +327,10 @@ export const grassPathEffect: EffectModule<GrassPathParams> = {
     points: [],
     smooth: 0.85,
     pathDrawing: true,
-    density: 0.85,
-    height: 1,
+    density: 0.9,
+    height: 1.15,
     sway: 1,
-    bandWidth: 28,
+    bandWidth: 52,
     fillHill: false,
     hillDepth: 120,
     scale: 1,
