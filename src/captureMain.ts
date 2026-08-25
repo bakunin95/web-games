@@ -22,7 +22,8 @@ declare global {
 
 const params = new URLSearchParams(location.search);
 const fx = (params.get('fx') || 'fire').toLowerCase();
-const settleMs = Number(params.get('settle') || 2800);
+// Smoke needs a long settle so the wind-sheared plume fills the frame
+const settleMs = Number(params.get('settle') || (fx === 'smoke' ? 5200 : 2800));
 
 const canvas = document.querySelector<HTMLCanvasElement>('#c')!;
 const ctx = canvas.getContext('2d', { alpha: false })!;
@@ -81,25 +82,35 @@ function paintBg(kind: string) {
     return;
   }
   if (kind === 'smoke') {
-    // Dusk industrial sky so dark smoke mass reads (matches plume ref mood)
+    // Dusk industrial sky — cool upper, warm horizon (matches plume ref mood)
     const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#5a6a7e');
-    g.addColorStop(0.35, '#3a4558');
-    g.addColorStop(0.65, '#1e2634');
-    g.addColorStop(1, '#0c1018');
+    g.addColorStop(0, '#4a5a70');
+    g.addColorStop(0.28, '#3a4658');
+    g.addColorStop(0.52, '#2a3344');
+    g.addColorStop(0.72, '#1a2030');
+    g.addColorStop(1, '#0a0e14');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
-    // Warm horizon haze
-    const haze = ctx.createLinearGradient(0, H * 0.35, 0, H * 0.7);
-    haze.addColorStop(0, 'rgba(200,160,100,0)');
-    haze.addColorStop(0.5, 'rgba(180,130,70,0.18)');
-    haze.addColorStop(1, 'rgba(20,16,12,0)');
+    // Warm dusk band along horizon
+    const haze = ctx.createLinearGradient(0, H * 0.38, 0, H * 0.78);
+    haze.addColorStop(0, 'rgba(210,155,85,0)');
+    haze.addColorStop(0.4, 'rgba(190,125,55,0.22)');
+    haze.addColorStop(0.7, 'rgba(140,90,45,0.12)');
+    haze.addColorStop(1, 'rgba(20,14,10,0)');
     ctx.fillStyle = haze;
-    ctx.fillRect(0, H * 0.35, W, H * 0.4);
+    ctx.fillRect(0, H * 0.38, W, H * 0.42);
+    // Soft warm glow near stack (low sun from right)
+    const sun = ctx.createRadialGradient(W * 0.92, H * 0.48, 10, W * 0.85, H * 0.5, 220);
+    sun.addColorStop(0, 'rgba(255,200,120,0.14)');
+    sun.addColorStop(0.45, 'rgba(200,140,70,0.06)');
+    sun.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = sun;
+    ctx.fillRect(W * 0.55, H * 0.25, W * 0.45, H * 0.45);
+    // Ground + chimney (plume spawns at tall stack mouth, top-right)
     ctx.fillStyle = '#050608';
     ctx.fillRect(0, H * 0.72, W, H * 0.28);
-    ctx.fillRect(W * 0.78, H * 0.32, 42, H * 0.42);
-    ctx.fillRect(W * 0.84, H * 0.22, 16, H * 0.52);
+    ctx.fillRect(W * 0.78, H * 0.34, 40, H * 0.4);
+    ctx.fillRect(W * 0.845, H * 0.2, 14, H * 0.54);
     return;
   }
   // Fire: night ground
@@ -116,7 +127,7 @@ function paintBg(kind: string) {
 }
 
 const scene =
-  fx === 'smoke' ? makeScene(-1.45) : fx === 'water' ? makeScene(0.05) : makeScene(0.12);
+  fx === 'smoke' ? makeScene(-1.5) : fx === 'water' ? makeScene(0.05) : makeScene(0.12);
 
 let t = 0;
 let drawing: (tt: number) => void = () => {};
@@ -136,24 +147,25 @@ if (fx === 'fire') {
   };
   drawing = (tt) => fireEffect.draw(ctx, p, tt, scene);
 } else if (fx === 'smoke') {
+  // Spawn at tall chimney mouth (top-right); wind −1.5 drives long leftward plume
   const p: SmokeParams = {
     ...smokeEffect.defaultParams,
     instanceId: 'cap-smoke',
-    x: W * 0.88,
-    y: H * 0.26,
-    size: 1.55,
-    spread: 0.9,
-    rise: 0.25,
-    density: 1.25,
-    turbulence: 1.1,
-    intensity: 1.15,
+    x: W * 0.852,
+    y: H * 0.205,
+    size: 1.35,
+    spread: 0.7,
+    rise: 0.22,
+    density: 1.35,
+    turbulence: 1.05,
+    intensity: 1.2,
     material: createDefaultMaterial({
       name: 'Plume',
-      baseColor: '#3a424c',
+      baseColor: '#323842',
       emissive: '#d8c9a8',
-      emissiveIntensity: 0.5,
-      opacity: 0.98,
-      roughness: 0.92,
+      emissiveIntensity: 0.42,
+      opacity: 0.97,
+      roughness: 0.93,
       metalness: 0.05,
       blend: 'normal',
     }),
