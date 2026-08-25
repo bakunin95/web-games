@@ -124,8 +124,8 @@ export const drawSmoke: DrawFn<SmokeParams> = (ctx, params, t, scene) => {
     const n2 = fbm2(along * 6, t * 0.15 + 2, 2, params.seed + 9);
 
     // Narrow mouth → expands downwind into cauliflower width
-    const envH = (4 + along * 48 + along * along * 70) * params.size * (0.7 + params.spread * 0.4);
-    const envCore = (5 + along * 28) * params.size;
+    const envH = (5 + along * 62 + along * along * 95) * params.size * (0.75 + params.spread * 0.45);
+    const envCore = (4 + along * 22) * params.size;
 
     const cx = params.x + windSign * s;
     const cy = params.y - s * rise + n * envH * 0.08;
@@ -135,44 +135,36 @@ export const drawSmoke: DrawFn<SmokeParams> = (ctx, params, t, scene) => {
       (0.55 - along * 0.22) * params.intensity * (0.8 + params.density * 0.4) * trail * mat.opacity;
     if (baseA < 0.02) continue;
 
-    // Core mass along spine (keeps plume connected)
-    const stretch = 1.5 + windAbs * 0.5 + along * 1.4;
+    // Thin spine tether (low alpha) — mass comes from protruding lobes, not a sausage core
+    const stretch = 1.55 + windAbs * 0.55 + along * 1.5;
     softBlob(
       ctx,
       cx,
       cy,
-      envCore * stretch * 0.55,
-      envCore * (0.35 + along * 0.25),
+      envCore * stretch * 0.38,
+      envCore * (0.22 + along * 0.18),
       n * 0.15,
       body,
-      baseA * 0.55,
-    );
-    softBlob(
-      ctx,
-      cx + windSign * envCore * 0.05,
-      cy + envCore * 0.22,
-      envCore * stretch * 0.45,
-      envCore * 0.28,
-      0,
-      dark,
-      baseA * 0.35,
+      baseA * 0.28,
     );
 
-    // Cauliflower billows — lobes protrude from envelope for lumpy silhouette
-    const lobeCount = 5 + Math.floor(along * 6);
+    // Cauliflower billows — lobes protrude hard so silhouette is lumpy, not a brush stroke
+    const lobeCount = 6 + Math.floor(along * 8);
     for (let li = 0; li < lobeCount; li++) {
-      const ang = (li / lobeCount) * Math.PI * 2 + n * 0.8 + along * 2.5 + t * 0.15;
-      const protrude = 0.45 + (li % 5) * 0.12 + Math.abs(n2) * 0.2;
-      const lx = cx + Math.cos(ang) * envH * protrude * 0.55 + windSign * (li % 3) * along * 6;
-      const ly = cy + Math.sin(ang) * envH * protrude * 0.75;
-      const sc = 0.35 + (li % 4) * 0.12 + along * 0.15;
-      const lrx = envH * sc * stretch * 0.42;
-      const lry = envH * sc * 0.38;
-      const la = baseA * (0.4 + (li % 3) * 0.12);
-      softBlob(ctx, lx, ly, lrx, lry, ang * 0.2, li % 2 ? mid : body, la);
-      softBlob(ctx, lx, ly + lry * 0.3, lrx * 0.75, lry * 0.45, 0, dark, la * 0.4);
-      if (along < 0.65 && li % 3 === 0) {
-        softBlob(ctx, lx - windSign * lrx * 0.08, ly - lry * 0.35, lrx * 0.4, lry * 0.28, 0, lit, la * 0.18 * mat.emissiveIntensity);
+      const ang = (li / lobeCount) * Math.PI * 2 + n * 1.1 + along * 3.2 + t * 0.18;
+      const protrude = 0.65 + (li % 5) * 0.16 + Math.abs(n2) * 0.28;
+      const lx = cx + Math.cos(ang) * envH * protrude * 0.72 + windSign * (li % 3) * along * 8;
+      const ly = cy + Math.sin(ang) * envH * protrude * 0.95;
+      const sc = 0.28 + (li % 5) * 0.14 + along * 0.18 + (li % 2) * 0.08;
+      const lrx = envH * sc * stretch * 0.48;
+      const lry = envH * sc * 0.44;
+      const la = baseA * (0.55 + (li % 3) * 0.14);
+      softBlob(ctx, lx, ly, lrx, lry, ang * 0.25, li % 2 ? mid : body, la);
+      // Stronger underside self-shadow
+      softBlob(ctx, lx + windSign * lrx * 0.04, ly + lry * 0.38, lrx * 0.8, lry * 0.5, 0, dark, la * 0.62);
+      // Subtle top light
+      if (along < 0.7 && li % 2 === 0) {
+        softBlob(ctx, lx - windSign * lrx * 0.1, ly - lry * 0.42, lrx * 0.45, lry * 0.3, 0, lit, la * 0.28 * mat.emissiveIntensity);
       }
     }
   }
