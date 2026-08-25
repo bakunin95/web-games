@@ -23,7 +23,7 @@ declare global {
 const params = new URLSearchParams(location.search);
 const fx = (params.get('fx') || 'fire').toLowerCase();
 // Smoke needs a long settle so the wind-sheared plume fills the frame
-const settleMs = Number(params.get('settle') || (fx === 'smoke' ? 5200 : 2800));
+const settleMs = Number(params.get('settle') || (fx === 'smoke' ? 7500 : 2800));
 
 const canvas = document.querySelector<HTMLCanvasElement>('#c')!;
 const ctx = canvas.getContext('2d', { alpha: false })!;
@@ -57,53 +57,80 @@ function makeScene(windX: number): SceneContext {
 function paintBg(kind: string) {
   // Soft dusk sky that continues into water — less "sticker on sky"
   if (kind === 'water') {
-    // Sky gradient continues through horizon into the water region
-    const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#8ec4e8');
-    g.addColorStop(0.32, '#6aa8d0');
-    g.addColorStop(0.42, '#4a88b0');
-    g.addColorStop(0.52, '#2a5a78');
-    g.addColorStop(0.7, '#143848');
-    g.addColorStop(1, '#081820');
-    ctx.fillStyle = g;
+    // River valley baseline: blue sky + clouds, autumn forest banks, water mid/lower
+    const sky = ctx.createLinearGradient(0, 0, 0, H * 0.42);
+    sky.addColorStop(0, '#5aa0e0');
+    sky.addColorStop(0.55, '#8ec8f0');
+    sky.addColorStop(1, '#c5ddf2');
+    ctx.fillStyle = sky;
     ctx.fillRect(0, 0, W, H);
 
-    // Soft continuous treeline (rolling silhouette, not hard triangles)
-    const shoreY = H * 0.38;
-    const groundH = 22;
-    ctx.fillStyle = 'rgba(10,36,20,0.88)';
-    ctx.fillRect(0, shoreY, W, groundH);
-
-    ctx.beginPath();
-    ctx.moveTo(0, shoreY + groundH);
-    const steps = 80;
-    for (let i = 0; i <= steps; i++) {
-      const u = i / steps;
-      const x = u * W;
-      // Low-frequency rolling canopy — continuous soft band
-      const n =
-        Math.sin(u * Math.PI * 5.2) * 10 +
-        Math.sin(u * Math.PI * 11.7 + 0.7) * 6 +
-        Math.sin(u * Math.PI * 23.3 + 1.3) * 3;
-      const h = 18 + n + ((i * 17) % 7) * 0.6;
-      ctx.lineTo(x, shoreY + groundH - Math.max(10, h));
+    // Soft cumulus
+    for (let i = 0; i < 7; i++) {
+      const cx = ((i * 137) % W) + 40;
+      const cy = 40 + (i % 3) * 28;
+      const g = ctx.createRadialGradient(cx, cy, 4, cx, cy, 70 + (i % 4) * 20);
+      g.addColorStop(0, 'rgba(255,255,255,0.75)');
+      g.addColorStop(0.5, 'rgba(255,255,255,0.25)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 80 + (i % 5) * 12, 28 + (i % 3) * 8, 0, 0, Math.PI * 2);
+      ctx.fill();
     }
-    ctx.lineTo(W, shoreY + groundH);
+
+    // Far forested hill
+    const hillY = H * 0.34;
+    ctx.beginPath();
+    ctx.moveTo(0, hillY + 50);
+    for (let i = 0; i <= 40; i++) {
+      const u = i / 40;
+      const x = u * W;
+      const n = Math.sin(u * Math.PI * 2.2) * 18 + Math.sin(u * Math.PI * 5.5 + 0.4) * 8;
+      ctx.lineTo(x, hillY - n);
+    }
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
     ctx.closePath();
-    const canopy = ctx.createLinearGradient(0, shoreY - 30, 0, shoreY + groundH);
-    canopy.addColorStop(0, 'rgba(12,44,24,0)');
-    canopy.addColorStop(0.35, 'rgba(12,44,24,0.55)');
-    canopy.addColorStop(1, 'rgba(8,32,18,0.95)');
-    ctx.fillStyle = canopy;
+    const hill = ctx.createLinearGradient(0, hillY - 40, 0, H * 0.55);
+    hill.addColorStop(0, '#3d6b28');
+    hill.addColorStop(0.45, '#2a5018');
+    hill.addColorStop(1, '#1a3010');
+    ctx.fillStyle = hill;
     ctx.fill();
 
-    // Soft mist veil along shore so contact isn't a hard cut
-    const mist = ctx.createLinearGradient(0, shoreY + groundH - 8, 0, shoreY + groundH + 28);
-    mist.addColorStop(0, 'rgba(200,220,230,0)');
-    mist.addColorStop(0.4, 'rgba(180,210,225,0.12)');
-    mist.addColorStop(1, 'rgba(140,180,200,0)');
-    ctx.fillStyle = mist;
-    ctx.fillRect(0, shoreY + groundH - 8, W, 36);
+    // Dense autumn canopy along both banks (river baseline)
+    const shoreY = H * 0.42;
+    for (let side = 0; side < 2; side++) {
+      const x0 = side === 0 ? 0 : W * 0.68;
+      const bw = W * 0.34;
+      for (let i = 0; i < 48; i++) {
+        const x = x0 + ((i * 53) % bw);
+        const y = shoreY - 12 - ((i * 37) % 95);
+        const col =
+          i % 6 === 0
+            ? '#c45a1a'
+            : i % 6 === 1
+              ? '#d4a017'
+              : i % 6 === 2
+                ? '#2f6b28'
+                : i % 6 === 3
+                  ? '#8a3a12'
+                  : i % 6 === 4
+                    ? '#e07020'
+                    : '#3d7a22';
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.ellipse(x, y, 16 + (i % 5) * 5, 26 + (i % 6) * 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Ground strip just above water
+    ctx.fillStyle = '#2a1c10';
+    ctx.fillRect(0, shoreY, W, 18);
+    ctx.fillStyle = '#1a4018';
+    ctx.fillRect(0, shoreY - 8, W, 10);
     return;
   }
   if (kind === 'smoke') {
@@ -138,57 +165,28 @@ function paintBg(kind: string) {
     ctx.fillRect(W * 0.845, H * 0.2, 14, H * 0.54);
     return;
   }
-  // Fire: night dirt ground (not a pure black void) so spill + fuel bed read
+  // Fire: soft night dirt so the luminous soft mass reads clearly
   {
     const sky = ctx.createLinearGradient(0, 0, 0, H);
-    sky.addColorStop(0, '#0a0c12');
+    sky.addColorStop(0, '#080a10');
     sky.addColorStop(0.45, '#0c0a08');
-    sky.addColorStop(1, '#1a140e');
+    sky.addColorStop(0.7, '#16100a');
+    sky.addColorStop(1, '#1c140e');
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, W, H);
 
-    // Dirt / mulch ground plane
-    const groundY = H * 0.62;
+    const groundY = H * 0.58;
     const dirt = ctx.createLinearGradient(0, groundY, 0, H);
-    dirt.addColorStop(0, '#2a1e14');
-    dirt.addColorStop(0.35, '#1e160f');
-    dirt.addColorStop(1, '#120e0a');
+    dirt.addColorStop(0, '#2a1c12');
+    dirt.addColorStop(0.5, '#1a120c');
+    dirt.addColorStop(1, '#100c08');
     ctx.fillStyle = dirt;
     ctx.fillRect(0, groundY, W, H - groundY);
-
-    // Soft dirt noise patches (deterministic grain)
-    for (let i = 0; i < 420; i++) {
-      const x = ((i * 97) % W) + ((i * 13) % 17) - 8;
-      const y = groundY + ((i * 53) % (H - groundY));
-      const s = 1.2 + (i % 5) * 0.9;
-      const shade = 18 + (i % 7) * 6;
-      const a = 0.08 + (i % 4) * 0.04;
-      ctx.fillStyle = `rgba(${shade + 20},${shade + 10},${shade},${a})`;
-      ctx.beginPath();
-      ctx.ellipse(x, y, s * 2.2, s * 0.9, ((i * 19) % 10) * 0.1, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    // Darker mulch flecks
-    for (let i = 0; i < 180; i++) {
-      const x = ((i * 131) % W) + ((i * 7) % 11);
-      const y = groundY + 8 + ((i * 89) % (H - groundY - 8));
-      ctx.fillStyle = `rgba(8,6,4,${0.15 + (i % 3) * 0.08})`;
-      ctx.fillRect(x, y, 1 + (i % 3), 1 + (i % 2));
-    }
-    // Warm campfire pit depression
-    const pit = ctx.createRadialGradient(W * 0.5, H * 0.82, 10, W * 0.5, H * 0.82, 200);
-    pit.addColorStop(0, 'rgba(40,24,12,0.55)');
-    pit.addColorStop(0.55, 'rgba(22,14,8,0.35)');
-    pit.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = pit;
-    ctx.beginPath();
-    ctx.ellipse(W * 0.5, H * 0.82, 210, 48, 0, 0, Math.PI * 2);
-    ctx.fill();
   }
 }
 
 const scene =
-  fx === 'smoke' ? makeScene(-1.5) : fx === 'water' ? makeScene(0.05) : makeScene(0.12);
+  fx === 'smoke' ? makeScene(-1.5) : fx === 'water' ? makeScene(0.05) : makeScene(0.85);
 
 let t = 0;
 let drawing: (tt: number) => void = () => {};
@@ -198,13 +196,13 @@ if (fx === 'fire') {
     ...fireEffect.defaultParams,
     instanceId: 'cap-fire',
     x: W * 0.5,
-    y: H * 0.86,
-    size: 3.05,
-    spread: 1.35,
-    rise: 0.72,
-    intensity: 1.2,
-    embers: 1.0,
-    turbulence: 1.1,
+    y: H * 0.82,
+    size: 2.6,
+    spread: 1.4,
+    rise: 1.0,
+    intensity: 1.25,
+    embers: 0.65,
+    turbulence: 1.05,
   };
   drawing = (tt) => fireEffect.draw(ctx, p, tt, scene);
 } else if (fx === 'smoke') {
@@ -214,19 +212,19 @@ if (fx === 'fire') {
     instanceId: 'cap-smoke',
     x: W * 0.852,
     y: H * 0.205,
-    size: 1.35,
+    size: 1.25,
     spread: 0.7,
-    rise: 0.22,
-    density: 1.35,
-    turbulence: 1.05,
-    intensity: 1.2,
+    rise: 0.32,
+    density: 1.5,
+    turbulence: 1.2,
+    intensity: 1.3,
     material: createDefaultMaterial({
       name: 'Plume',
-      baseColor: '#323842',
+      baseColor: '#2c343e',
       emissive: '#d8c9a8',
       emissiveIntensity: 0.42,
       opacity: 0.97,
-      roughness: 0.93,
+      roughness: 0.94,
       metalness: 0.05,
       blend: 'normal',
     }),
@@ -237,13 +235,23 @@ if (fx === 'fire') {
     ...waterEffect.defaultParams,
     instanceId: 'cap-water',
     x: W * 0.5,
-    y: H * 0.64,
-    width: 1100,
-    height: 460,
-    waveStrength: 0.06,
-    waveScale: 0.5,
-    shoreFoam: 0.08,
+    y: H * 0.72,
+    width: 1600,
+    height: 420,
+    waveStrength: 0.85,
+    waveScale: 1.0,
+    shoreFoam: 0.65,
     intensity: 1,
+    material: createDefaultMaterial({
+      name: 'River Glass',
+      baseColor: '#143a48',
+      emissive: '#c8e8f8',
+      emissiveIntensity: 0.75,
+      opacity: 0.98,
+      roughness: 0.2,
+      metalness: 0.88,
+      blend: 'normal',
+    }),
   };
   drawing = (tt) => waterEffect.draw(ctx, p, tt, scene);
 }

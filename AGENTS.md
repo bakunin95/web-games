@@ -5,7 +5,8 @@ VFX Playground — atmospheric Canvas 2D effects with live parameter tweaking. S
 ## Cursor Cloud specific instructions
 
 ### Services
-- **VFX Playground (Vite)** — only app in this repo. Start with `pnpm dev` (binds `0.0.0.0:5173`). Production check: `pnpm build` then `pnpm preview` on port `4173`.
+- **VFX Playground (Vite)** — only app in this repo. Start with `pnpm dev` (binds `0.0.0.0:5288`). Production check: `pnpm build` then `pnpm preview` on port `4173`.
+- **Progress page:** `http://localhost:5288/progress/` or `http://localhost:5288/progress.html` (also works in agent Desktop Chrome).
 
 ### Commands
 - Install: `pnpm install` (lockfile: `pnpm-lock.yaml`)
@@ -19,3 +20,4 @@ VFX Playground — atmospheric Canvas 2D effects with live parameter tweaking. S
 - **Create VFX:** header button `#create-vfx-btn` (and the panel "Create VFX" folder) spawns randomized Fire / Smoke / Sparks / Water instances into `runtimes`. Templates are `CREATABLE_EFFECTS` in `src/effects/index.ts`.
 - Camera: drag to pan, scroll to zoom on `#stage`. Tweakpane sits in `#panel` and should not steal canvas drags (pointer handler ignores `.tp-dfwv`).
 - After dependency changes, restart `pnpm dev` if HMR misses a new package.
+- **Port forward:** Dev server uses **5288** (not 5173) so CursorBrowser does not hit a leftover local Vite on 5173 (blank page + `GET …/progress/ 404`). Use the agent **plug** icon to confirm the forwarded port, or open the app in the agent **Desktop** pane.
