@@ -14,9 +14,9 @@
     "capture": "/progress/captures/smoke.png"
   },
   "water": {
-    "text": "Reflective river: flow-aligned irregular ripples + sky/shore mirror (no vertical stripe glitch). Pending A/B vs user river bar.",
-    "class": "wip",
+    "text": "PASS (user): reflective river locked \u2014 sky/shore mirror + irregular flow ripples at max quality for this pass.",
+    "class": "ok",
     "capture": "/progress/captures/water.png"
   },
-  "log": "Gauntlet ACTIVE\n- SMOKE: PASS / locked\n- WATER: NEW BAR = reflective river (user photo); flow-aligned ripple warp\n- FIRE: logs + denser soft mass\n- Timeline: /progress/timeline/"
+  "log": "Gauntlet ACTIVE\n- SMOKE: PASS / locked\n- WATER: PASS / locked (user reflective river)\n- FIRE: logs + denser soft mass \u2014 still open vs campfire bar\n- Timeline: /progress/timeline/"
 }
