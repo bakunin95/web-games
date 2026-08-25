@@ -12,7 +12,7 @@ export interface FireParams extends PlacedEffectParams {
   embers: number;
 }
 
-/** Soft luminous kernel — dense overlaps merge into one mass (not tongues). */
+/** Soft luminous kernel — dense overlaps merge into irregular rising mass. */
 interface Kernel {
   ox: number;
   oy: number;
@@ -23,6 +23,11 @@ interface Kernel {
   /** 0 fringe · 1 body · 2 inner · 3 core */
   role: 0 | 1 | 2 | 3;
   lean: number;
+  /** Persistent side bias — breaks left/right mirror symmetry */
+  bias: number;
+  /** Per-kernel sway frequency mix */
+  swayA: number;
+  swayB: number;
 }
 
 interface Ember {
@@ -33,6 +38,7 @@ interface Ember {
   life: number;
   maxLife: number;
   size: number;
+  wobble: number;
 }
 
 interface FireState {
@@ -42,6 +48,27 @@ interface FireState {
 
 const states = new Map<string, FireState>();
 
+function spawnKernel(rand: () => number): Kernel {
+  const r = rand();
+  const role = (r < 0.28 ? 0 : r < 0.58 ? 1 : r < 0.86 ? 2 : 3) as 0 | 1 | 2 | 3;
+  // Chaotic, non-radial placement: cluster toward base with heavy side bias
+  const side = rand() < 0.55 ? -1 : 1;
+  const biasMag = 0.15 + rand() * 0.95;
+  return {
+    ox: (rand() - 0.5) * 2.4 + side * biasMag * 0.35,
+    oy: rand() * rand() * 1.15, // denser near base
+    life: rand(),
+    maxLife: 0.4 + rand() * 1.15,
+    phase: rand() * Math.PI * 2,
+    size: 7 + rand() * 26,
+    role,
+    lean: (rand() - 0.5) * 0.85,
+    bias: side * biasMag,
+    swayA: 1.6 + rand() * 3.8,
+    swayB: 2.2 + rand() * 5.5,
+  };
+}
+
 function ensureState(params: FireParams): FireState {
   let state = states.get(params.instanceId);
   if (!state) {
@@ -50,25 +77,15 @@ function ensureState(params: FireParams): FireState {
   }
 
   // Dense soft kernels → additive luminous mass (wide campfire, not torch)
-  const kernelTarget = Math.floor(90 + params.intensity * 160 * params.size);
+  const kernelTarget = Math.floor(95 + params.intensity * 170 * params.size);
   const rand = mulberry32(params.seed | 0);
   while (state.kernels.length < kernelTarget) {
-    const r = rand();
-    const role = (r < 0.3 ? 0 : r < 0.62 ? 1 : r < 0.88 ? 2 : 3) as 0 | 1 | 2 | 3;
-    state.kernels.push({
-      ox: (rand() - 0.5) * 2,
-      oy: rand(),
-      life: rand(),
-      maxLife: 0.5 + rand() * 1.0,
-      phase: rand() * Math.PI * 2,
-      size: 8 + rand() * 22,
-      role,
-      lean: (rand() - 0.5) * 0.45,
-    });
+    state.kernels.push(spawnKernel(rand));
   }
   if (state.kernels.length > kernelTarget) state.kernels.length = kernelTarget;
 
-  const emberTarget = Math.floor(params.embers * 18 * params.intensity);
+  // More secondary sparks than before — drifting embers sell "real fire"
+  const emberTarget = Math.floor(params.embers * 42 * params.intensity);
   while (state.embers.length < emberTarget) {
     state.embers.push(spawnEmber(rand, params));
   }
@@ -79,13 +96,14 @@ function ensureState(params: FireParams): FireState {
 
 function spawnEmber(rand: () => number, params: FireParams): Ember {
   return {
-    x: (rand() - 0.5) * 20 * params.spread,
-    y: -rand() * 8,
-    vx: (rand() - 0.5) * 48,
-    vy: -(35 + rand() * 70) * params.rise,
+    x: (rand() - 0.5) * 28 * params.spread,
+    y: -rand() * 10,
+    vx: (rand() - 0.5) * 70,
+    vy: -(40 + rand() * 95) * params.rise,
     life: 0,
-    maxLife: 0.6 + rand() * 1.2,
-    size: 0.55 + rand() * 1.6,
+    maxLife: 0.5 + rand() * 1.6,
+    size: 0.4 + rand() * 1.85,
+    wobble: 2.5 + rand() * 6,
   };
 }
 
@@ -136,13 +154,21 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
   const rand = mulberry32((params.seed + 42) | 0);
   const wind = scene.wind.x;
   const ei = mat.emissiveIntensity;
+  // Global flicker — uneven, not a single sine
   const flicker =
-    0.92 +
-    0.06 * Math.sin(t * 8.5) +
-    0.04 * fbm2(t * 1.6, params.seed * 0.01, 2, params.seed);
+    0.9 +
+    0.05 * Math.sin(t * 7.2) +
+    0.04 * Math.sin(t * 13.1 + 1.3) +
+    0.05 * fbm2(t * 1.9, params.seed * 0.01, 3, params.seed);
   const I = params.intensity * flicker;
   const S = params.size;
   const Sp = params.spread;
+
+  // Whole-mass lean: breaks bilateral symmetry of the silhouette
+  const massLean =
+    fbm2(t * 0.55, params.seed * 0.02, 3, params.seed + 3) * 14 * Sp +
+    Math.sin(t * 1.15) * 4.5 * Sp +
+    wind * 10;
 
   ctx.save();
   applyMaterial(ctx, mat);
@@ -151,8 +177,7 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
   {
     const spillR = 110 * S * Sp;
     const by = params.y + 14;
-    const bx = params.x;
-    // Bright warm wash — must read as light on dark ground (never grey discs)
+    const bx = params.x + massLean * 0.12;
     softBlob(
       ctx,
       bx,
@@ -169,7 +194,7 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
     );
     softBlob(
       ctx,
-      bx,
+      bx + massLean * 0.08,
       by - 2,
       spillR * 0.45,
       spillR * 0.16,
@@ -186,14 +211,15 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
     for (let i = 0; i < patches; i++) {
       const n1 = fbm2(i * 0.37, t * 0.22 + params.seed * 0.01, 3, params.seed + 11);
       const n2 = fbm2(i * 0.61 + 2.1, t * 0.18, 3, params.seed + 19);
-      const ang = (i / patches) * Math.PI * 2 + n1 * 1.25;
-      const u = 0.05 + Math.abs(n2) * 0.6 + ((i * 13) % 7) * 0.055;
+      // Irregular angular spacing — not even radial spokes
+      const ang = (i / patches) * Math.PI * 2 + n1 * 1.55 + (i % 3) * 0.31;
+      const u = 0.05 + Math.abs(n2) * 0.65 + ((i * 13) % 7) * 0.055;
       const dist = Math.min(1, u) * spillR;
       const invSq = 1 / (1 + (dist / (spillR * 0.25)) ** 2);
       const n = 0.45 + 0.55 * (0.5 + 0.5 * n1);
       const a = invSq * n * 0.42 * I * ei;
       if (a < 0.012) continue;
-      const px = bx + Math.cos(ang) * dist * (0.7 + Math.abs(n2) * 0.4);
+      const px = bx + Math.cos(ang) * dist * (0.65 + Math.abs(n2) * 0.5);
       const py = by + Math.sin(ang) * dist * 0.24 + n1 * 4;
       const prx = (7 + n * 18 + Math.abs(n2) * 12) * S;
       const pry = prx * (0.26 + Math.abs(n1) * 0.14);
@@ -216,51 +242,53 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
     }
   }
 
-  // ── 2. Volumetric glow: LARGE low-alpha bloom, vertical heat loft ──
+  // ── 2. Volumetric glow: irregular low-alpha bloom (not a centered cone) ──
   {
-    const bloomH = 95 * S * (0.5 + params.rise * 0.4);
-    const bloomW = 70 * S * Sp;
+    const bloomH = 100 * S * (0.5 + params.rise * 0.45);
+    const bloomW = 78 * S * Sp;
+    const lean = massLean;
     softBlob(
       ctx,
-      params.x + wind * 16,
-      params.y - bloomH * 0.42,
-      bloomW * 1.35,
-      bloomH * 0.95,
-      wind * 0.035,
+      params.x + wind * 16 + lean * 0.55,
+      params.y - bloomH * 0.4,
+      bloomW * 1.4,
+      bloomH * 0.92,
+      lean * 0.004 + wind * 0.03,
       colorHot,
-      0.085 * I * ei,
+      0.08 * I * ei,
       colorMid,
-      0.045 * I,
+      0.042 * I,
       colorDeep,
-      0.012 * I,
+      0.011 * I,
     );
+    // Offset secondary bloom — breaks teardrop silhouette
     softBlob(
       ctx,
-      params.x + wind * 10,
-      params.y - bloomH * 0.3,
-      bloomW * 0.9,
-      bloomH * 0.78,
-      wind * 0.028,
+      params.x + wind * 10 + lean * 0.85 + 8 * Sp,
+      params.y - bloomH * 0.32,
+      bloomW * 0.75,
+      bloomH * 0.7,
+      lean * 0.006 + 0.08,
       coreYellow,
-      0.07 * I * ei,
+      0.055 * I * ei,
       colorHot,
-      0.035 * I,
+      0.028 * I,
       colorMid,
-      0.01 * I,
+      0.009 * I,
     );
     softBlob(
       ctx,
-      params.x + wind * 6,
-      params.y - bloomH * 0.18,
+      params.x + wind * 6 + lean * 0.35 - 10 * Sp,
+      params.y - bloomH * 0.22,
       bloomW * 0.55,
-      bloomH * 0.5,
-      0,
+      bloomH * 0.48,
+      -0.06 + lean * 0.003,
       corePale,
-      0.05 * I * ei,
+      0.04 * I * ei,
       coreYellow,
-      0.025 * I,
+      0.02 * I,
       colorHot,
-      0.008 * I,
+      0.007 * I,
     );
   }
 
@@ -283,7 +311,6 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
       ctx.beginPath();
       ctx.ellipse(lx, ly, lw, lh, (i - 2) * 0.08, 0, Math.PI * 2);
       ctx.fill();
-      // ember glow on log tops
       softBlob(
         ctx,
         lx,
@@ -302,7 +329,7 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
     ctx.restore();
     softBlob(
       ctx,
-      params.x,
+      params.x + massLean * 0.15,
       params.y + 4,
       36 * S * Sp,
       12 * S,
@@ -316,7 +343,7 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
     );
     softBlob(
       ctx,
-      params.x,
+      params.x + massLean * 0.1,
       params.y + 2,
       18 * S * Sp,
       7 * S,
@@ -330,60 +357,75 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
     );
   }
 
-  // ── 4. Luminous mass: wide dense soft kernels (campfire mound) ──
+  // ── 4. Luminous mass: asymmetric chaotic kernels (irregular rising soft mass) ──
   const ordered = [...state.kernels].sort((a, b) => a.role - b.role);
-  const riseBase = (0.85 + params.rise * 0.85) * S;
+  const riseBase = (0.9 + params.rise * 0.9) * S;
 
   for (const f of ordered) {
     if (!scene.paused) {
       f.life += dt;
       if (f.life >= f.maxLife) {
-        f.life = 0;
-        f.maxLife = 0.45 + rand() * 0.95;
-        f.ox = (rand() - 0.5) * 2;
-        f.oy = rand();
-        f.phase = rand() * Math.PI * 2;
-        f.size = 8 + rand() * 22;
-        f.lean = (rand() - 0.5) * 0.45;
-        const r = rand();
-        f.role = (r < 0.3 ? 0 : r < 0.62 ? 1 : r < 0.88 ? 2 : 3) as 0 | 1 | 2 | 3;
+        Object.assign(f, spawnKernel(rand), { life: 0 });
       }
     }
 
     const p = f.life / f.maxLife;
     const age = 1 - p;
-    const roleRise = f.role === 0 ? 0.55 : f.role === 1 ? 0.85 : f.role === 2 ? 1.05 : 0.7;
-    const height = (32 + f.size * 2.8) * riseBase * roleRise * (0.6 + f.oy * 0.55);
-    const turb =
-      fbm2(f.ox * 2.4 + f.phase, t * (1.5 + params.turbulence * 0.8) + f.phase, 3, params.seed) *
-      params.turbulence *
-      12 *
-      Sp;
-    const sway =
-      Math.sin(t * 2.8 + f.phase) * 3.5 * Sp +
-      wind * (8 + p * 22) +
-      turb +
-      f.lean * 7 * p;
+    const roleRise = f.role === 0 ? 0.5 : f.role === 1 ? 0.9 : f.role === 2 ? 1.15 : 0.65;
+    const height = (30 + f.size * 3.0) * riseBase * roleRise * (0.55 + f.oy * 0.65);
 
+    const turb =
+      fbm2(f.ox * 2.8 + f.phase, t * (1.7 + params.turbulence) + f.phase, 4, params.seed) *
+      params.turbulence *
+      16 *
+      Sp;
+    const turb2 =
+      fbm2(f.oy * 3.1 + f.bias, t * 2.4 + f.phase * 0.7, 3, params.seed + 5) *
+      params.turbulence *
+      9 *
+      Sp;
+
+    // Multi-frequency chaotic sway — each kernel independent
+    const sway =
+      Math.sin(t * f.swayA + f.phase) * 5.5 * Sp +
+      Math.sin(t * f.swayB + f.phase * 1.7) * 3.2 * Sp +
+      Math.cos(t * (f.swayA * 0.55) + f.bias) * 2.4 * Sp +
+      wind * (10 + p * 28) +
+      turb +
+      turb2 +
+      f.lean * 11 * p +
+      f.bias * 6 * (0.35 + p) +
+      massLean * (0.25 + p * 0.55);
+
+    // Wide at mid-height, ragged edges — NOT a pinched cone/teardrop
     const lateral =
-      f.role === 0 ? 1.25 : f.role === 1 ? 0.95 : f.role === 2 ? 0.5 : 0.25;
-    const pinch = 1 - p * 0.4;
+      f.role === 0 ? 1.45 : f.role === 1 ? 1.1 : f.role === 2 ? 0.62 : 0.32;
+    // Soft bulge then slight taper — irregular, not geometric pinch
+    const bulge = 0.55 + Math.sin(p * Math.PI) * 0.55 + p * 0.15;
+    const ragged =
+      1 +
+      0.22 *
+        fbm2(f.ox * 4 + t * 0.8, f.oy * 3 + f.phase, 2, params.seed + f.role);
+
     const px =
       params.x +
-      f.ox * 20 * Sp * lateral * (0.5 + p * 0.4) * pinch +
-      sway * p * 0.75;
-    const py = params.y - p * height - f.oy * 6 * S * (1 - p * 0.25);
+      f.ox * 24 * Sp * lateral * bulge * ragged +
+      f.bias * 8 * Sp * (1 - p * 0.35) +
+      sway * p * 0.85;
+    const py =
+      params.y -
+      p * height -
+      f.oy * 8 * S * (1 - p * 0.3) +
+      Math.sin(t * f.swayB * 0.4 + f.phase) * 2.5 * S * p;
 
     const roleA =
-      f.role === 0 ? 0.14 : f.role === 1 ? 0.24 : f.role === 2 ? 0.36 : 0.52;
+      f.role === 0 ? 0.13 : f.role === 1 ? 0.23 : f.role === 2 ? 0.35 : 0.5;
     const alpha = age * roleA * I * ei;
 
     const roleScale =
-      f.role === 0 ? 1.85 : f.role === 1 ? 1.35 : f.role === 2 ? 0.85 : 0.5;
-    // Tall soft ellipses so mass reads as rising flame not a ground orb
-    const radius = f.size * S * roleScale * (0.7 + age * 0.45) * pinch;
+      f.role === 0 ? 1.95 : f.role === 1 ? 1.4 : f.role === 2 ? 0.88 : 0.52;
+    const radius = f.size * S * roleScale * (0.65 + age * 0.5) * ragged;
 
-    // White/pale core → yellow body → saturated orange ONLY on fringe
     let c0: string;
     let c1: string;
     let c2: string;
@@ -405,16 +447,20 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
       c2 = colorDeep;
     }
 
+    // Stretch varies per kernel — soft rising blobs, not identical ellipses
     const stretchY =
-      (f.role === 0 ? 1.15 : f.role === 1 ? 1.45 : f.role === 2 ? 1.7 : 1.35) * (1.2 + p * 0.6);
-    const stretchX = f.role === 0 ? 1.05 : f.role === 1 ? 0.85 : 0.65;
+      (f.role === 0 ? 1.05 : f.role === 1 ? 1.35 : f.role === 2 ? 1.65 : 1.25) *
+      (1.15 + p * 0.75 + Math.abs(f.lean) * 0.2);
+    const stretchX =
+      (f.role === 0 ? 1.15 : f.role === 1 ? 0.95 : 0.7) *
+      (0.85 + Math.abs(f.bias) * 0.15 + (1 - p) * 0.2);
     softBlob(
       ctx,
       px,
       py,
       radius * stretchX,
       radius * stretchY,
-      sway * 0.01,
+      sway * 0.012 + f.lean * 0.08,
       c0,
       alpha,
       c1,
@@ -424,63 +470,81 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
     );
   }
 
-  // ── 5. Near-clipped white→pale core (LOW and WIDE — not a tall tongue) ──
+  // ── 5. White-hot core — irregular, slightly offset (not a perfect centered orb) ──
   {
-    const cx = params.x + wind * 1.5;
-    const cy = params.y - 4 * S;
+    const coreWobbleX =
+      fbm2(t * 2.1, params.seed * 0.03, 2, params.seed + 9) * 6 * Sp + massLean * 0.2;
+    const coreWobbleY = fbm2(t * 2.8 + 1.1, params.seed * 0.04, 2, params.seed + 13) * 3 * S;
+    const cx = params.x + wind * 1.5 + coreWobbleX;
+    const cy = params.y - 5 * S + coreWobbleY;
     softBlob(
       ctx,
       cx,
       cy,
-      14 * S * Sp,
-      11 * S,
-      0,
+      13 * S * Sp * (1 + 0.08 * Math.sin(t * 9.2)),
+      10 * S * (1 + 0.1 * Math.sin(t * 7.5 + 0.8)),
+      0.05 * Math.sin(t * 4.2),
       coreWhite,
-      0.9 * I * ei,
+      0.92 * I * ei,
       corePale,
-      0.7 * I * ei,
+      0.72 * I * ei,
       coreYellow,
       0.18 * I,
     );
     softBlob(
       ctx,
-      cx,
-      cy - 3 * S,
-      28 * S * Sp,
-      22 * S,
-      0,
+      cx + 4 * Sp,
+      cy - 2 * S,
+      10 * S * Sp,
+      8 * S,
+      -0.12,
+      coreWhite,
+      0.45 * I * ei,
       corePale,
-      0.35 * I * ei,
+      0.3 * I * ei,
       coreYellow,
-      0.22 * I * ei,
+      0.08 * I,
+    );
+    softBlob(
+      ctx,
+      cx - 3 * Sp,
+      cy - 5 * S,
+      26 * S * Sp,
+      20 * S,
+      massLean * 0.004,
+      corePale,
+      0.32 * I * ei,
+      coreYellow,
+      0.2 * I * ei,
       colorHot,
-      0.06 * I,
+      0.055 * I,
     );
   }
 
-  // ── 6. Embers / sparks (secondary) ──
+  // ── 6. Embers / sparks — denser secondary drift ──
   for (const e of state.embers) {
     if (!scene.paused) {
       e.life += dt;
-      const n = fbm2(e.x * 0.05, t * 1.4 + e.y * 0.02, 2, params.seed + 7);
-      e.vx += (n * 60 + wind * 22) * dt;
-      e.vy -= 20 * params.rise * dt;
-      e.x += e.vx * dt;
+      const n = fbm2(e.x * 0.05, t * 1.6 + e.y * 0.02, 2, params.seed + 7);
+      const n2 = fbm2(e.y * 0.04, t * 2.1 + e.x * 0.03, 2, params.seed + 17);
+      e.vx += (n * 75 + n2 * 35 + wind * 28) * dt;
+      e.vy -= (18 + Math.abs(n2) * 25) * params.rise * dt;
+      e.x += e.vx * dt + Math.sin(t * e.wobble + e.x * 0.1) * 18 * dt;
       e.y += e.vy * dt;
-      if (e.life >= e.maxLife || e.y < -120) Object.assign(e, spawnEmber(rand, params));
+      if (e.life >= e.maxLife || e.y < -140) Object.assign(e, spawnEmber(rand, params));
     }
     const ep = e.life / e.maxLife;
-    const a = (1 - ep) * 0.55 * I * params.embers * ei;
-    if (a <= 0.02) continue;
-    const er = e.size * 2.4 * (1 - ep * 0.35);
+    const a = (1 - ep) * 0.62 * I * params.embers * ei;
+    if (a <= 0.015) continue;
+    const er = e.size * 2.2 * (1 - ep * 0.4);
     softBlob(
       ctx,
       params.x + e.x,
       params.y + e.y,
       er,
-      er,
+      er * (1.1 + ep * 0.4),
       0,
-      ep < 0.28 ? coreWhite : colorHot,
+      ep < 0.25 ? coreWhite : ep < 0.55 ? coreYellow : colorHot,
       a,
       colorMid,
       a * 0.35,
@@ -500,7 +564,7 @@ export const fireEffect: EffectModule<FireParams> = {
   id: 'fire',
   name: 'Fire',
   description:
-    'Commercial campfire: soft additive luminous mass, volumetric bloom, textured ground spill.',
+    'Campfire: asymmetric soft luminous mass, white-hot core, fuel logs, drifting embers.',
   space: 'world',
   defaultParams: {
     enabled: true,
