@@ -116,98 +116,98 @@ export const drawFire: DrawFn<FireParams> = (ctx, params, t, scene) => {
   const bx = params.x;
   const by = params.y;
 
-  // Soft warm ground spill
+  // Soft warm ground spill — stronger so fire reads on dark dirt
   softBlob(
     ctx,
     bx + lean * 0.05,
-    by + 8 * S,
-    95 * S * Sp,
-    28 * S,
+    by + 10 * S,
+    120 * S * Sp,
+    36 * S,
     0,
     hot,
-    0.16 * bright * ei,
+    0.32 * bright * ei,
     mid,
-    0.08 * bright,
+    0.16 * bright,
     deep,
-    0.02 * bright,
+    0.04 * bright,
   );
 
   // Soft charcoal bed glow (no stick geometry)
-  softBlob(ctx, bx, by + 2 * S, 42 * S * Sp, 14 * S, 0, hot, 0.35 * bright * ei, deep, 0.2 * bright, '#1a0800', 0.05);
-  softBlob(ctx, bx - 18 * S * Sp, by + 4 * S, 22 * S, 10 * S, -0.2, mid, 0.22 * bright, deep, 0.1 * bright, '#000', 0);
-  softBlob(ctx, bx + 20 * S * Sp, by + 5 * S, 24 * S, 11 * S, 0.25, mid, 0.2 * bright, deep, 0.1 * bright, '#000', 0);
+  softBlob(ctx, bx, by + 2 * S, 52 * S * Sp, 16 * S, 0, hot, 0.55 * bright * ei, deep, 0.28 * bright, '#1a0800', 0.06);
+  softBlob(ctx, bx - 20 * S * Sp, by + 4 * S, 26 * S, 12 * S, -0.2, mid, 0.38 * bright, deep, 0.16 * bright, '#000', 0);
+  softBlob(ctx, bx + 22 * S * Sp, by + 5 * S, 28 * S, 13 * S, 0.25, mid, 0.36 * bright, deep, 0.15 * bright, '#000', 0);
 
-  // Soft rising flame mass — stacked soft tongues (blobs only)
-  const tongues = Math.floor(7 + Sp * 5);
+  // Soft rising flame mass — stacked soft tongues (blobs only, brighter)
+  const tongues = Math.floor(9 + Sp * 6);
   for (let i = 0; i < tongues; i++) {
     const u = (i + 0.5) / tongues - 0.5;
     const phase = t * (1.4 + (i % 3) * 0.35) + i * 1.7 + params.seed * 0.01;
-    const wobble = Math.sin(phase) * 10 * Sp * params.turbulence;
+    const wobble = Math.sin(phase) * 12 * Sp * params.turbulence;
     const riseN = 0.55 + 0.45 * (0.5 + 0.5 * Math.sin(phase * 0.7 + i));
-    const h = (55 + riseN * 95 * params.rise) * S;
-    const cx = bx + u * 70 * Sp * S + lean * (0.25 + riseN * 0.55) + wobble;
+    const h = (70 + riseN * 110 * params.rise) * S;
+    const cx = bx + u * 78 * Sp * S + lean * (0.25 + riseN * 0.55) + wobble;
     const cy = by - h * 0.55;
-    const rx = (18 + (1 - Math.abs(u)) * 22) * S * Sp * (0.85 + 0.2 * Math.sin(phase * 1.3));
+    const rx = (22 + (1 - Math.abs(u)) * 26) * S * Sp * (0.85 + 0.2 * Math.sin(phase * 1.3));
     const ry = h * 0.55;
     const rot = lean * 0.004 + u * 0.15 + Math.sin(phase) * 0.08;
 
-    softBlob(ctx, cx, cy, rx, ry, rot, hot, 0.28 * bright * ei, mid, 0.16 * bright, deep, 0.03 * bright);
+    softBlob(ctx, cx, cy, rx, ry, rot, hot, 0.48 * bright * ei, mid, 0.28 * bright, deep, 0.05 * bright);
     softBlob(
       ctx,
       cx + lean * 0.05,
       cy - ry * 0.15,
-      rx * 0.55,
-      ry * 0.7,
+      rx * 0.58,
+      ry * 0.72,
       rot,
       tip,
-      0.18 * bright * ei,
+      0.34 * bright * ei,
       hot,
-      0.1 * bright,
+      0.18 * bright,
       mid,
-      0.02 * bright,
+      0.04 * bright,
     );
   }
 
-  // Soft hot core near base (small, not a white cone)
+  // Soft hot core near base (kept soft — not a white cone / stick bundle)
   softBlob(
     ctx,
     bx + lean * 0.08,
-    by - 28 * S * params.rise,
-    16 * S * Sp,
-    28 * S,
+    by - 34 * S * params.rise,
+    22 * S * Sp,
+    36 * S,
     lean * 0.003,
     tip,
-    0.35 * bright * ei,
+    0.55 * bright * ei,
     hot,
-    0.2 * bright,
+    0.32 * bright,
     mid,
-    0.04 * bright,
+    0.06 * bright,
   );
   softBlob(
     ctx,
     bx + lean * 0.06,
-    by - 18 * S,
-    7 * S,
-    12 * S,
+    by - 22 * S,
+    10 * S,
+    16 * S,
     0,
     core,
-    0.22 * bright * ei,
+    0.32 * bright * ei,
     tip,
-    0.1 * bright,
+    0.16 * bright,
     hot,
-    0.02 * bright,
+    0.03 * bright,
   );
 
   // Fringe wisps as soft ellipses only
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 14; i++) {
     const n1 = fbm2(i * 0.8, t * 0.9 + params.seed * 0.02, 2, params.seed + 11);
     const n2 = fbm2(i * 1.3 + 2, t * 0.7, 2, params.seed + 17);
     const u = n1;
-    const h = (40 + Math.abs(n2) * 70 * params.rise) * S;
-    const cx = bx + u * 55 * Sp * S + lean * 0.45;
+    const h = (50 + Math.abs(n2) * 85 * params.rise) * S;
+    const cx = bx + u * 62 * Sp * S + lean * 0.45;
     const cy = by - h;
-    const a = 0.08 * bright * (0.5 + Math.abs(n2));
-    softBlob(ctx, cx, cy, (8 + Math.abs(n1) * 12) * S, (16 + Math.abs(n2) * 22) * S, u * 0.2, tip, a, mid, a * 0.5, deep, 0);
+    const a = 0.16 * bright * (0.5 + Math.abs(n2));
+    softBlob(ctx, cx, cy, (10 + Math.abs(n1) * 14) * S, (20 + Math.abs(n2) * 26) * S, u * 0.2, tip, a, mid, a * 0.55, deep, 0);
   }
 
   ctx.restore();
@@ -271,7 +271,7 @@ export const fireEffect: EffectModule<FireParams> = {
       name: 'Fire / Magma',
       baseColor: '#ff3b10',
       emissive: '#ff9a40',
-      emissiveIntensity: 1.1,
+      emissiveIntensity: 1.35,
       blend: 'additive',
       roughness: 0.4,
       metalness: 0.1,

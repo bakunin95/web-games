@@ -1,22 +1,22 @@
 {
   "infra": {
-    "text": "PASS: materials, select/drag/scale, minimize, 66+ creatables",
+    "text": "PASS: materials, select/drag/scale, minimize, 66+ creatables + evolution timeline",
     "class": "ok"
   },
   "fire": {
-    "text": "SOFT rewrite: luminous blob mass + soft ember dots \u2014 no threads/lines. Pending A/B.",
-    "class": "wip",
+    "text": "Round7 blind: PREFER photo. Soft blobs brighter but still ellipse stack — need organic silhouette, ground-contact glow, hot-core→cool tip (no lines).",
+    "class": "gap",
     "capture": "/progress/captures/fire.png"
   },
   "smoke": {
-    "text": "SOFT edges: fluffier softBlob falloff on plume. Pending A/B.",
-    "class": "wip",
+    "text": "Round7 blind: PREFER photo. Gaps: hard silhouette, tiled noise, no wind-shear taper/wisps.",
+    "class": "gap",
     "capture": "/progress/captures/smoke.png"
   },
   "water": {
-    "text": "Ocean rewrite: choppy swell + whitecaps + specular glitter under pale sky. Pending blind A/B vs user ocean bar.",
-    "class": "wip",
+    "text": "Round7 blind: PREFER photo. Gaps: sine-stripe waves, weak foam/specular, gradient banding vs photoreal.",
+    "class": "gap",
     "capture": "/progress/captures/water.png"
   },
-  "log": "Gauntlet ACTIVE \u2014 soft fire/smoke + ocean water.\n- NEW: Evolution timeline with pictures \u2192 /progress/timeline/\n- Fire: soft blobs (no lines) \u00b7 Smoke: soft plume \u00b7 Water: ocean swell\n- Gate: blind A/B prefer our captures over bars"
+  "log": "Gauntlet ACTIVE — Round7 0/3 vs photo bars (soft-fire direction kept).\n- Timeline: /progress/timeline/\n- Fire: brighter soft mass; still losing on organic silhouette + ground light\n- Smoke/Water: soft/ocean paths; critics still prefer photos\n- Gate: blind A/B prefer our captures"
 }
