@@ -27,6 +27,7 @@ import { frostEffect, disposeFrostInstance } from './frost';
 import { meteorEffect, disposeMeteorInstance } from './meteor';
 import { PACK2_EFFECTS, PACK2_DISPOSE } from './pack2';
 import { PACK3_EFFECTS, PACK3_DISPOSE } from './pack3';
+import { CREATURE_EFFECTS, CREATURE_DISPOSE } from './creatures';
 
 import { rainEffect } from './rain';
 import { hazardAtmosphereEffect } from './hazardAtmosphere';
@@ -67,6 +68,7 @@ export const CREATABLE_EFFECTS: EffectModule[] = [
   meteorEffect as unknown as EffectModule,
   ...PACK2_EFFECTS,
   ...PACK3_EFFECTS,
+  ...CREATURE_EFFECTS,
 ];
 
 export const EFFECTS = BUILTIN_EFFECTS;
@@ -102,6 +104,7 @@ const DISPOSE: Record<string, (id: string) => void> = {
   meteor: disposeMeteorInstance,
   ...PACK2_DISPOSE,
   ...PACK3_DISPOSE,
+  ...CREATURE_DISPOSE,
 };
 
 export function disposeInstancePools(typeId: string, instanceId: string): void {
@@ -141,8 +144,23 @@ export function createRandomizedParams(
     base.material = createDefaultMaterial();
   }
 
+  // Creature FX: occasionally swap to a related material preset
+  if (module.id === 'bees' || module.id === 'bee-swarm') {
+    base.material = copyMaterial(pick([MATERIAL_PRESETS['Bee Gold']!, MATERIAL_PRESETS['Carapace Dark']!]));
+  } else if (module.id === 'mosquitoes') {
+    base.material = copyMaterial(pick([MATERIAL_PRESETS.Mosquito!, MATERIAL_PRESETS['Carapace Dark']!]));
+  } else if (module.id === 'small-animals') {
+    base.material = copyMaterial(
+      pick([
+        MATERIAL_PRESETS['Fur Brown']!,
+        MATERIAL_PRESETS['Feather Soft']!,
+        MATERIAL_PRESETS['Frog Green']!,
+      ]),
+    );
+  }
+
   // Light randomization of common numeric knobs when present
-  for (const key of ['size', 'spread', 'density', 'radius', 'speed', 'count', 'drift', 'turbulence']) {
+  for (const key of ['size', 'spread', 'density', 'radius', 'speed', 'count', 'drift', 'turbulence', 'buzz', 'wander', 'mix']) {
     if (typeof base[key] === 'number') {
       base[key] = Number(base[key]) * (0.85 + Math.random() * 0.35);
     }
@@ -150,15 +168,20 @@ export function createRandomizedParams(
   if (typeof base.width === 'number') base.width = Number(base.width) * (0.85 + Math.random() * 0.35);
   if (typeof base.height === 'number') base.height = Number(base.height) * (0.85 + Math.random() * 0.35);
 
-  // Water / fog sit lower
-  if (module.id === 'water' || module.id === 'fog-bank' || module.id === 'heat-haze' || module.id === 'caustics') {
+  // Water / fog / critters sit lower
+  if (
+    module.id === 'water' ||
+    module.id === 'fog-bank' ||
+    module.id === 'heat-haze' ||
+    module.id === 'caustics' ||
+    module.id === 'small-animals'
+  ) {
     base.y = Math.min(scene.worldHeight - 60, Math.max(760, scene.camera.y + 160));
   }
   if (module.id === 'thunderclouds' || module.id === 'god-rays') {
     base.y = Math.max(280, scene.camera.y - 80 + jitterY * 0.3);
   }
 
-  void pick;
   return base;
 }
 

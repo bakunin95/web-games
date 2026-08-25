@@ -5,6 +5,11 @@ import type { DrawFn, EffectModule } from '../core/types';
 import type { PlacedEffectParams } from '../core/placed';
 import { applyMaterial, createDefaultMaterial } from '../core/material';
 import { fbm2, mulberry32, withAlpha } from './noise';
+import {
+  drawBees,
+  disposeBeesInstance as disposeBeeSwarmShared,
+  type BeesParams,
+} from './creatures';
 
 type P = PlacedEffectParams;
 
@@ -1206,63 +1211,15 @@ export const cometTrailEffect: EffectModule<CometTrailParams> = {
 };
 export const disposeCometTrailInstance = (id: string) => disposeMap(cometState, id);
 
-// ——— 16. Bee Swarm ———
-export interface BeeSwarmParams extends P {
-  count: number;
-  size: number;
-  buzz: number;
-}
-interface Bee {
-  x: number;
-  y: number;
-  phase: number;
-  speed: number;
-}
-const beePools = new Map<string, Bee[]>();
-
-export const drawBeeSwarm: DrawFn<BeeSwarmParams> = (ctx, params, t, scene) => {
-  if (!params.enabled || params.intensity <= 0) return;
-  const mat = params.material;
-  let pool = beePools.get(params.instanceId) ?? [];
-  const n = Math.floor(16 + params.count * 50);
-  const rand = mulberry32(params.seed | 0);
-  while (pool.length < n) {
-    pool.push({
-      x: (rand() - 0.5) * 100,
-      y: (rand() - 0.5) * 70,
-      phase: rand() * Math.PI * 2,
-      speed: 1.5 + rand() * 2,
-    });
-  }
-  pool.length = n;
-  beePools.set(params.instanceId, pool);
-  const dt = scene.dt || 1 / 60;
-  ctx.save();
-  applyMaterial(ctx, mat);
-  for (const b of pool) {
-    if (!scene.paused) {
-      b.x += Math.sin(t * b.speed * params.buzz + b.phase) * 40 * dt;
-      b.y += Math.cos(t * b.speed * 1.3 * params.buzz + b.phase) * 30 * dt;
-      // soft pull to center
-      b.x *= 1 - 0.4 * dt;
-      b.y *= 1 - 0.4 * dt;
-    }
-    softDot(
-      ctx,
-      params.x + b.x,
-      params.y + b.y,
-      2.5 * params.size,
-      mat.baseColor,
-      0.85 * params.intensity,
-    );
-  }
-  ctx.restore();
-};
+// ——— 16. Bee Swarm (material-rich; shared draw with creatures/bees) ———
+export type BeeSwarmParams = BeesParams;
+export const drawBeeSwarm = drawBees;
+export const disposeBeeSwarmInstance = disposeBeeSwarmShared;
 
 export const beeSwarmEffect: EffectModule<BeeSwarmParams> = {
   id: 'bee-swarm',
   name: 'Bee Swarm',
-  description: 'Buzzing insect swarm.',
+  description: 'Material-driven buzzing bees (body / wing / stripe).',
   space: 'world',
   defaultParams: {
     enabled: true,
@@ -1275,16 +1232,18 @@ export const beeSwarmEffect: EffectModule<BeeSwarmParams> = {
     size: 1,
     buzz: 1,
     material: createDefaultMaterial({
-      name: 'Bee',
-      baseColor: '#ffc04a',
+      name: 'Bee Gold',
+      baseColor: '#e8a020',
       emissive: '#ffe08a',
-      emissiveIntensity: 0.5,
+      emissiveIntensity: 0.65,
+      opacity: 1,
+      roughness: 0.45,
+      metalness: 0.25,
       blend: 'normal',
     }),
   },
   draw: drawBeeSwarm,
 };
-export const disposeBeeSwarmInstance = (id: string) => disposeMap(beePools, id);
 
 // ——— 17. Candle Flames ———
 export interface CandleFlamesParams extends P {
