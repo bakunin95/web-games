@@ -27,6 +27,7 @@ const renderer = createRenderer({
 
 /** Single source of truth for the selection gizmo. */
 let selectedId: string | null = null;
+let interactions: ReturnType<typeof attachStageInteractions>;
 
 const loop = createLoop((t, dt) => {
   scene.time = t;
@@ -37,6 +38,7 @@ const loop = createLoop((t, dt) => {
     selectedId,
     cssIntensity: ui.cssOverlay.intensity,
     cssEnabled: ui.cssOverlay.enabled,
+    pathHoverNode: interactions?.state.pathHoverNode ?? -1,
   });
 });
 
@@ -54,7 +56,7 @@ const ui = createPlaygroundUI(
   resetBtn,
 );
 
-const interactions = attachStageInteractions(stage, scene, runtimes, (id) => {
+interactions = attachStageInteractions(stage, scene, runtimes, (id) => {
   selectedId = id;
   ui.selectRuntime(id);
 });

@@ -6,6 +6,7 @@ import {
   sampleClosedPath,
   traceClosedPath,
   traceOpenPath,
+  worldToPathLocal,
 } from '../core/path';
 import { applyMaterial, createDefaultMaterial } from '../core/material';
 import { fbm2, mulberry32, withAlpha, lerpColor } from './noise';
@@ -124,6 +125,7 @@ export function drawSoilGizmo(
   params: SoilParams,
   zoom: number,
   selected: boolean,
+  hoverNode = -1,
 ): void {
   const wp = pathWorldPoints(params);
   if (wp.length === 0) return;
@@ -154,7 +156,12 @@ export function drawSoilGizmo(
     const p = wp[i]!;
     ctx.beginPath();
     ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-    ctx.fillStyle = selected ? 'rgba(210, 160, 90, 0.95)' : 'rgba(160, 120, 70, 0.85)';
+    const hot = i === hoverNode;
+    ctx.fillStyle = hot
+      ? 'rgba(255, 220, 140, 0.98)'
+      : selected
+        ? 'rgba(210, 160, 90, 0.95)'
+        : 'rgba(160, 120, 70, 0.85)';
     ctx.fill();
     ctx.strokeStyle = 'rgba(30, 20, 12, 0.9)';
     ctx.lineWidth = 1.5 * inv;
@@ -164,7 +171,7 @@ export function drawSoilGizmo(
   if (params.pathDrawing && wp.length >= 3) {
     ctx.font = `${Math.round(12 * inv)}px sans-serif`;
     ctx.fillStyle = 'rgba(232, 220, 200, 0.95)';
-    ctx.fillText('Click first node · Enter · or Close shape', wp[0]!.x + 12 * inv, wp[0]!.y - 14 * inv);
+    ctx.fillText('Click first node · Enter · Close shape · Shift+add · right-click remove', wp[0]!.x + 12 * inv, wp[0]!.y - 14 * inv);
   } else if (params.pathDrawing && wp.length >= 1 && wp.length < 3) {
     ctx.font = `${Math.round(12 * inv)}px sans-serif`;
     ctx.fillStyle = 'rgba(232, 220, 200, 0.9)';
@@ -172,6 +179,20 @@ export function drawSoilGizmo(
     ctx.fillText(hint, wp[0]!.x + 12 * inv, wp[0]!.y - 14 * inv);
   }
   ctx.restore();
+}
+
+export function removeSoilNode(params: SoilParams, index: number): void {
+  if (index < 0 || index >= params.points.length) return;
+  params.points.splice(index, 1);
+  if (params.points.length < 3) params.pathDrawing = true;
+}
+
+export function insertSoilNodeOnEdge(params: SoilParams, afterIndex: number, wx: number, wy: number): void {
+  params.points.splice(afterIndex + 1, 0, worldToPathLocal(params, wx, wy));
+}
+
+export function appendSoilNode(params: SoilParams, wx: number, wy: number): void {
+  params.points.push(worldToPathLocal(params, wx, wy));
 }
 
 export function closeSoilShape(params: SoilParams): boolean {

@@ -23,6 +23,7 @@ import { bloodMistEffect, disposeBloodMistInstance } from './bloodMist';
 import { leavesEffect, disposeLeavesInstance } from './leaves';
 import { firefliesEffect, disposeFirefliesInstance } from './fireflies';
 import { grassEffect, disposeGrassInstance } from './grass';
+import { grassPathEffect, disposeGrassPathInstance } from './grassPath';
 import { soilEffect, disposeSoilInstance } from './soil';
 import { causticsEffect, disposeCausticsInstance } from './caustics';
 import { frostEffect, disposeFrostInstance } from './frost';
@@ -66,6 +67,7 @@ export const CREATABLE_EFFECTS: EffectModule[] = [
   leavesEffect as unknown as EffectModule,
   firefliesEffect as unknown as EffectModule,
   grassEffect as unknown as EffectModule,
+  grassPathEffect as unknown as EffectModule,
   soilEffect as unknown as EffectModule,
   causticsEffect as unknown as EffectModule,
   frostEffect as unknown as EffectModule,
@@ -104,6 +106,7 @@ const DISPOSE: Record<string, (id: string) => void> = {
   leaves: disposeLeavesInstance,
   fireflies: disposeFirefliesInstance,
   grass: disposeGrassInstance,
+  'grass-path': disposeGrassPathInstance,
   soil: disposeSoilInstance,
   caustics: disposeCausticsInstance,
   frost: disposeFrostInstance,
@@ -182,11 +185,12 @@ export function createRandomizedParams(
     module.id === 'caustics' ||
     module.id === 'small-animals' ||
     module.id === 'grass' ||
+    module.id === 'grass-path' ||
     module.id === 'soil'
   ) {
     base.y = Math.min(scene.worldHeight - 60, Math.max(760, scene.camera.y + 160));
   }
-  if (module.id === 'soil') {
+  if (module.id === 'soil' || module.id === 'grass-path') {
     (base as Record<string, unknown>).pathDrawing = true;
     (base as Record<string, unknown>).points = [];
   }
@@ -220,6 +224,7 @@ export {
   leavesEffect,
   firefliesEffect,
   grassEffect,
+  grassPathEffect,
   soilEffect,
   causticsEffect,
   frostEffect,

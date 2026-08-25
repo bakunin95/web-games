@@ -253,13 +253,96 @@ export function hitPathPointIndex(
   wy: number,
   zoom: number,
 ): number | null {
-  const r = 14 / Math.max(0.35, zoom);
+  const r = 18 / Math.max(0.35, zoom);
   const wp = pathWorldPoints(params);
   for (let i = wp.length - 1; i >= 0; i--) {
     const p = wp[i]!;
     if (Math.hypot(wx - p.x, wy - p.y) <= r) return i;
   }
   return null;
+}
+
+/** Nearest point on closed spline edge for inserting a node. */
+export function hitClosedPathEdge(
+  points: { x: number; y: number }[],
+  wx: number,
+  wy: number,
+  smooth: number,
+  threshold: number,
+): { afterIndex: number; x: number; y: number } | null {
+  const n = points.length;
+  if (n < 2) return null;
+  const steps = 14;
+  let best: { afterIndex: number; x: number; y: number; d: number } | null = null;
+  for (let seg = 0; seg < n; seg++) {
+    for (let s = 0; s <= steps; s++) {
+      const u = s / steps;
+      const p =
+        n >= 3
+          ? sampleClosedSegment(points, seg, u, smooth)
+          : {
+              x: points[seg]!.x + (points[(seg + 1) % n]!.x - points[seg]!.x) * u,
+              y: points[seg]!.y + (points[(seg + 1) % n]!.y - points[seg]!.y) * u,
+            };
+      const d = Math.hypot(wx - p.x, wy - p.y);
+      if (d <= threshold && (!best || d < best.d)) {
+        best = { afterIndex: seg, x: p.x, y: p.y, d };
+      }
+    }
+  }
+  return best ? { afterIndex: best.afterIndex, x: best.x, y: best.y } : null;
+}
+
+/** Nearest point on open spline edge for inserting a node. */
+export function hitOpenPathEdge(
+  points: { x: number; y: number }[],
+  wx: number,
+  wy: number,
+  smooth: number,
+  threshold: number,
+): { afterIndex: number; x: number; y: number } | null {
+  const n = points.length;
+  if (n < 2) return null;
+  let best: { afterIndex: number; x: number; y: number; d: number } | null = null;
+  const steps = 14;
+  for (let seg = 0; seg < n - 1; seg++) {
+    for (let s = 0; s <= steps; s++) {
+      const t = (seg + s / steps) / (n - 1);
+      const sp = samplePath(points, t, smooth);
+      if (!sp) continue;
+      const d = Math.hypot(wx - sp.x, wy - sp.y);
+      if (d <= threshold && (!best || d < best.d)) {
+        best = { afterIndex: seg, x: sp.x, y: sp.y, d };
+      }
+    }
+  }
+  return best ? { afterIndex: best.afterIndex, x: best.x, y: best.y } : null;
+}
+
+export function insertPathPointAfter(
+  params: PlacedEffectParams & { points: PathPoint[] },
+  afterIndex: number,
+  wx: number,
+  wy: number,
+): void {
+  const local = worldToPathLocal(params, wx, wy);
+  params.points.splice(afterIndex + 1, 0, local);
+}
+
+export function appendPathPoint(
+  params: PlacedEffectParams & { points: PathPoint[] },
+  wx: number,
+  wy: number,
+): void {
+  params.points.push(worldToPathLocal(params, wx, wy));
+}
+
+export function removePathPoint(
+  params: PlacedEffectParams & { points: PathPoint[] },
+  index: number,
+): void {
+  if (index < 0 || index >= params.points.length) return;
+  params.points.splice(index, 1);
 }
 
 /** Ray-cast point-in-polygon (closed polyline of control points). */

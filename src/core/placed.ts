@@ -83,7 +83,7 @@ export function getPlacedBounds(
   } else if (typeId === 'fire') {
     const s = Number(params.size ?? 1) * 80;
     raw = { x: params.x - s * 0.7, y: params.y - s * 2.2, w: s * 1.4, h: s * 2.5 };
-  } else if (typeId === 'soil') {
+  } else if (typeId === 'soil' || typeId === 'grass-path') {
     const pts = params.points as PathPoint[] | undefined;
     if (pts && pts.length > 0) {
       raw = pathBounds(

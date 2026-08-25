@@ -11,19 +11,37 @@ import {
   type ScaleHandle,
 } from '../core/placed';
 import {
+  appendPathPoint,
+  hitClosedPathEdge,
+  hitOpenPathEdge,
   hitPathPointIndex,
+  insertPathPointAfter,
   isPathParams,
+  removePathPoint,
   worldToPathLocal,
   type PathPoint,
   pointInClosedPoly,
   pathWorldPoints,
 } from '../core/path';
-import { isSoilParams, closeSoilShape } from '../effects/soil';
+import {
+  isSoilParams,
+  closeSoilShape,
+  removeSoilNode,
+  appendSoilNode,
+} from '../effects/soil';
+import {
+  isGrassPathParams,
+  closeGrassPath,
+  removeGrassPathNode,
+  appendGrassPathNode,
+} from '../effects/grassPath';
 import type { EffectRuntime } from './renderer';
 
 export interface SelectionState {
   selectedId: string | null;
   dragging: boolean;
+  pathHoverNode: number;
+  pathActiveNode: number;
 }
 
 export interface StageInteractionApi {
@@ -32,14 +50,54 @@ export interface StageInteractionApi {
   dispose: () => void;
 }
 
+function isSplineEffect(rt: EffectRuntime | undefined): boolean {
+  return rt?.module.id === 'soil' || rt?.module.id === 'grass-path';
+}
+
+function pathSmooth(rt: EffectRuntime): number {
+  return Number((rt.params as { smooth?: number }).smooth ?? 0.85);
+}
+
+function removeNodeAt(rt: EffectRuntime, index: number): void {
+  if (isSoilParams(rt.params)) removeSoilNode(rt.params, index);
+  else if (isGrassPathParams(rt.params)) removeGrassPathNode(rt.params, index);
+  else removePathPoint(rt.params as never, index);
+}
+
+function appendNode(rt: EffectRuntime, wx: number, wy: number): void {
+  if (isSoilParams(rt.params)) appendSoilNode(rt.params, wx, wy);
+  else if (isGrassPathParams(rt.params)) appendGrassPathNode(rt.params, wx, wy);
+  else appendPathPoint(rt.params as never, wx, wy);
+}
+
+function closePathShape(rt: EffectRuntime): boolean {
+  if (isSoilParams(rt.params)) return closeSoilShape(rt.params);
+  if (isGrassPathParams(rt.params)) return closeGrassPath(rt.params);
+  return false;
+}
+
+function minNodesToFinish(rt: EffectRuntime): number {
+  return rt.module.id === 'soil' ? 3 : 2;
+}
+
+function tryInsertOnEdge(rt: EffectRuntime, wx: number, wy: number, zoom: number): boolean {
+  const wp = pathWorldPoints(rt.params as never);
+  if (wp.length < 2) return false;
+  const threshold = 16 / Math.max(0.35, zoom);
+  const smooth = pathSmooth(rt);
+  const edge =
+    rt.module.id === 'soil'
+      ? hitClosedPathEdge(wp, wx, wy, smooth, threshold)
+      : hitOpenPathEdge(wp, wx, wy, smooth, threshold);
+  if (!edge) return false;
+  insertPathPointAfter(rt.params as never, edge.afterIndex, edge.x, edge.y);
+  return true;
+}
+
 /**
  * Stage pointer handling:
- * - Click a creatable VFX → select
- * - Drag body → move
- * - Drag corner handles → scale
- * - Soil: click to add nodes (pathDrawing), drag node handles
+ * - Soil / Grass Path: click add nodes, drag handles, edge click insert, right-click remove
  * - Drag empty space → pan camera
- * - Wheel → zoom (Shift+wheel scales selected)
  */
 export function attachStageInteractions(
   el: HTMLElement,
@@ -47,7 +105,12 @@ export function attachStageInteractions(
   runtimes: EffectRuntime[],
   onSelectionChange?: (id: string | null) => void,
 ): StageInteractionApi {
-  const state: SelectionState = { selectedId: null, dragging: false };
+  const state: SelectionState = {
+    selectedId: null,
+    dragging: false,
+    pathHoverNode: -1,
+    pathActiveNode: -1,
+  };
   let mode: 'none' | 'pan' | 'move' | 'scale' | 'path-point' = 'none';
   let lastX = 0;
   let lastY = 0;
@@ -78,6 +141,10 @@ export function attachStageInteractions(
         const ready = rt.params.points.length >= 3 && !rt.params.pathDrawing;
         if (ready && pointInClosedPoly(wp, world.x, world.y)) return rt;
       }
+      if (rt.module.id === 'grass-path' && isGrassPathParams(rt.params)) {
+        const bounds = getPlacedBounds(rt.module.id, rt.params as never);
+        if (pointInBounds(world.x, world.y, bounds)) return rt;
+      }
       const bounds = getPlacedBounds(rt.module.id, rt.params as never);
       if (pointInBounds(world.x, world.y, bounds)) return rt;
     }
@@ -94,12 +161,6 @@ export function attachStageInteractions(
     return hitScaleHandle(world.x, world.y, bounds, scene.camera.zoom);
   };
 
-  const appendPathPoint = (rt: EffectRuntime, wx: number, wy: number): void => {
-    if (!isPathParams(rt.params)) return;
-    const local = worldToPathLocal(rt.params, wx, wy);
-    rt.params.points.push(local);
-  };
-
   const onDown = (e: PointerEvent) => {
     if (
       (e.target as HTMLElement).closest(
@@ -113,6 +174,18 @@ export function attachStageInteractions(
 
     const rect = el.getBoundingClientRect();
     const world = screenToWorld(scene, e.clientX - rect.left, e.clientY - rect.top);
+    const sel = selectedRuntime();
+
+    // Right-click node → remove
+    if (e.button === 2 && sel && isPathParams(sel.params)) {
+      const idx = hitPathPointIndex(sel.params, world.x, world.y, scene.camera.zoom);
+      if (idx !== null) {
+        removeNodeAt(sel, idx);
+        state.pathActiveNode = -1;
+        e.preventDefault();
+        return;
+      }
+    }
 
     const handle = hitSelectedHandle(e.clientX, e.clientY);
     if (handle && state.selectedId) {
@@ -129,8 +202,7 @@ export function attachStageInteractions(
       }
     }
 
-    // Path point handle on selected soil — click first node again to close shape
-    const sel = selectedRuntime();
+    // Soil: click first node to close
     if (sel && isSoilParams(sel.params) && sel.params.pathDrawing && sel.params.points.length >= 3) {
       const closeIdx = hitPathPointIndex(sel.params, world.x, world.y, scene.camera.zoom);
       if (closeIdx === 0) {
@@ -142,27 +214,46 @@ export function attachStageInteractions(
       }
     }
 
-    if (sel && isPathParams(sel.params) && sel.params.points.length > 0) {
-      const idx = hitPathPointIndex(sel.params, world.x, world.y, scene.camera.zoom);
-      if (idx !== null) {
+    if (sel && isSplineEffect(sel) && isPathParams(sel.params)) {
+      const nodeIdx = hitPathPointIndex(sel.params, world.x, world.y, scene.camera.zoom);
+      if (nodeIdx !== null && !e.shiftKey) {
         setSelected(sel.id);
         mode = 'path-point';
-        pathPointIndex = idx;
+        pathPointIndex = nodeIdx;
+        state.pathActiveNode = nodeIdx;
         state.dragging = true;
         el.style.cursor = 'crosshair';
         el.setPointerCapture(e.pointerId);
         e.preventDefault();
         return;
       }
-    }
 
-    // Path drawing mode — click stage to append points
-    if (sel && isPathParams(sel.params) && sel.params.pathDrawing) {
-      appendPathPoint(sel, world.x, world.y);
-      mode = 'none';
-      state.dragging = false;
-      e.preventDefault();
-      return;
+      // Shift+click or edge click → add / insert node
+      if (e.shiftKey) {
+        appendNode(sel, world.x, world.y);
+        state.pathActiveNode = sel.params.points.length - 1;
+        mode = 'none';
+        state.dragging = false;
+        e.preventDefault();
+        return;
+      }
+
+      if (tryInsertOnEdge(sel, world.x, world.y, scene.camera.zoom)) {
+        state.pathActiveNode = state.pathHoverNode >= 0 ? state.pathHoverNode : sel.params.points.length - 1;
+        mode = 'none';
+        state.dragging = false;
+        e.preventDefault();
+        return;
+      }
+
+      if (sel.params.pathDrawing) {
+        appendNode(sel, world.x, world.y);
+        state.pathActiveNode = sel.params.points.length - 1;
+        mode = 'none';
+        state.dragging = false;
+        e.preventDefault();
+        return;
+      }
     }
 
     const hit = hitTest(e.clientX, e.clientY);
@@ -185,21 +276,35 @@ export function attachStageInteractions(
     const rect = el.getBoundingClientRect();
     const world = screenToWorld(scene, e.clientX - rect.left, e.clientY - rect.top);
 
-    // Hover cursor for path points
     if (!state.dragging) {
       const sel = selectedRuntime();
+      state.pathHoverNode = -1;
       if (sel && isPathParams(sel.params)) {
         const idx = hitPathPointIndex(sel.params, world.x, world.y, scene.camera.zoom);
         if (idx !== null) {
+          state.pathHoverNode = idx;
           el.style.cursor = 'crosshair';
           return;
+        }
+        if (isSplineEffect(sel)) {
+          const wp = pathWorldPoints(sel.params);
+          const threshold = 16 / Math.max(0.35, scene.camera.zoom);
+          const smooth = pathSmooth(sel);
+          const onEdge =
+            sel.module.id === 'soil'
+              ? hitClosedPathEdge(wp, world.x, world.y, smooth, threshold)
+              : hitOpenPathEdge(wp, world.x, world.y, smooth, threshold);
+          if (onEdge) {
+            el.style.cursor = 'copy';
+            return;
+          }
         }
         if (sel.params.pathDrawing) {
           el.style.cursor = 'cell';
           return;
         }
       }
-      if (el.style.cursor === 'crosshair' || el.style.cursor === 'cell') {
+      if (el.style.cursor === 'crosshair' || el.style.cursor === 'cell' || el.style.cursor === 'copy') {
         el.style.cursor = '';
       }
     }
@@ -283,16 +388,28 @@ export function attachStageInteractions(
       return;
     }
     const rt = selectedRuntime();
-    if (!rt || !isSoilParams(rt.params)) return;
-    if ((e.key === 'Enter' || e.key === 'NumpadEnter') && rt.params.points.length >= 3) {
-      closeSoilShape(rt.params);
+    if (!rt || !isSplineEffect(rt)) return;
+    if (!isPathParams(rt.params)) return;
+
+    const minFinish = minNodesToFinish(rt);
+    if ((e.key === 'Enter' || e.key === 'NumpadEnter') && rt.params.points.length >= minFinish) {
+      closePathShape(rt);
       e.preventDefault();
-    } else if (e.key === 'Backspace' && rt.params.points.length > 0) {
-      rt.params.points.pop();
+    } else if (e.key === 'Delete' || e.key === 'Backspace') {
+      const idx =
+        state.pathActiveNode >= 0
+          ? state.pathActiveNode
+          : state.pathHoverNode >= 0
+            ? state.pathHoverNode
+            : rt.params.points.length - 1;
+      if (idx >= 0) {
+        removeNodeAt(rt, idx);
+        state.pathActiveNode = -1;
+      }
       e.preventDefault();
     } else if (e.key === 'Escape') {
-      if (rt.params.pathDrawing && rt.params.points.length >= 3) {
-        closeSoilShape(rt.params);
+      if (rt.params.pathDrawing && rt.params.points.length >= minFinish) {
+        closePathShape(rt);
       } else {
         rt.params.pathDrawing = false;
       }
@@ -300,11 +417,21 @@ export function attachStageInteractions(
     }
   };
 
+  const onContextMenu = (e: MouseEvent) => {
+    const sel = selectedRuntime();
+    if (!sel || !isPathParams(sel.params)) return;
+    const rect = el.getBoundingClientRect();
+    const world = screenToWorld(scene, e.clientX - rect.left, e.clientY - rect.top);
+    const idx = hitPathPointIndex(sel.params, world.x, world.y, scene.camera.zoom);
+    if (idx !== null) e.preventDefault();
+  };
+
   el.addEventListener('pointerdown', onDown);
   el.addEventListener('pointermove', onMove);
   el.addEventListener('pointerup', onUp);
   el.addEventListener('pointercancel', onUp);
   el.addEventListener('wheel', onWheel, { passive: false });
+  el.addEventListener('contextmenu', onContextMenu);
   window.addEventListener('keydown', onKeyDown, true);
 
   return {
@@ -316,6 +443,7 @@ export function attachStageInteractions(
       el.removeEventListener('pointerup', onUp);
       el.removeEventListener('pointercancel', onUp);
       el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('contextmenu', onContextMenu);
       window.removeEventListener('keydown', onKeyDown, true);
     },
   };
