@@ -197,12 +197,12 @@ if (fx === 'fire') {
     instanceId: 'cap-fire',
     x: W * 0.5,
     y: H * 0.82,
-    size: 2.7,
-    spread: 1.35,
-    rise: 1.05,
-    intensity: 1.2,
-    embers: 0.9,
-    turbulence: 1.0,
+    size: 2.6,
+    spread: 1.4,
+    rise: 1.0,
+    intensity: 1.25,
+    embers: 0.65,
+    turbulence: 1.05,
   };
   drawing = (tt) => fireEffect.draw(ctx, p, tt, scene);
 } else if (fx === 'smoke') {

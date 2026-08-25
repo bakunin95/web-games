@@ -4,8 +4,8 @@
     "class": "ok"
   },
   "fire": {
-    "text": "Fuel logs + denser asymmetric soft mass (no flame lines).",
-    "class": "wip",
+    "text": "PASS (user): soft luminous fire locked \u2014 no fuel logs/wood; flame + bloom only.",
+    "class": "ok",
     "capture": "/progress/captures/fire.png"
   },
   "smoke": {
@@ -18,5 +18,5 @@
     "class": "ok",
     "capture": "/progress/captures/water.png"
   },
-  "log": "Gauntlet ACTIVE\n- SMOKE: PASS / locked\n- WATER: PASS / locked (user reflective river)\n- FIRE: logs + denser soft mass \u2014 still open vs campfire bar\n- Timeline: /progress/timeline/"
+  "log": "Gauntlet: fire/smoke/water all user-locked PASS\n- FIRE: soft luminous mass, no wood logs\n- SMOKE: soft industrial plume\n- WATER: reflective river\n- Timeline: /progress/timeline/"
 }
