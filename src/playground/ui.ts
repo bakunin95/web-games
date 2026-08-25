@@ -43,7 +43,7 @@ type LoopApi = {
   setSpeed: (speed: number) => void;
 };
 
-const SKIP_KEYS = new Set(['enabled', 'intensity', 'instanceId', 'material', 'points', 'pathDrawing', 'smooth']);
+const SKIP_KEYS = new Set(['enabled', 'intensity', 'instanceId', 'material', 'points', 'pathDrawing', 'smooth', 'fillHill']);
 
 /**
  * Playground UI: globals, Create VFX, selected-instance editor (transform + material),
@@ -295,9 +295,38 @@ export function createPlaygroundUI(
       addPathEditorFolder(folder, rt.params as unknown as Record<string, unknown>, 3, 'Close shape & fill (Enter)');
     }
 
-    // Grass Path open spline editor
+    // Grass Path — open line editor (never closed like Soil)
     if (rt.module.id === 'grass-path' && isPlacedParams(rt.params)) {
-      addPathEditorFolder(folder, rt.params as unknown as Record<string, unknown>, 2, 'Done path (Enter)');
+      const pathBag = rt.params as unknown as Record<string, unknown> & {
+        points: { ox: number; oy: number }[];
+        pathDrawing: boolean;
+        fillHill: boolean;
+      };
+      const pathFolder = folder.addFolder({ title: 'Open path', expanded: true });
+      pathFolder.addBinding(pathBag, 'pathDrawing', { label: 'Click stage to add points' });
+      pathFolder.addBinding(pathBag, 'fillHill', { label: 'Fill hill below path' });
+      pathFolder.addBinding(pathBag, 'smooth', { min: 0, max: 1, step: 0.05, label: 'Spline smooth' });
+      pathFolder
+        .addButton({ title: 'Done path (Enter)' })
+        .on('click', () => {
+          if (pathBag.points.length >= 2) pathBag.pathDrawing = false;
+        });
+      pathFolder
+        .addButton({ title: 'Remove last point' })
+        .on('click', () => {
+          pathBag.points.pop();
+        });
+      pathFolder
+        .addButton({ title: 'Clear all points' })
+        .on('click', () => {
+          pathBag.points.length = 0;
+          pathBag.pathDrawing = true;
+        });
+      pathFolder
+        .addButton({ title: 'Add points again' })
+        .on('click', () => {
+          pathBag.pathDrawing = true;
+        });
     }
 
     folder.addButton({ title: 'Remove instance' }).on('click', () => removeRuntime(rt));

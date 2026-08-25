@@ -31,7 +31,7 @@ import {
 } from '../effects/soil';
 import {
   isGrassPathParams,
-  closeGrassPath,
+  finishGrassPathDrawing,
   removeGrassPathNode,
   appendGrassPathNode,
 } from '../effects/grassPath';
@@ -70,9 +70,9 @@ function appendNode(rt: EffectRuntime, wx: number, wy: number): void {
   else appendPathPoint(rt.params as never, wx, wy);
 }
 
-function closePathShape(rt: EffectRuntime): boolean {
+function finishPathDrawing(rt: EffectRuntime): boolean {
   if (isSoilParams(rt.params)) return closeSoilShape(rt.params);
-  if (isGrassPathParams(rt.params)) return closeGrassPath(rt.params);
+  if (isGrassPathParams(rt.params)) return finishGrassPathDrawing(rt.params);
   return false;
 }
 
@@ -228,7 +228,17 @@ export function attachStageInteractions(
         return;
       }
 
-      // Shift+click or edge click → add / insert node
+      // While drawing: append to end (open line — never insert mid-path)
+      if (sel.params.pathDrawing) {
+        appendNode(sel, world.x, world.y);
+        state.pathActiveNode = sel.params.points.length - 1;
+        mode = 'none';
+        state.dragging = false;
+        e.preventDefault();
+        return;
+      }
+
+      // Finished path: shift-click extend end, edge-click insert
       if (e.shiftKey) {
         appendNode(sel, world.x, world.y);
         state.pathActiveNode = sel.params.points.length - 1;
@@ -239,15 +249,6 @@ export function attachStageInteractions(
       }
 
       if (tryInsertOnEdge(sel, world.x, world.y, scene.camera.zoom)) {
-        state.pathActiveNode = state.pathHoverNode >= 0 ? state.pathHoverNode : sel.params.points.length - 1;
-        mode = 'none';
-        state.dragging = false;
-        e.preventDefault();
-        return;
-      }
-
-      if (sel.params.pathDrawing) {
-        appendNode(sel, world.x, world.y);
         state.pathActiveNode = sel.params.points.length - 1;
         mode = 'none';
         state.dragging = false;
@@ -286,7 +287,7 @@ export function attachStageInteractions(
           el.style.cursor = 'crosshair';
           return;
         }
-        if (isSplineEffect(sel)) {
+        if (isSplineEffect(sel) && !sel.params.pathDrawing) {
           const wp = pathWorldPoints(sel.params);
           const threshold = 16 / Math.max(0.35, scene.camera.zoom);
           const smooth = pathSmooth(sel);
@@ -393,7 +394,7 @@ export function attachStageInteractions(
 
     const minFinish = minNodesToFinish(rt);
     if ((e.key === 'Enter' || e.key === 'NumpadEnter') && rt.params.points.length >= minFinish) {
-      closePathShape(rt);
+      finishPathDrawing(rt);
       e.preventDefault();
     } else if (e.key === 'Delete' || e.key === 'Backspace') {
       const idx =
@@ -409,7 +410,7 @@ export function attachStageInteractions(
       e.preventDefault();
     } else if (e.key === 'Escape') {
       if (rt.params.pathDrawing && rt.params.points.length >= minFinish) {
-        closePathShape(rt);
+        finishPathDrawing(rt);
       } else {
         rt.params.pathDrawing = false;
       }

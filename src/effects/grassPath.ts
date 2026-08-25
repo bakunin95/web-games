@@ -12,15 +12,18 @@ import { applyMaterial, createDefaultMaterial } from '../core/material';
 import { mulberry32, withAlpha } from './noise';
 
 export interface GrassPathParams extends PlacedEffectParams {
+  /** Open spline nodes — never closed. Offsets from anchor. */
   points: PathPoint[];
   smooth: number;
+  /** While true, stage clicks append to the end of the open line. */
   pathDrawing: boolean;
   density: number;
   height: number;
   sway: number;
-  /** Fill solid grass below the spline crest (hill silhouette). */
+  /** Half-width of the grass ribbon along the path (world-ish units). */
+  bandWidth: number;
+  /** Optional: fill grass below the open crest line down to a baseline. */
   fillHill: boolean;
-  /** Depth below lowest path point for hill fill baseline. */
   hillDepth: number;
 }
 
@@ -59,7 +62,7 @@ function drawBlade(
 function sampleOpenPolyline(
   wp: { x: number; y: number }[],
   smooth: number,
-  stepsPerSeg = 10,
+  stepsPerSeg = 12,
 ): { x: number; y: number; nx: number; ny: number }[] {
   if (wp.length < 2) return [];
   const out: { x: number; y: number; nx: number; ny: number }[] = [];
@@ -73,105 +76,106 @@ function sampleOpenPolyline(
   return out;
 }
 
-function drawGrassAlongPath(
+function drawGrassRibbon(
   ctx: CanvasRenderingContext2D,
   params: GrassPathParams,
   wp: { x: number; y: number }[],
   t: number,
   sceneWind: number,
-  clip = false,
 ): void {
   if (wp.length < 2) return;
   const mat = params.material;
   const I = params.intensity;
-  const samples = sampleOpenPolyline(wp, params.smooth, 12);
+  const samples = sampleOpenPolyline(wp, params.smooth, 14);
   if (samples.length < 2) return;
 
   const rand = mulberry32(params.seed | 0);
-  const bladeCount = Math.floor(8 + params.density * 48);
   const wind = sceneWind * params.sway;
-
-  ctx.save();
-  if (clip && params.fillHill) {
-    let minX = wp[0]!.x;
-    let maxX = wp[0]!.x;
-    let maxY = wp[0]!.y;
-    for (const p of wp) {
-      minX = Math.min(minX, p.x);
-      maxX = Math.max(maxX, p.x);
-      maxY = Math.max(maxY, p.y);
-    }
-    const baseY = maxY + params.hillDepth * getScale(params);
-    ctx.beginPath();
-    ctx.moveTo(samples[0]!.x, samples[0]!.y);
-    for (let i = 1; i < samples.length; i++) ctx.lineTo(samples[i]!.x, samples[i]!.y);
-    ctx.lineTo(samples[samples.length - 1]!.x, baseY);
-    ctx.lineTo(samples[0]!.x, baseY);
-    ctx.closePath();
-    ctx.clip();
-
-    const g = ctx.createLinearGradient(0, samples[0]!.y, 0, baseY);
-    g.addColorStop(0, withAlpha(mat.emissive, 0.35 * I));
-    g.addColorStop(0.4, withAlpha(mat.baseColor, 0.85 * I));
-    g.addColorStop(1, withAlpha(mat.baseColor, 0.95 * I));
-    ctx.fillStyle = g;
-    ctx.fillRect(minX - 20, samples[0]!.y - 20, maxX - minX + 40, baseY - samples[0]!.y + 40);
-  }
+  const band = params.bandWidth * getScale(params);
+  const bladeCount = Math.floor(16 + params.density * 72);
 
   for (let i = 0; i < bladeCount; i++) {
     const u = rand();
     const idx = Math.min(samples.length - 1, Math.floor(u * samples.length));
     const s = samples[idx]!;
-    const jitter = (rand() - 0.5) * 14;
+    const lateral = (rand() - 0.5) * band;
     drawBlade(
       ctx,
-      s.x + s.nx * jitter,
-      s.y + s.ny * jitter * 0.4,
+      s.x + s.nx * lateral,
+      s.y + s.ny * lateral * 0.35,
       s.nx,
       s.ny,
-      (22 + rand() * 40) * params.height,
-      (rand() - 0.5) * 0.6,
-      1 + rand() * 1.6,
+      (24 + rand() * 44) * params.height,
+      (rand() - 0.5) * 0.65,
+      1.1 + rand() * 1.7,
       0.5 + rand() * 0.5,
       t + rand() * 2,
-      wind + Math.sin(t * 1.7) * 0.15,
+      wind + Math.sin(t * 1.7 + idx * 0.08) * 0.15,
       mat,
       I,
     );
   }
+}
 
-  if (params.fillHill) {
-    const hillBlades = Math.floor(20 + params.density * 80);
-    let minX = wp[0]!.x;
-    let maxX = wp[0]!.x;
-    let maxY = wp[0]!.y;
-    for (const p of wp) {
-      minX = Math.min(minX, p.x);
-      maxX = Math.max(maxX, p.x);
-      maxY = Math.max(maxY, p.y);
-    }
-    const baseY = maxY + params.hillDepth * getScale(params);
-    for (let i = 0; i < hillBlades; i++) {
-      const bx = minX + rand() * (maxX - minX);
-      const by = samples[0]!.y + rand() * (baseY - samples[0]!.y);
-      drawBlade(
-        ctx,
-        bx,
-        by,
-        0,
-        -1,
-        (18 + rand() * 36) * params.height,
-        (rand() - 0.5) * 0.4,
-        1 + rand() * 1.4,
-        0.45 + rand() * 0.5,
-        t + rand() * 3,
-        wind * 0.8,
-        mat,
-        I * 0.92,
-      );
-    }
+function drawHillFillBelowPath(
+  ctx: CanvasRenderingContext2D,
+  params: GrassPathParams,
+  wp: { x: number; y: number }[],
+  samples: { x: number; y: number }[],
+  t: number,
+  sceneWind: number,
+): void {
+  if (!params.fillHill || samples.length < 2) return;
+  const mat = params.material;
+  const I = params.intensity;
+  let minX = wp[0]!.x;
+  let maxX = wp[0]!.x;
+  let maxY = wp[0]!.y;
+  for (const p of wp) {
+    minX = Math.min(minX, p.x);
+    maxX = Math.max(maxX, p.x);
+    maxY = Math.max(maxY, p.y);
   }
+  const baseY = maxY + params.hillDepth * getScale(params);
 
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(samples[0]!.x, samples[0]!.y);
+  for (let i = 1; i < samples.length; i++) ctx.lineTo(samples[i]!.x, samples[i]!.y);
+  ctx.lineTo(samples[samples.length - 1]!.x, baseY);
+  ctx.lineTo(samples[0]!.x, baseY);
+  ctx.closePath();
+  ctx.clip();
+
+  const g = ctx.createLinearGradient(0, samples[0]!.y, 0, baseY);
+  g.addColorStop(0, withAlpha(mat.emissive, 0.28 * I));
+  g.addColorStop(0.45, withAlpha(mat.baseColor, 0.82 * I));
+  g.addColorStop(1, withAlpha(mat.baseColor, 0.92 * I));
+  ctx.fillStyle = g;
+  ctx.fillRect(minX - 24, samples[0]!.y - 24, maxX - minX + 48, baseY - samples[0]!.y + 48);
+
+  const rand = mulberry32((params.seed + 17) | 0);
+  const hillBlades = Math.floor(24 + params.density * 90);
+  const wind = sceneWind * params.sway * 0.85;
+  for (let i = 0; i < hillBlades; i++) {
+    const bx = minX + rand() * (maxX - minX);
+    const by = samples[0]!.y + rand() * (baseY - samples[0]!.y);
+    drawBlade(
+      ctx,
+      bx,
+      by,
+      0,
+      -1,
+      (16 + rand() * 34) * params.height,
+      (rand() - 0.5) * 0.35,
+      1 + rand() * 1.3,
+      0.42 + rand() * 0.5,
+      t + rand() * 3,
+      wind,
+      mat,
+      I * 0.9,
+    );
+  }
   ctx.restore();
 }
 
@@ -180,9 +184,16 @@ export const drawGrassPath: DrawFn<GrassPathParams> = (ctx, params, t, scene) =>
   if (params.points.length < 2) return;
 
   const wp = pathWorldPoints(params);
+  const samples = sampleOpenPolyline(wp, params.smooth, 14);
+
   ctx.save();
   applyMaterial(ctx, params.material);
-  drawGrassAlongPath(ctx, params, wp, t, scene.wind.x, true);
+
+  if (params.fillHill) {
+    drawHillFillBelowPath(ctx, params, wp, samples, t, scene.wind.x);
+  }
+  drawGrassRibbon(ctx, params, wp, t, scene.wind.x);
+
   ctx.restore();
 };
 
@@ -196,17 +207,14 @@ export function drawGrassPathGizmo(
   const wp = pathWorldPoints(params);
   if (wp.length === 0) return;
   const inv = 1 / Math.max(0.35, zoom);
-  const done = !params.pathDrawing && wp.length >= 2;
 
   ctx.save();
   if (wp.length >= 2) {
     ctx.strokeStyle = selected
-      ? done
-        ? 'rgba(120, 200, 80, 0.95)'
-        : 'rgba(160, 230, 100, 0.8)'
-      : 'rgba(80, 140, 60, 0.55)';
+      ? 'rgba(150, 230, 100, 0.9)'
+      : 'rgba(90, 160, 70, 0.55)';
     ctx.lineWidth = 2.5 * inv;
-    ctx.setLineDash(done ? [] : [6 * inv, 4 * inv]);
+    ctx.setLineDash(params.pathDrawing ? [6 * inv, 4 * inv] : []);
     ctx.beginPath();
     traceOpenPath(ctx, wp, params.smooth, 12);
     ctx.stroke();
@@ -235,14 +243,15 @@ export function drawGrassPathGizmo(
     ctx.fillStyle = 'rgba(220, 255, 200, 0.95)';
     const hint =
       wp.length < 2
-        ? 'Click stage to add nodes (need 2+)'
-        : 'Enter or Done path · Shift+click add · right-click remove';
+        ? 'Click stage to draw open line (need 2+ nodes)'
+        : 'Click to extend line · Enter/Done when finished · drag nodes anytime';
     ctx.fillText(hint, wp[0]!.x + 12 * inv, wp[0]!.y - 14 * inv);
   }
   ctx.restore();
 }
 
-export function closeGrassPath(params: GrassPathParams): boolean {
+/** Stop appending clicks — path stays open, never closed. */
+export function finishGrassPathDrawing(params: GrassPathParams): boolean {
   if (params.points.length < 2) return false;
   params.pathDrawing = false;
   return true;
@@ -265,7 +274,7 @@ export function disposeGrassPathInstance(_id: string): void {
 export const grassPathEffect: EffectModule<GrassPathParams> = {
   id: 'grass-path',
   name: 'Grass Path',
-  description: 'Spline grass ridge — draw a path, optional hill fill below the crest.',
+  description: 'Open spline line — click to draw a grass ridge, drag nodes to edit. Optional hill fill below.',
   space: 'world',
   defaultParams: {
     enabled: true,
@@ -277,10 +286,11 @@ export const grassPathEffect: EffectModule<GrassPathParams> = {
     points: [],
     smooth: 0.85,
     pathDrawing: true,
-    density: 0.8,
+    density: 0.85,
     height: 1,
     sway: 1,
-    fillHill: true,
+    bandWidth: 28,
+    fillHill: false,
     hillDepth: 120,
     scale: 1,
     material: createDefaultMaterial({
@@ -303,6 +313,10 @@ export function isGrassPathParams(p: unknown): p is GrassPathParams {
     p !== null &&
     Array.isArray((p as GrassPathParams).points) &&
     'fillHill' in p &&
-    'pathDrawing' in p
+    'pathDrawing' in p &&
+    'bandWidth' in p
   );
 }
+
+/** @deprecated alias */
+export const closeGrassPath = finishGrassPathDrawing;
