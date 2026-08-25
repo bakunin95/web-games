@@ -57,53 +57,25 @@ function makeScene(windX: number): SceneContext {
 function paintBg(kind: string) {
   // Soft dusk sky that continues into water — less "sticker on sky"
   if (kind === 'water') {
-    // Sky gradient continues through horizon into the water region
+    // Open ocean sky → horizon → sea (user bar: Unity-like swell under pale sky)
     const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#8ec4e8');
-    g.addColorStop(0.32, '#6aa8d0');
-    g.addColorStop(0.42, '#4a88b0');
-    g.addColorStop(0.52, '#2a5a78');
-    g.addColorStop(0.7, '#143848');
-    g.addColorStop(1, '#081820');
+    g.addColorStop(0, '#6eb4e8');
+    g.addColorStop(0.28, '#9ecceb');
+    g.addColorStop(0.38, '#c8e0f0');
+    g.addColorStop(0.42, '#dceaf4');
+    g.addColorStop(0.45, '#3a6a88');
+    g.addColorStop(0.55, '#0e3558');
+    g.addColorStop(0.75, '#0a2744');
+    g.addColorStop(1, '#061428');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
-
-    // Soft continuous treeline — one rolling silhouette path (no lobe stamps)
-    const shoreY = H * 0.42;
-    const groundH = 34;
-    const ground = ctx.createLinearGradient(0, shoreY, 0, shoreY + groundH);
-    ground.addColorStop(0, 'rgba(8,32,18,0.55)');
-    ground.addColorStop(1, 'rgba(6,26,14,0.96)');
-    ctx.fillStyle = ground;
-    ctx.fillRect(0, shoreY, W, groundH);
-
-    ctx.beginPath();
-    ctx.moveTo(0, shoreY + groundH);
-    for (let i = 0; i <= 64; i++) {
-      const u = i / 64;
-      const x = u * W;
-      const n =
-        Math.sin(u * Math.PI * 3.6) * 11 +
-        Math.sin(u * Math.PI * 7.5 + 0.5) * 6 +
-        Math.sin(u * Math.PI * 14 + 1.1) * 2.5;
-      ctx.lineTo(x, shoreY + groundH - (18 + n));
-    }
-    ctx.lineTo(W, shoreY + groundH);
-    ctx.closePath();
-    const canopy = ctx.createLinearGradient(0, shoreY - 28, 0, shoreY + groundH);
-    canopy.addColorStop(0, 'rgba(10,40,22,0)');
-    canopy.addColorStop(0.45, 'rgba(10,40,22,0.7)');
-    canopy.addColorStop(1, 'rgba(6,28,16,0.98)');
-    ctx.fillStyle = canopy;
-    ctx.fill();
-
-    // Soft mist veil along shore so contact isn't a hard cut
-    const mist = ctx.createLinearGradient(0, shoreY + groundH - 4, 0, shoreY + groundH + 44);
-    mist.addColorStop(0, 'rgba(200,220,230,0)');
-    mist.addColorStop(0.4, 'rgba(190,215,230,0.16)');
-    mist.addColorStop(1, 'rgba(140,180,200,0)');
-    ctx.fillStyle = mist;
-    ctx.fillRect(0, shoreY + groundH - 4, W, 48);
+    // Soft sun glitter cue in sky
+    const sun = ctx.createRadialGradient(W * 0.72, H * 0.22, 4, W * 0.72, H * 0.22, 160);
+    sun.addColorStop(0, 'rgba(255,255,255,0.55)');
+    sun.addColorStop(0.25, 'rgba(255,240,200,0.2)');
+    sun.addColorStop(1, 'rgba(255,240,200,0)');
+    ctx.fillStyle = sun;
+    ctx.fillRect(W * 0.4, 0, W * 0.55, H * 0.45);
     return;
   }
   if (kind === 'smoke') {
@@ -248,14 +220,23 @@ if (fx === 'fire') {
     ...waterEffect.defaultParams,
     instanceId: 'cap-water',
     x: W * 0.5,
-    // Shore ~H*0.42+32≈301; lake top meets shore, fills to frame bottom
-    y: H * 0.88,
+    y: H * 0.72,
     width: 1600,
-    height: 640,
-    waveStrength: 0.07,
-    waveScale: 0.55,
-    shoreFoam: 0.04,
+    height: 520,
+    waveStrength: 1.05,
+    waveScale: 0.85,
+    shoreFoam: 0.75,
     intensity: 1,
+    material: createDefaultMaterial({
+      name: 'Ocean Deep',
+      baseColor: '#0a2744',
+      emissive: '#5ec8d8',
+      emissiveIntensity: 0.9,
+      opacity: 1,
+      roughness: 0.25,
+      metalness: 0.75,
+      blend: 'normal',
+    }),
   };
   drawing = (tt) => waterEffect.draw(ctx, p, tt, scene);
 }

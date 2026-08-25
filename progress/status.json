@@ -14,9 +14,9 @@
     "capture": "/progress/captures/smoke.png"
   },
   "water": {
-    "text": "NEW BAR (user): open ocean — choppy swell, whitecap foam, specular shimmer, deep troughs / cyan crests, sharp horizon under pale sky. Not oval lake lens.",
-    "class": "gap",
+    "text": "Ocean rewrite: choppy swell + whitecaps + specular glitter under pale sky. Pending blind A/B vs user ocean bar.",
+    "class": "wip",
     "capture": "/progress/captures/water.png"
   },
-  "log": "Gauntlet ACTIVE — Round6 score 0/3 vs prior photo bars.\n- User bars updated: FIRE=wispy threads · ASH=ember streaks · WATER=choppy ocean (Unity-like swell/foam/specular)\n- Smoke still vs industrial plume photo\n- Builders were stopped; waiting to adopt new bars before next capture pass\n- Gate: blind A/B prefer our captures over bars"
+  "log": "Gauntlet ACTIVE \u2014 Round6 was 0/3; rewrites in flight.\n- WATER: rewritten to open-ocean bar (user Unity-like ref); capture refreshed\n- FIRE: builder targeting wispy threads + ash particles\n- SMOKE: still vs industrial plume photo\n- Gate: blind A/B prefer our captures over bars"
 }

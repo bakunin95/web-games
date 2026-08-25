@@ -93,6 +93,16 @@ export const MATERIAL_PRESETS: Record<string, EffectMaterial> = {
     metalness: 0.85,
     blend: 'normal',
   }),
+  'Ocean Deep': createDefaultMaterial({
+    name: 'Ocean Deep',
+    baseColor: '#0a2744',
+    emissive: '#5ec8d8',
+    emissiveIntensity: 0.85,
+    opacity: 1,
+    roughness: 0.25,
+    metalness: 0.75,
+    blend: 'normal',
+  }),
   'Murky Water': createDefaultMaterial({
     name: 'Murky Water',
     baseColor: '#1e3a2f',
