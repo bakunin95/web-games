@@ -26,6 +26,7 @@ import { causticsEffect, disposeCausticsInstance } from './caustics';
 import { frostEffect, disposeFrostInstance } from './frost';
 import { meteorEffect, disposeMeteorInstance } from './meteor';
 import { PACK2_EFFECTS, PACK2_DISPOSE } from './pack2';
+import { PACK3_EFFECTS, PACK3_DISPOSE } from './pack3';
 
 import { rainEffect } from './rain';
 import { hazardAtmosphereEffect } from './hazardAtmosphere';
@@ -65,6 +66,7 @@ export const CREATABLE_EFFECTS: EffectModule[] = [
   frostEffect as unknown as EffectModule,
   meteorEffect as unknown as EffectModule,
   ...PACK2_EFFECTS,
+  ...PACK3_EFFECTS,
 ];
 
 export const EFFECTS = BUILTIN_EFFECTS;
@@ -99,6 +101,7 @@ const DISPOSE: Record<string, (id: string) => void> = {
   frost: disposeFrostInstance,
   meteor: disposeMeteorInstance,
   ...PACK2_DISPOSE,
+  ...PACK3_DISPOSE,
 };
 
 export function disposeInstancePools(typeId: string, instanceId: string): void {

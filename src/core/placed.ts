@@ -93,9 +93,12 @@ export function getPlacedBounds(
     const h = Number(params.height ?? params.length ?? 1) * 160;
     const s = Number(params.size ?? 1) * 70;
     raw = { x: params.x - s, y: params.y - h - 20, w: s * 2, h: h + 40 };
-  } else if (typeId === 'black-hole' || typeId === 'ember-ring' || typeId === 'lava-glow') {
+  } else if (typeId === 'black-hole' || typeId === 'ember-ring' || typeId === 'lava-glow' || typeId === 'shield-bubble' || typeId === 'vortex' || typeId === 'crystal-shards') {
     const r = Number(params.radius ?? params.size ?? 1) * 90;
     raw = { x: params.x - r, y: params.y - r * 0.7, w: r * 2, h: r * 1.4 };
+  } else if (typeId === 'comet-trail' || typeId === 'laser-grid') {
+    const s = Number(params.size ?? 1) * 120;
+    raw = { x: params.x - s, y: params.y - s * 0.6, w: s * 2, h: s * 1.2 };
   } else {
     const s = Number(params.size ?? 1) * 80;
     raw = { x: params.x - s, y: params.y - s * 1.4, w: s * 2, h: s * 2 };
