@@ -67,12 +67,12 @@ function buildSwellRows(height: number, seed: number): number[] {
   const rows: number[] = [];
   let y = height * 0.08;
   let i = 0;
-  while (y < height * 0.96 && rows.length < 9) {
+  while (y < height * 0.96 && rows.length < 5) {
     rows.push(y);
     const gap =
-      height * (0.08 + 0.1 * (0.5 + 0.5 * fbm2(i * 1.7, seed * 0.01, 2, seed + 3))) +
-      (i % 3 === 0 ? height * 0.04 : 0);
-    y += Math.max(height * 0.07, gap);
+      height * (0.12 + 0.14 * (0.5 + 0.5 * fbm2(i * 1.7, seed * 0.01, 2, seed + 3))) +
+      (i % 2 === 0 ? height * 0.06 : 0);
+    y += Math.max(height * 0.11, gap);
     i++;
   }
   return rows;
@@ -127,26 +127,23 @@ export const drawWater: DrawFn<WaterParams> = (ctx, params, t, scene) => {
 
     // Soft trough shade (broad, not a thin stripe)
     L.beginPath();
-    L.moveTo(0, y0 + 10);
+    L.moveTo(0, y0 + 14);
     for (let c = 0; c <= cols; c++) {
       const u = c / cols;
       const x = u * W;
       const h =
         waveHeight(x + left + rowPhase, y0 + top, t, params.waveScale, params.waveStrength, params.seed + r) *
         rowAmp;
-      L.lineTo(x, y0 + h * 0.5 + 6);
+      L.lineTo(x, y0 + h * 0.45 + 10);
     }
-    L.lineTo(W, y0 + 18);
+    L.lineTo(W, y0 + 28);
     L.closePath();
-    L.fillStyle = withAlpha(trough, clamp(0.06 + v * 0.18, 0, 0.28) * I);
+    L.fillStyle = withAlpha(trough, clamp(0.07 + v * 0.2, 0, 0.3) * I);
     L.fill();
 
-    // Broken crest highlights — skip segments so it isn't one perfect continuous line
-    L.lineWidth = 1.4 + (1 - v) * 1.8;
-    L.lineCap = 'round';
-    let drawing = false;
-    for (let c = 0; c <= cols; c++) {
-      const u = c / cols;
+    // Soft crest patches (blobs) — no continuous geometric stroke lines
+    for (let c = 0; c < cols; c += 2) {
+      const u = (c + 0.4) / cols;
       const x = u * W;
       const h =
         waveHeight(
@@ -157,31 +154,29 @@ export const drawWater: DrawFn<WaterParams> = (ctx, params, t, scene) => {
           params.waveStrength,
           params.seed + r + 3,
         ) * rowAmp;
-      const y = y0 + h * 0.65;
       const peak = h / Math.max(1, rowAmp);
-      const gate = fbm2(c * 0.55 + r * 1.3, t * 0.15 + params.seed * 0.01, 2, params.seed + 19);
-      const show = peak > 0.05 && gate > -0.15;
-      if (show) {
-        const a =
-          clamp(0.1 + (1 - v) * 0.22 + peak * 0.2, 0, 0.5) * I * mat.emissiveIntensity;
-        L.strokeStyle = withAlpha(crest, a);
-        if (!drawing) {
-          L.beginPath();
-          L.moveTo(x, y);
-          drawing = true;
-        } else {
-          L.lineTo(x, y);
-        }
-      } else if (drawing) {
-        L.stroke();
-        drawing = false;
-      }
+      const scatter = fbm2(c * 0.7 + r * 1.4, t * 0.12 + params.seed * 0.01, 2, params.seed + 19);
+      if (peak < 0.12 || scatter < -0.05) continue;
+      const a =
+        clamp(0.08 + (1 - v) * 0.18 + peak * 0.22, 0, 0.42) * I * mat.emissiveIntensity;
+      if (a < 0.03) continue;
+      const cx = x + scatter * 8;
+      const cy = y0 + h * 0.55;
+      const rw = 10 + peak * 22 + Math.abs(scatter) * 8;
+      const rh = 2 + peak * 4;
+      const g = L.createRadialGradient(cx, cy, 0, cx, cy, rw);
+      g.addColorStop(0, withAlpha(crest, a));
+      g.addColorStop(0.45, withAlpha(crest, a * 0.35));
+      g.addColorStop(1, withAlpha(crest, 0));
+      L.fillStyle = g;
+      L.beginPath();
+      L.ellipse(cx, cy, rw, rh, scatter * 0.35, 0, Math.PI * 2);
+      L.fill();
     }
-    if (drawing) L.stroke();
 
     // Sparse whitecaps only on strong irregular peaks
     if (foamAmt > 0.02) {
-      for (let c = 0; c < cols; c += 3) {
+      for (let c = 0; c < cols; c += 4) {
         const u = (c + 0.5) / cols;
         const x = u * W;
         const h =
@@ -189,12 +184,12 @@ export const drawWater: DrawFn<WaterParams> = (ctx, params, t, scene) => {
           rowAmp;
         const peak = h / Math.max(1, rowAmp);
         const scatter = fbm2(c * 0.8, r * 1.1 + params.seed * 0.02, 2, params.seed + 29);
-        if (peak < 0.45 + (1 - foamAmt) * 0.25 || scatter < 0.1) continue;
+        if (peak < 0.5 + (1 - foamAmt) * 0.2 || scatter < 0.15) continue;
         const a = foamAmt * I * (0.12 + peak * 0.4) * (0.35 + v * 0.55);
         if (a < 0.04) continue;
-        const rw = 5 + peak * 16;
-        const rh = 1.4 + peak * 2.8;
-        const cy = y0 + h * 0.6;
+        const rw = 6 + peak * 18;
+        const rh = 1.6 + peak * 3;
+        const cy = y0 + h * 0.55;
         const g = L.createRadialGradient(x, cy, 0, x, cy, rw);
         g.addColorStop(0, withAlpha('#f4fbff', a));
         g.addColorStop(0.5, withAlpha('#d0e8f2', a * 0.4));
