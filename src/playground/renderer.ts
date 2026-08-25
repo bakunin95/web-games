@@ -1,6 +1,6 @@
 import type { BaseEffectParams, EffectModule, SceneContext } from '../core/types';
 import { drawMockScene } from './mockScene';
-import { getPlacedBounds, isPlacedParams } from '../core/placed';
+import { getPlacedBounds, getScale, isPlacedParams } from '../core/placed';
 import type { EffectMaterial } from '../core/material';
 
 export interface RendererHandles {
@@ -107,7 +107,12 @@ export function createRenderer(handles: RendererHandles) {
 
     ctx.font = `${Math.round(13 * inv)}px sans-serif`;
     ctx.fillStyle = 'rgba(232, 238, 252, 0.98)';
-    ctx.fillText(rt.label ?? rt.module.name, b.x, b.y - 10 * inv);
+    const scaleLabel = getScale(rt.params);
+    ctx.fillText(
+      `${rt.label ?? rt.module.name}  ×${scaleLabel.toFixed(2)}`,
+      b.x,
+      b.y - 10 * inv,
+    );
     ctx.restore();
   };
 
@@ -134,6 +139,18 @@ export function createRenderer(handles: RendererHandles) {
     for (const fx of effects) {
       if (fx.module.space !== 'world') continue;
       if (!fx.params.enabled) continue;
+      if (isPlacedParams(fx.params)) {
+        const s = getScale(fx.params);
+        if (s !== 1) {
+          worldCtx.save();
+          worldCtx.translate(fx.params.x, fx.params.y);
+          worldCtx.scale(s, s);
+          worldCtx.translate(-fx.params.x, -fx.params.y);
+          fx.module.draw(worldCtx, fx.params, t, scene);
+          worldCtx.restore();
+          continue;
+        }
+      }
       fx.module.draw(worldCtx, fx.params, t, scene);
     }
 

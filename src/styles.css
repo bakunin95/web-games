@@ -202,6 +202,22 @@ body {
   border-color: rgba(61, 231, 255, 0.45);
 }
 
+.reset-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 122, 92, 0.45);
+  background: rgba(40, 14, 14, 0.55);
+  color: #ffb4a4;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+}
+
+.reset-btn:hover {
+  border-color: rgba(255, 122, 92, 0.85);
+  color: #ffe0d8;
+}
+
 #panel {
   position: absolute;
   z-index: 6;

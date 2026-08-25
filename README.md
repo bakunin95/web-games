@@ -43,15 +43,12 @@ Other scripts:
 
 ### Create new VFX
 
-Use the **+ Create VFX** button in the header (or the **Create VFX** folder in the panel):
+Use the **+ Create VFX** button (or panel **Create VFX** folder). Types include:
 
-1. Pick a type: **Fire**, **Smoke**, **Sparks**, or **Water**
-2. A new instance spawns near the camera with a **randomized seed / colors / size / spread** (water also randomizes width/height/waves) so each create looks different
-3. Tweak `x` / `y` (and for water: `width` / `height`), colors, intensity, etc. live — or hit **Remove**
+Fire, Smoke, Sparks, Water, Lightning, Thunderclouds, Snow / Blizzard, Fog Bank, Heat Haze, Sandstorm, Dust Motes, God Rays, Explosion, Shockwave, Magic Aura, Portal / Rift, Electric Arcs, Toxic Gas, Blood Mist, Leaves / Debris, Fireflies, Caustics, Ice / Frost, Meteor.
 
-Creatable templates live in `CREATABLE_EFFECTS` (`src/effects/index.ts`). Add a new emitter module there to show up in the menu.
+Each spawn gets randomized seed/placement and uses an **EffectMaterial** (baseColor, emissive, opacity, roughness, metalness, blend). Click to select, drag to move, Minimize editor to hide the pane.
 
-Fire uses layered heat (cool → mid → hot core) + fbm turbulence + embers. Smoke uses soft expanding puffs with lit edges. Water is an elliptical body with ripples, scene-light reflections, and shore foam.
 
 
 ## Project layout

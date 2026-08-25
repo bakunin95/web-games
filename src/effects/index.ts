@@ -118,6 +118,7 @@ export function createRandomizedParams(
   base.seed = (Math.random() * 1e9) | 0;
   base.enabled = true;
   base.intensity = 0.85 + Math.random() * 0.4;
+  base.scale = 1;
 
   const jitterX = (Math.random() - 0.5) * 480;
   const jitterY = (Math.random() - 0.5) * 200;

@@ -33,6 +33,7 @@ export interface PlaygroundControls {
   createVfx: (typeId: string) => EffectRuntime | null;
   selectRuntime: (id: string | null) => void;
   setMinimized: (min: boolean) => void;
+  resetAll: () => void;
 }
 
 type LoopApi = {
@@ -56,6 +57,7 @@ export function createPlaygroundUI(
   createButton?: HTMLElement | null,
   minimizeButton?: HTMLElement | null,
   onSelectionChange?: (id: string | null) => void,
+  resetButton?: HTMLElement | null,
 ): PlaygroundControls {
   // Shell for minimize
   container.classList.add('panel-shell');
@@ -130,6 +132,9 @@ export function createPlaygroundUI(
   createFolder.addButton({ title: '+ Create new VFX' }).on('click', () => {
     createVfx(createProxy.type);
   });
+  createFolder.addButton({ title: 'Reset all VFX' }).on('click', () => {
+    resetAll();
+  });
 
   // Builtin atmospheric FX (collapsed)
   const atmosFolder = pane.addFolder({ title: 'Atmosphere (built-in)', expanded: false });
@@ -189,6 +194,21 @@ export function createPlaygroundUI(
     refreshInstanceList();
   }
 
+  function resetAll(): void {
+    const removable = runtimes.filter((r) => r.removable);
+    for (const rt of removable) {
+      const idx = runtimes.indexOf(rt);
+      if (idx >= 0) runtimes.splice(idx, 1);
+      const instanceId = String(
+        (rt.params as unknown as Record<string, unknown>).instanceId ?? rt.id,
+      );
+      disposeInstancePools(rt.module.id, instanceId);
+    }
+    spawnCounter = 0;
+    selectRuntime(null);
+    refreshInstanceList();
+  }
+
   function selectRuntime(id: string | null): void {
     selectedId = id;
     rebuildSelectedFolder();
@@ -210,8 +230,10 @@ export function createPlaygroundUI(
     selectedFolder = folder;
 
     const bag = rt.params as unknown as Record<string, unknown>;
+    if (typeof bag.scale !== 'number') bag.scale = 1;
     folder.addBinding(bag, 'enabled');
     folder.addBinding(bag, 'intensity', { min: 0, max: 1.5, step: 0.01 });
+    folder.addBinding(bag, 'scale', { min: 0.2, max: 4.5, step: 0.01 });
     folder.addBinding(bag, 'x', { min: 0, max: 2400, step: 1 });
     folder.addBinding(bag, 'y', { min: 0, max: 1400, step: 1 });
 
@@ -253,7 +275,7 @@ export function createPlaygroundUI(
     // Type-specific params
     const shapeFolder = folder.addFolder({ title: 'Shape / Motion', expanded: true });
     for (const [key, value] of Object.entries(rt.params)) {
-      if (SKIP_KEYS.has(key) || key === 'x' || key === 'y' || key === 'seed') continue;
+      if (SKIP_KEYS.has(key) || key === 'x' || key === 'y' || key === 'seed' || key === 'scale') continue;
       if (typeof value === 'number') {
         if (key === 'width' || key === 'height') {
           shapeFolder.addBinding(bag, key, { min: 40, max: 900, step: 1 });
@@ -309,6 +331,10 @@ export function createPlaygroundUI(
     });
   }
 
+  if (resetButton) {
+    resetButton.addEventListener('click', () => resetAll());
+  }
+
   function flashCreateButton(): void {
     if (!createButton) return;
     createButton.classList.add('just-created');
@@ -324,6 +350,7 @@ export function createPlaygroundUI(
     createVfx,
     selectRuntime,
     setMinimized,
+    resetAll,
   };
 }
 

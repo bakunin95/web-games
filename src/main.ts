@@ -14,6 +14,7 @@ const panel = document.querySelector<HTMLElement>('#panel')!;
 const stage = document.querySelector<HTMLElement>('#stage')!;
 const createBtn = document.querySelector<HTMLButtonElement>('#create-vfx-btn');
 const minimizeBtn = document.querySelector<HTMLButtonElement>('#minimize-panel-btn');
+const resetBtn = document.querySelector<HTMLButtonElement>('#reset-vfx-btn');
 
 const scene = createScene();
 const runtimes: EffectRuntime[] = BUILTIN_EFFECTS.map(makeBuiltinRuntime);
@@ -50,6 +51,7 @@ const ui = createPlaygroundUI(
     selectedId = id;
     interactions.setSelected(id, true);
   },
+  resetBtn,
 );
 
 const interactions = attachStageInteractions(stage, scene, runtimes, (id) => {
@@ -74,6 +76,7 @@ Object.assign(window, {
     BUILTIN_EFFECTS,
     createVfx: ui.createVfx,
     selectRuntime: ui.selectRuntime,
+    resetAll: ui.resetAll,
     get selectedId() {
       return selectedId;
     },
