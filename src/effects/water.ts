@@ -36,7 +36,7 @@ export const drawWater: DrawFn<WaterParams> = (ctx, params, t, scene) => {
   ctx.clip();
 
   // Depth volume: shallow banks + clear mid sky-mirror (not a flat oval fill)
-  drawDepthBody(ctx, params, cx, cy, hw, hh, colorDeep, colorShallow, colorSky, I);
+  drawDepthBody(ctx, cx, cy, hw, hh, colorDeep, colorShallow, colorSky, I);
 
   // Mid-water sky mirror band (Fresnel: stronger toward far shore / horizon)
   if (reflectivity > 0.04) {
@@ -49,7 +49,7 @@ export const drawWater: DrawFn<WaterParams> = (ctx, params, t, scene) => {
   }
 
   // Soft morning mist at far waterline
-  drawWaterlineMist(ctx, params, cx, cy, hw, hh, calm, I);
+  drawWaterlineMist(ctx, cx, cy, hw, hh, calm, I);
 
   // Calm micro-ripples (barely visible at default waveStrength)
   drawRipples(ctx, params, t, cx, cy, hw, hh, calm);
@@ -68,7 +68,6 @@ export const drawWater: DrawFn<WaterParams> = (ctx, params, t, scene) => {
 /** Shallower/lighter near banks; clearer reflective mid band; deeper toward near shore. */
 function drawDepthBody(
   ctx: CanvasRenderingContext2D,
-  params: WaterParams,
   cx: number,
   cy: number,
   hw: number,
@@ -291,7 +290,6 @@ function drawShoreReflections(
 
 function drawWaterlineMist(
   ctx: CanvasRenderingContext2D,
-  params: WaterParams,
   cx: number,
   cy: number,
   hw: number,
