@@ -218,9 +218,9 @@ function drawFresnel(
   const a = reflectivity * I;
 
   const graze = ctx.createLinearGradient(cx, cy - hh, cx, cy - hh * 0.1);
-  graze.addColorStop(0, withAlpha(colorHorizon, 0.38 * a * (0.7 + calm * 0.3)));
-  graze.addColorStop(0.3, withAlpha(colorSky, 0.28 * a));
-  graze.addColorStop(0.65, withAlpha(colorSky, 0.1 * a));
+  graze.addColorStop(0, withAlpha(colorHorizon, 0.48 * a * (0.7 + calm * 0.3)));
+  graze.addColorStop(0.25, withAlpha(colorSky, 0.35 * a));
+  graze.addColorStop(0.6, withAlpha(colorSky, 0.12 * a));
   graze.addColorStop(1, withAlpha(colorSky, 0));
   ctx.fillStyle = graze;
   ctx.fillRect(cx - hw, cy - hh, hw * 2, hh * 0.9);
@@ -258,12 +258,13 @@ function drawContinuousMirror(
 
   ctx.save();
 
-  // Sky mirror — continuous vertical flip of sky (muted; no bright rim)
+  // Sky mirror — continuous vertical flip of sky (pale band under trees)
   const sky = ctx.createLinearGradient(cx, waterline, cx, waterline + mirrorH);
-  sky.addColorStop(0, withAlpha(colorHorizon, 0.55 * a));
-  sky.addColorStop(0.08, withAlpha(colorSky, 0.58 * a));
-  sky.addColorStop(0.25, withAlpha(colorSky, 0.35 * a * (0.85 + calm * 0.15)));
-  sky.addColorStop(0.5, withAlpha(lerpColor(colorSky, params.material.baseColor, 0.4), 0.12 * a));
+  sky.addColorStop(0, withAlpha(colorHorizon, 0.2 * a));
+  sky.addColorStop(0.1, withAlpha(colorHorizon, 0.72 * a));
+  sky.addColorStop(0.2, withAlpha(lerpColor(colorHorizon, colorSky, 0.35), 0.68 * a));
+  sky.addColorStop(0.35, withAlpha(colorSky, 0.42 * a * (0.85 + calm * 0.15)));
+  sky.addColorStop(0.55, withAlpha(lerpColor(colorSky, params.material.baseColor, 0.35), 0.14 * a));
   sky.addColorStop(1, withAlpha(colorSky, 0));
   ctx.fillStyle = sky;
   ctx.fillRect(cx - hw, waterline, hw * 2, mirrorH);
@@ -275,7 +276,7 @@ function drawContinuousMirror(
 
 /**
  * One continuous canopy silhouette stretched downward — a soft mirrored band.
- * No jagged polygons / triangle stamps / glitch streaks.
+ * No jagged polygons / triangle stamps / glitch streaks / large oval sheets.
  */
 function drawContinuousTreelineMirror(
   ctx: CanvasRenderingContext2D,
@@ -288,52 +289,47 @@ function drawContinuousTreelineMirror(
   a: number,
   calm: number,
 ): void {
-  const stretch = 2.1 + calm * 0.3;
-  const canopyH = hh * 0.5 * stretch;
+  // Dense continuous mirrored forest — shorter so sky mirror shows below
+  const stretch = 1.65 + calm * 0.25;
+  const canopyH = hh * 0.32 * stretch;
   const wave = params.waveStrength;
+  const warp =
+    fbm2(0.5, t * 0.05 + params.seed * 0.001, 2, params.seed) * (1.2 + wave * 3);
 
-  // Core continuous mirrored forest — solid soft band (not discrete stamps)
-  const core = ctx.createLinearGradient(cx, waterline, cx, waterline + canopyH);
-  core.addColorStop(0, withAlpha('#06140e', 0.92 * a));
-  core.addColorStop(0.12, withAlpha('#0a1c14', 0.88 * a));
-  core.addColorStop(0.28, withAlpha('#0e281c', 0.55 * a));
-  core.addColorStop(0.5, withAlpha('#123024', 0.22 * a));
-  core.addColorStop(0.72, withAlpha('#0c2018', 0.06 * a));
+  // Core continuous mirrored forest — one soft vertical gradient only
+  const core = ctx.createLinearGradient(cx, waterline + warp * 0.15, cx, waterline + canopyH);
+  core.addColorStop(0, withAlpha('#06140e', 0.88 * a));
+  core.addColorStop(0.1, withAlpha('#0a1c14', 0.84 * a));
+  core.addColorStop(0.22, withAlpha('#0e281c', 0.52 * a));
+  core.addColorStop(0.42, withAlpha('#123024', 0.22 * a));
+  core.addColorStop(0.65, withAlpha('#0c2018', 0.06 * a));
   core.addColorStop(1, withAlpha('#081820', 0));
   ctx.fillStyle = core;
   ctx.fillRect(cx - hw, waterline, hw * 2, canopyH);
 
-  // Soft rolling bottom of canopy — overlapping soft lobes (continuous, not triangles)
-  const lobes = Math.max(24, Math.floor(hw / 14));
-  for (let i = 0; i < lobes; i++) {
-    const u = (i + 0.5) / lobes;
-    const x = cx - hw + u * hw * 2;
-    const n =
-      fbm2(u * 2.2, params.seed * 0.001, 3, params.seed) * 0.5 +
-      fbm2(u * 4.5, 0.1, 2, params.seed + 2) * 0.25;
-    const localH = canopyH * (0.42 + n * 0.22);
-    const wobble =
-      fbm2(u * 3, t * 0.04, 2, params.seed) * (1 + wave * 3) +
-      Math.sin(t * 0.18 + u * 5) * wave * 1.2;
-    const rw = (hw * 2) / lobes * 1.35;
-    const ry = waterline + localH + wobble;
-    const g = ctx.createRadialGradient(x, waterline + localH * 0.35, 0, x, ry, rw);
-    g.addColorStop(0, withAlpha('#0c2418', 0.35 * a * calm));
-    g.addColorStop(0.55, withAlpha('#0a1c14', 0.12 * a));
+  // Subtle horizontal density variation via soft full-width sheets (NOT large ovals)
+  for (let i = 0; i < 4; i++) {
+    const v = (i + 0.5) / 4;
+    const y = waterline + canopyH * (0.08 + v * 0.35);
+    const h = canopyH * (0.08 + (1 - v) * 0.06);
+    const sheetA = (0.1 - v * 0.06) * a * calm;
+    if (sheetA < 0.01) continue;
+    const n = fbm2(i * 0.7, t * 0.04, 2, params.seed + i);
+    const g = ctx.createLinearGradient(cx, y - h, cx, y + h);
+    g.addColorStop(0, withAlpha('#0c2418', 0));
+    g.addColorStop(0.5, withAlpha('#0a1c14', sheetA * (0.85 + n * 0.15)));
     g.addColorStop(1, withAlpha('#081820', 0));
     ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.ellipse(x, waterline + localH * 0.55, rw, localH * 0.55, 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillRect(cx - hw, y - h, hw * 2, h * 2);
   }
 
   // Soft waterline seam — muted contact, not a bright rim
-  const seam = ctx.createLinearGradient(cx, waterline - 2, cx, waterline + hh * 0.12);
-  seam.addColorStop(0, withAlpha('#04120c', 0.18 * a));
-  seam.addColorStop(0.5, withAlpha('#0a1814', 0.06 * a));
+  const seam = ctx.createLinearGradient(cx, waterline - 2, cx, waterline + hh * 0.1);
+  seam.addColorStop(0, withAlpha('#04120c', 0.12 * a));
+  seam.addColorStop(0.55, withAlpha('#0a1814', 0.04 * a));
   seam.addColorStop(1, withAlpha('#081820', 0));
   ctx.fillStyle = seam;
-  ctx.fillRect(cx - hw, waterline - 2, hw * 2, hh * 0.14);
+  ctx.fillRect(cx - hw, waterline - 2, hw * 2, hh * 0.12);
 }
 
 /**
@@ -351,11 +347,12 @@ function drawMicroSurface(
   calm: number,
   reflectivity: number,
 ): void {
-  const strength = params.waveStrength * (0.15 + (1 - calm) * 0.7);
-  if (strength < 0.012) return;
+  const strength = Math.max(0.04, params.waveStrength * (0.25 + (1 - calm) * 0.7));
+  // Always allow subtle micro mottling on reflective lakes
+  if (strength < 0.008) return;
 
   ctx.save();
-  const patches = Math.max(4, Math.floor(5 + params.waveStrength * 4));
+  const patches = Math.max(6, Math.floor(7 + params.waveStrength * 5));
   for (let i = 0; i < patches; i++) {
     const phase = t * (0.1 + strength * 0.12) + i * 1.5 + params.seed * 0.0001;
     const u = (i + 0.3) / patches;
