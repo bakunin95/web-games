@@ -35,23 +35,35 @@ export const drawWater: DrawFn<WaterParams> = (ctx, params, t, scene) => {
   ctx.ellipse(cx, cy, hw, hh, 0, 0, Math.PI * 2);
   ctx.clip();
 
+<<<<<<< Updated upstream
   // Depth volume: shallow banks + clear mid sky-mirror (not a flat oval fill)
   drawDepthBody(ctx, cx, cy, hw, hh, colorDeep, colorShallow, colorSky, I);
 
   // Mid-water sky mirror band (Fresnel: stronger toward far shore / horizon)
+=======
+  drawDepthBody(ctx, cx, cy, hw, hh, colorDeep, colorShallow, colorSky, I);
+
+>>>>>>> Stashed changes
   if (reflectivity > 0.04) {
     drawSkyMirror(ctx, params, t, cx, cy, hw, hh, colorSky, colorSkyBright, reflectivity, calm, I);
   }
 
+<<<<<<< Updated upstream
   // Far-shore tree / foliage reflections — soft, stretched, waterline-blurred
+=======
+>>>>>>> Stashed changes
   if (reflectivity > 0.1) {
     drawShoreReflections(ctx, params, t, cx, cy, hw, hh, reflectivity, calm);
   }
 
+<<<<<<< Updated upstream
   // Soft morning mist at far waterline
   drawWaterlineMist(ctx, cx, cy, hw, hh, calm, I);
 
   // Calm micro-ripples (barely visible at default waveStrength)
+=======
+  drawWaterlineMist(ctx, cx, cy, hw, hh, calm, I);
+>>>>>>> Stashed changes
   drawRipples(ctx, params, t, cx, cy, hw, hh, calm);
 
   if (reflectivity > 0) {
@@ -77,6 +89,7 @@ function drawDepthBody(
   colorSky: string,
   I: number,
 ): void {
+<<<<<<< Updated upstream
   // Base vertical volume: sky-tint at far, deep near viewer
   const vert = ctx.createLinearGradient(cx, cy - hh, cx, cy + hh);
   vert.addColorStop(0, withAlpha(lerpColor(colorSky, colorShallow, 0.35), 0.88 * I));
@@ -109,16 +122,55 @@ function drawDepthBody(
     const g = ctx.createRadialGradient(gx, cy, 0, gx, cy, hw * 0.55);
     g.addColorStop(0, withAlpha(lerpColor(colorShallow, '#c5e4f0', 0.25), 0.32 * I));
     g.addColorStop(0.55, withAlpha(colorShallow, 0.1 * I));
+=======
+  const vert = ctx.createLinearGradient(cx, cy - hh, cx, cy + hh);
+  vert.addColorStop(0, withAlpha(lerpColor(colorSky, colorShallow, 0.25), 0.82 * I));
+  vert.addColorStop(0.22, withAlpha(lerpColor(colorShallow, colorSky, 0.55), 0.88 * I));
+  vert.addColorStop(0.48, withAlpha(lerpColor(colorShallow, colorSky, 0.2), 0.84 * I));
+  vert.addColorStop(0.78, withAlpha(colorDeep, 0.94 * I));
+  vert.addColorStop(1, withAlpha(lerpColor(colorDeep, '#031018', 0.5), 0.98 * I));
+  ctx.fillStyle = vert;
+  ctx.fillRect(cx - hw, cy - hh, hw * 2, hh * 2);
+
+  // Bank shallowing — lighten toward ellipse rim so body reads as volume
+  const bank = ctx.createRadialGradient(
+    cx,
+    cy + hh * 0.12,
+    Math.min(hw, hh) * 0.12,
+    cx,
+    cy,
+    Math.max(hw, hh) * 1.08,
+  );
+  bank.addColorStop(0, withAlpha(colorDeep, 0));
+  bank.addColorStop(0.5, withAlpha(colorShallow, 0));
+  bank.addColorStop(0.78, withAlpha(lerpColor(colorShallow, colorSky, 0.4), 0.28 * I));
+  bank.addColorStop(1, withAlpha(lerpColor(colorShallow, '#c8e8f2', 0.45), 0.48 * I));
+  ctx.fillStyle = bank;
+  ctx.fillRect(cx - hw, cy - hh, hw * 2, hh * 2);
+
+  for (const side of [-1, 1] as const) {
+    const gx = cx + side * hw * 0.9;
+    const g = ctx.createRadialGradient(gx, cy + hh * 0.05, 0, gx, cy, hw * 0.62);
+    g.addColorStop(0, withAlpha(lerpColor(colorShallow, '#c8e8f0', 0.35), 0.4 * I));
+    g.addColorStop(0.5, withAlpha(colorShallow, 0.14 * I));
+>>>>>>> Stashed changes
     g.addColorStop(1, withAlpha(colorShallow, 0));
     ctx.fillStyle = g;
     ctx.fillRect(cx - hw, cy - hh, hw * 2, hh * 2);
   }
 
+<<<<<<< Updated upstream
   // Near-shore (bottom) slightly clearer/shallower teal tint
   const near = ctx.createLinearGradient(cx, cy + hh * 0.15, cx, cy + hh);
   near.addColorStop(0, withAlpha(colorDeep, 0));
   near.addColorStop(0.5, withAlpha(lerpColor(colorDeep, colorShallow, 0.35), 0.12 * I));
   near.addColorStop(1, withAlpha(lerpColor(colorShallow, '#6aa8b8', 0.3), 0.28 * I));
+=======
+  const near = ctx.createLinearGradient(cx, cy + hh * 0.2, cx, cy + hh);
+  near.addColorStop(0, withAlpha(colorDeep, 0));
+  near.addColorStop(0.55, withAlpha(lerpColor(colorDeep, colorShallow, 0.4), 0.14 * I));
+  near.addColorStop(1, withAlpha(lerpColor(colorShallow, '#6aa8b8', 0.35), 0.32 * I));
+>>>>>>> Stashed changes
   ctx.fillStyle = near;
   ctx.fillRect(cx - hw, cy, hw * 2, hh);
 }
@@ -139,6 +191,7 @@ function drawSkyMirror(
 ): void {
   ctx.save();
   const bandTop = cy - hh * 0.92;
+<<<<<<< Updated upstream
   const bandBot = cy + hh * 0.08;
   const sky = ctx.createLinearGradient(cx, bandTop, cx, bandBot);
   const a = reflectivity * I;
@@ -146,10 +199,21 @@ function drawSkyMirror(
   sky.addColorStop(0.18, withAlpha(colorSky, 0.58 * a));
   sky.addColorStop(0.45, withAlpha(colorSky, 0.38 * a * (0.85 + calm * 0.15)));
   sky.addColorStop(0.72, withAlpha(lerpColor(colorSky, params.material.baseColor, 0.35), 0.12 * a));
+=======
+  const bandBot = cy + hh * 0.05;
+  const sky = ctx.createLinearGradient(cx, bandTop, cx, bandBot);
+  const a = reflectivity * I;
+  // Clear mid-water sky-mirror — strongest near far shore (Fresnel)
+  sky.addColorStop(0, withAlpha(colorSkyBright, 0.78 * a));
+  sky.addColorStop(0.2, withAlpha(colorSky, 0.62 * a));
+  sky.addColorStop(0.48, withAlpha(colorSky, 0.42 * a * (0.85 + calm * 0.15)));
+  sky.addColorStop(0.75, withAlpha(lerpColor(colorSky, params.material.baseColor, 0.4), 0.1 * a));
+>>>>>>> Stashed changes
   sky.addColorStop(1, withAlpha(colorSky, 0));
   ctx.fillStyle = sky;
   ctx.fillRect(cx - hw, bandTop, hw * 2, bandBot - bandTop);
 
+<<<<<<< Updated upstream
   // Soft horizontal shimmer sheets (not hard bands)
   ctx.globalCompositeOperation = 'lighter';
   const sheets = 5;
@@ -162,12 +226,32 @@ function drawSkyMirror(
       fbm2(i * 0.7, t * 0.12 + params.seed * 0.001, 2, params.seed + i) * 3 * params.waveStrength;
     const h = hh * (0.035 + (1 - u) * 0.04);
     const aSheet = (0.04 + (1 - u) * 0.06) * a * calm;
+=======
+  // Very faint micro shimmer — not hard straight bands
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 4; i++) {
+    const u = i / 3;
+    const y =
+      cy -
+      hh * 0.7 +
+      u * hh * 0.48 +
+      fbm2(i * 0.7, t * 0.1 + params.seed * 0.001, 2, params.seed + i) * 2.5 * params.waveStrength;
+    const h = 1.2 + (1 - u) * 1.8;
+    const aSheet = (0.025 + (1 - u) * 0.03) * a * calm;
+>>>>>>> Stashed changes
     const g = ctx.createLinearGradient(cx, y - h, cx, y + h);
     g.addColorStop(0, withAlpha(colorSkyBright, 0));
     g.addColorStop(0.5, withAlpha(colorSkyBright, aSheet));
     g.addColorStop(1, withAlpha(colorSkyBright, 0));
     ctx.fillStyle = g;
+<<<<<<< Updated upstream
     ctx.fillRect(cx - hw * 0.98, y - h, hw * 1.96, h * 2);
+=======
+    // Feathered ends via ellipse, not full-width rect
+    ctx.beginPath();
+    ctx.ellipse(cx + fbm2(i, t * 0.08, 1, params.seed) * hw * 0.1, y, hw * (0.55 + u * 0.25), h, 0, 0, Math.PI * 2);
+    ctx.fill();
+>>>>>>> Stashed changes
   }
   ctx.restore();
 }
@@ -189,6 +273,7 @@ function drawShoreReflections(
 ): void {
   const rand = mulberry32((params.seed | 0) ^ 0x51a2);
   const waterline = cy - hh * 0.78;
+<<<<<<< Updated upstream
   const stretch = 1.55 + calm * 0.35;
   const wave = params.waveStrength;
 
@@ -202,10 +287,26 @@ function drawShoreReflections(
   canopy.addColorStop(0.12, withAlpha('#0d281c', baseA * 0.75));
   canopy.addColorStop(0.4, withAlpha('#122e22', baseA * 0.35));
   canopy.addColorStop(0.75, withAlpha('#0a1820', baseA * 0.1));
+=======
+  const stretch = 1.75 + calm * 0.4;
+  const wave = params.waveStrength;
+  const baseA = 0.48 * reflectivity * params.intensity;
+  const canopyH = hh * 0.48 * stretch;
+
+  ctx.save();
+
+  // Soft canopy veil (blurred mass, not triangles)
+  const canopy = ctx.createLinearGradient(cx, waterline, cx, waterline + canopyH);
+  canopy.addColorStop(0, withAlpha('#081a12', baseA * 0.9));
+  canopy.addColorStop(0.08, withAlpha('#0c2418', baseA * 0.7));
+  canopy.addColorStop(0.35, withAlpha('#123024', baseA * 0.28));
+  canopy.addColorStop(0.7, withAlpha('#0a1820', baseA * 0.08));
+>>>>>>> Stashed changes
   canopy.addColorStop(1, withAlpha('#061018', 0));
   ctx.fillStyle = canopy;
   ctx.fillRect(cx - hw, waterline, hw * 2, canopyH);
 
+<<<<<<< Updated upstream
   // Soft elongated foliage masses (vertically stretched, horizontally rippled)
   const count = 22;
   for (let i = 0; i < count; i++) {
@@ -320,6 +421,104 @@ function drawWaterlineMist(
     g.addColorStop(1, withAlpha('#ffffff', 0));
     ctx.fillStyle = g;
     ctx.beginPath();
+=======
+  // Vertically stretched soft silhouettes with scanline ripple
+  const count = 26;
+  for (let i = 0; i < count; i++) {
+    const u = (i + 0.3) / count;
+    const x0 = cx - hw * 0.94 + u * hw * 1.88;
+    const treeH = (28 + rand() * 56) * stretch * (0.6 + params.height / 260);
+    const crownW = 8 + rand() * 18;
+    const fresnel = Math.pow(Math.max(0, 1 - treeH / (hh * 1.05)), 0.4);
+
+    // Draw as stacked soft horizontal slices with progressive vertical stretch + x wobble
+    const slices = 10;
+    for (let s = 0; s < slices; s++) {
+      const v = s / (slices - 1);
+      // denser near waterline (Fresnel), fade toward viewer
+      const a = baseA * fresnel * (1 - v * 0.92) * (0.55 + calm * 0.35);
+      if (a < 0.01) continue;
+      const y = waterline + v * treeH;
+      const wobble =
+        fbm2(i * 0.6 + v * 2.2, t * 0.08, 2, params.seed) * (3 + wave * 12) +
+        Math.sin(t * 0.4 + i + v * 6) * wave * 4;
+      // Crown wider near top of reflection (start), tapers
+      const halfW = crownW * (1.15 - v * 0.55) * (0.55 + (1 - v) * 0.55);
+      const sliceH = (2.2 + wave * 1.5) * (1 + v * 0.35);
+      const g = ctx.createRadialGradient(x0 + wobble, y, 0, x0 + wobble, y, halfW);
+      g.addColorStop(0, withAlpha(v < 0.2 ? '#0a1e14' : '#143528', a));
+      g.addColorStop(0.55, withAlpha('#0e281c', a * 0.4));
+      g.addColorStop(1, withAlpha('#081820', 0));
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(x0 + wobble, y, halfW, sliceH, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Soft thin trunk filament
+    const tw = 0.9 + rand() * 1.6;
+    const th = treeH * 0.9;
+    const tx = x0 + fbm2(i, t * 0.05, 1, params.seed) * wave * 3;
+    const tg = ctx.createLinearGradient(tx, waterline, tx, waterline + th);
+    tg.addColorStop(0, withAlpha('#061410', baseA * fresnel * 0.65));
+    tg.addColorStop(0.4, withAlpha('#0a2016', baseA * fresnel * 0.3));
+    tg.addColorStop(1, withAlpha('#061018', 0));
+    ctx.fillStyle = tg;
+    ctx.fillRect(tx - tw * 0.5, waterline, tw, th);
+  }
+
+  // Soft waterline blur — dissolve junction with misty edge
+  const blur = ctx.createLinearGradient(cx, waterline - 4, cx, waterline + hh * 0.32);
+  blur.addColorStop(0, withAlpha('#0a1820', 0.28 * reflectivity * params.intensity));
+  blur.addColorStop(0.2, withAlpha('#0c1c24', 0.14 * reflectivity * params.intensity));
+  blur.addColorStop(0.55, withAlpha('#081820', 0.05 * reflectivity));
+  blur.addColorStop(1, withAlpha('#081820', 0));
+  ctx.fillStyle = blur;
+  ctx.fillRect(cx - hw, waterline - 6, hw * 2, hh * 0.36);
+
+  // Fresnel darkening strongest right at horizon waterline
+  const fres = ctx.createLinearGradient(cx, waterline, cx, waterline + hh * 0.22);
+  fres.addColorStop(0, withAlpha('#04120e', 0.4 * reflectivity * params.intensity * calm));
+  fres.addColorStop(0.35, withAlpha('#081820', 0.14 * reflectivity));
+  fres.addColorStop(1, withAlpha('#081820', 0));
+  ctx.fillStyle = fres;
+  ctx.fillRect(cx - hw, waterline, hw * 2, hh * 0.22);
+
+  ctx.restore();
+}
+
+function drawWaterlineMist(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  hw: number,
+  hh: number,
+  calm: number,
+  I: number,
+): void {
+  const top = cy - hh * 0.9;
+  const mist = ctx.createLinearGradient(cx, top, cx, cy - hh * 0.32);
+  mist.addColorStop(0, withAlpha('#f4f8fb', 0.36 * calm * I));
+  mist.addColorStop(0.3, withAlpha('#e4eef5', 0.16 * calm * I));
+  mist.addColorStop(0.65, withAlpha('#d5e4ee', 0.05 * calm * I));
+  mist.addColorStop(1, withAlpha('#d5e4ee', 0));
+  ctx.fillStyle = mist;
+  ctx.fillRect(cx - hw, top, hw * 2, hh * 0.58);
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 6; i++) {
+    const u = (i + 0.5) / 6;
+    const px = cx - hw * 0.75 + u * hw * 1.5;
+    const py = top + hh * 0.07 + (i % 2) * 3;
+    const rw = hw * (0.14 + (i % 3) * 0.04);
+    const rh = hh * 0.055;
+    const g = ctx.createRadialGradient(px, py, 0, px, py, rw);
+    g.addColorStop(0, withAlpha('#ffffff', 0.09 * calm * I));
+    g.addColorStop(1, withAlpha('#ffffff', 0));
+    ctx.fillStyle = g;
+    ctx.beginPath();
+>>>>>>> Stashed changes
     ctx.ellipse(px, py, rw, rh, 0, 0, Math.PI * 2);
     ctx.fill();
   }
@@ -360,7 +559,11 @@ function drawRipples(
       if (s === 0) ctx.moveTo(x, y + local);
       else ctx.lineTo(x, y + local);
     }
+<<<<<<< Updated upstream
     ctx.strokeStyle = withAlpha('#c8e6ff', 0.035 * params.intensity * (0.3 + strength));
+=======
+    ctx.strokeStyle = withAlpha('#c8e6ff', 0.03 * params.intensity * (0.3 + strength));
+>>>>>>> Stashed changes
     ctx.lineWidth = 1;
     ctx.stroke();
   }
@@ -389,6 +592,7 @@ function drawAnisotropicSpeculars(
   const I = params.intensity;
   const aBase = reflectivity * I;
 
+<<<<<<< Updated upstream
   // Thin sky-edge sheen (far shore) — elongated horizontal, feathered ends
   const sheenY = cy - hh * 0.62 + Math.sin(t * 0.25) * 1.2;
   const sheenH = hh * (0.028 + calm * 0.012);
@@ -444,6 +648,68 @@ function drawAnisotropicSpeculars(
   }
 
   // Scene light anisotropic reflections (vertical thin streaks, not circular blobs)
+=======
+  // Thin sky-edge sheen near far shore — elongated, feathered ends
+  const sheenY = cy - hh * 0.68 + Math.sin(t * 0.22) * 1.0;
+  const sheenH = Math.max(1.2, hh * 0.018);
+  const sheen = ctx.createLinearGradient(cx - hw, sheenY, cx + hw, sheenY);
+  sheen.addColorStop(0, withAlpha('#ffffff', 0));
+  sheen.addColorStop(0.15, withAlpha('#d4eaff', 0.035 * aBase));
+  sheen.addColorStop(0.4, withAlpha('#ffffff', 0.16 * aBase * calm));
+  sheen.addColorStop(0.5, withAlpha('#eef6ff', 0.22 * aBase * calm));
+  sheen.addColorStop(0.6, withAlpha('#ffffff', 0.16 * aBase * calm));
+  sheen.addColorStop(0.85, withAlpha('#d4eaff', 0.035 * aBase));
+  sheen.addColorStop(1, withAlpha('#ffffff', 0));
+  ctx.fillStyle = sheen;
+  ctx.beginPath();
+  ctx.ellipse(cx, sheenY, hw * 0.88, sheenH, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Secondary hairline sheen
+  const sheen2Y = sheenY + hh * 0.055;
+  const sheen2 = ctx.createLinearGradient(cx - hw * 0.65, sheen2Y, cx + hw * 0.65, sheen2Y);
+  sheen2.addColorStop(0, withAlpha('#ffffff', 0));
+  sheen2.addColorStop(0.45, withAlpha(tint, 0.06 * aBase * calm));
+  sheen2.addColorStop(0.5, withAlpha('#ffffff', 0.1 * aBase * calm));
+  sheen2.addColorStop(0.55, withAlpha(tint, 0.06 * aBase * calm));
+  sheen2.addColorStop(1, withAlpha('#ffffff', 0));
+  ctx.fillStyle = sheen2;
+  ctx.beginPath();
+  ctx.ellipse(cx, sheen2Y, hw * 0.62, sheenH * 0.55, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Anisotropic micro-streaks — thin long strokes (not blobs)
+  const streakCount = 16 + Math.floor(params.waveStrength * 6);
+  ctx.lineCap = 'round';
+  for (let i = 0; i < streakCount; i++) {
+    const u = (i + 0.5) / streakCount;
+    const nx = fbm2(i * 1.3, t * 0.14 + params.seed * 0.002, 2, params.seed + i);
+    const ny = fbm2(i * 0.9 + 3, t * 0.11, 2, params.seed + 50 + i);
+    const px = cx + (u - 0.5) * hw * 1.65 + nx * hw * 0.1;
+    const py = cy - hh * 0.4 + ny * hh * 0.38 + (i % 5) * hh * 0.035;
+    const len = hw * (0.06 + ((i * 17) % 5) * 0.028) * (0.75 + calm * 0.35);
+    const pulse = 0.85 + Math.sin(t * 0.85 + i * 1.3) * 0.15;
+    const a = (0.05 + (i % 4) * 0.012) * aBase * pulse * (0.5 + calm * 0.5);
+    const ang = Math.sin(t * 0.18 + i) * 0.05;
+
+    ctx.strokeStyle = withAlpha('#ffffff', a);
+    ctx.lineWidth = 0.7 + ((i * 13) % 3) * 0.25;
+    ctx.beginPath();
+    ctx.moveTo(px - Math.cos(ang) * len, py - Math.sin(ang) * len * 0.15);
+    ctx.lineTo(px + Math.cos(ang) * len, py + Math.sin(ang) * len * 0.15);
+    ctx.stroke();
+
+    // Softer cyan companion filament
+    ctx.strokeStyle = withAlpha('#cfe8ff', a * 0.45);
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(px - Math.cos(ang) * len * 0.7, py - Math.sin(ang) * len * 0.1);
+    ctx.lineTo(px + Math.cos(ang) * len * 0.7, py + Math.sin(ang) * len * 0.1);
+    ctx.stroke();
+  }
+
+  // Scene lights → needle anisotropic streaks (NOT soft circular blobs)
+>>>>>>> Stashed changes
   for (const light of scene.lights) {
     const dx = light.x - cx;
     const dy = light.y - cy;
@@ -451,6 +717,7 @@ function drawAnisotropicSpeculars(
     const influence = Math.max(0, 1 - dist / (light.radius + Math.max(hw, hh) * 1.1));
     if (influence <= 0.03) continue;
 
+<<<<<<< Updated upstream
     const rx = cx + dx * 0.18 + Math.sin(t * 0.4 + light.x * 0.01) * 2 * params.waveStrength;
     const ry = cy - hh * 0.15 + Math.min(hh * 0.35, Math.max(0, dy) * 0.05);
     const pulse = 0.88 + Math.sin(t * 1.3 + light.x * 0.01) * 0.12;
@@ -481,6 +748,44 @@ function drawAnisotropicSpeculars(
     ctx.beginPath();
     ctx.ellipse(rx, ry, hx, hy, 0, 0, Math.PI * 2);
     ctx.fill();
+=======
+    const rx = cx + dx * 0.16 + Math.sin(t * 0.35 + light.x * 0.01) * 2 * params.waveStrength;
+    const ry = cy - hh * 0.22 + Math.min(hh * 0.3, Math.max(0, dy) * 0.04);
+    const pulse = 0.9 + Math.sin(t * 1.2 + light.x * 0.01) * 0.1;
+    const streakH = (hh * 0.32 + light.radius * 0.04) * (0.8 + calm * 0.3) * pulse;
+    const a = 0.18 * influence * reflectivity * I * light.intensity * pulse;
+
+    // Primary vertical hairline
+    ctx.strokeStyle = withAlpha(light.color, a);
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.moveTo(rx, ry - streakH);
+    // slight ripple along streak
+    const segs = 8;
+    for (let s = 1; s <= segs; s++) {
+      const v = s / segs;
+      const xOff = Math.sin(v * Math.PI * 2 + t + light.x) * (0.6 + params.waveStrength * 2);
+      ctx.lineTo(rx + xOff, ry - streakH + v * streakH * 2);
+    }
+    ctx.stroke();
+
+    // Brighter core filament
+    ctx.strokeStyle = withAlpha('#ffffff', a * 0.65);
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(rx, ry - streakH * 0.55);
+    ctx.lineTo(rx, ry + streakH * 0.55);
+    ctx.stroke();
+
+    // Horizontal anisotropic sparkle (thin, not circular)
+    const hx = 10 + light.radius * 0.04;
+    ctx.strokeStyle = withAlpha('#ffffff', a * 0.4);
+    ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    ctx.moveTo(rx - hx, ry);
+    ctx.lineTo(rx + hx, ry);
+    ctx.stroke();
+>>>>>>> Stashed changes
   }
 
   ctx.restore();
@@ -501,9 +806,15 @@ function drawShore(
   const foamPulse = 0.88 + Math.sin(t * 0.9) * 0.12;
   ctx.strokeStyle = withAlpha(
     colorFoam,
+<<<<<<< Updated upstream
     0.14 * params.shoreFoam * params.intensity * foamPulse * (0.45 + calm * 0.55),
   );
   ctx.lineWidth = 1.5 + params.shoreFoam;
+=======
+    0.12 * params.shoreFoam * params.intensity * foamPulse * (0.45 + calm * 0.55),
+  );
+  ctx.lineWidth = 1.4 + params.shoreFoam;
+>>>>>>> Stashed changes
   ctx.beginPath();
   ctx.ellipse(cx, cy, hw + 0.5, hh + 0.5, 0, 0, Math.PI * 2);
   ctx.stroke();
@@ -514,9 +825,15 @@ function drawShore(
     const px = cx + Math.cos(ang) * (hw - 5);
     const py = cy + Math.sin(ang) * (hh - 4);
     const rw = 6 + (i % 3) * 3;
+<<<<<<< Updated upstream
     const rh = 3 + (i % 2);
     const g = ctx.createRadialGradient(px, py, 0, px, py, rw);
     g.addColorStop(0, withAlpha(colorFoam, 0.08 * params.shoreFoam * params.intensity));
+=======
+    const rh = 2.5 + (i % 2);
+    const g = ctx.createRadialGradient(px, py, 0, px, py, rw);
+    g.addColorStop(0, withAlpha(colorFoam, 0.07 * params.shoreFoam * params.intensity));
+>>>>>>> Stashed changes
     g.addColorStop(1, withAlpha(colorFoam, 0));
     ctx.fillStyle = g;
     ctx.beginPath();
