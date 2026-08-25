@@ -110,63 +110,23 @@ function paintBg(kind: string) {
     ctx.fillRect(W * 0.845, H * 0.2, 14, H * 0.54);
     return;
   }
-  // Fire: night dirt ground (not a pure black void) so spill + fuel bed read
+  // Fire: soft night dirt so the luminous soft mass reads clearly
   {
     const sky = ctx.createLinearGradient(0, 0, 0, H);
     sky.addColorStop(0, '#080a10');
-    sky.addColorStop(0.4, '#0c0a08');
-    sky.addColorStop(0.58, '#16100a');
+    sky.addColorStop(0.45, '#0c0a08');
+    sky.addColorStop(0.7, '#16100a');
     sky.addColorStop(1, '#1c140e');
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, W, H);
 
-    // Dirt / mulch ground plane
-    const groundY = H * 0.55;
+    const groundY = H * 0.58;
     const dirt = ctx.createLinearGradient(0, groundY, 0, H);
-    dirt.addColorStop(0, '#3a2a1a');
-    dirt.addColorStop(0.25, '#2a1c12');
-    dirt.addColorStop(0.6, '#1a120c');
+    dirt.addColorStop(0, '#2a1c12');
+    dirt.addColorStop(0.5, '#1a120c');
     dirt.addColorStop(1, '#100c08');
     ctx.fillStyle = dirt;
     ctx.fillRect(0, groundY, W, H - groundY);
-
-    // Soft dirt noise patches (deterministic grain) — must read as textured earth
-    for (let i = 0; i < 680; i++) {
-      const x = ((i * 97) % W) + ((i * 13) % 17) - 8;
-      const y = groundY + ((i * 53) % (H - groundY));
-      const s = 1.5 + (i % 6) * 1.1;
-      const shade = 22 + (i % 9) * 8;
-      const a = 0.12 + (i % 5) * 0.05;
-      ctx.fillStyle = `rgba(${shade + 28},${shade + 14},${shade - 2},${a})`;
-      ctx.beginPath();
-      ctx.ellipse(x, y, s * 2.8, s * 1.1, ((i * 19) % 10) * 0.12, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    // Darker mulch / twig flecks
-    for (let i = 0; i < 280; i++) {
-      const x = ((i * 131) % W) + ((i * 7) % 11);
-      const y = groundY + 6 + ((i * 89) % (H - groundY - 6));
-      ctx.fillStyle = `rgba(6,4,2,${0.2 + (i % 4) * 0.1})`;
-      ctx.fillRect(x, y, 1 + (i % 4), 1 + (i % 2));
-    }
-    // Lighter pebbles
-    for (let i = 0; i < 90; i++) {
-      const x = ((i * 173) % W);
-      const y = groundY + 20 + ((i * 67) % (H - groundY - 30));
-      ctx.fillStyle = `rgba(${50 + (i % 5) * 8},${40 + (i % 4) * 6},${28},${0.15 + (i % 3) * 0.06})`;
-      ctx.beginPath();
-      ctx.ellipse(x, y, 2 + (i % 3), 1.2 + (i % 2) * 0.5, 0.2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    // Warm campfire pit depression
-    const pit = ctx.createRadialGradient(W * 0.5, H * 0.84, 8, W * 0.5, H * 0.84, 240);
-    pit.addColorStop(0, 'rgba(48,28,14,0.65)');
-    pit.addColorStop(0.45, 'rgba(28,16,8,0.4)');
-    pit.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = pit;
-    ctx.beginPath();
-    ctx.ellipse(W * 0.5, H * 0.84, 230, 55, 0, 0, Math.PI * 2);
-    ctx.fill();
   }
 }
 
@@ -181,13 +141,13 @@ if (fx === 'fire') {
     ...fireEffect.defaultParams,
     instanceId: 'cap-fire',
     x: W * 0.5,
-    y: H * 0.86,
-    size: 2.75,
-    spread: 1.4,
-    rise: 0.68,
+    y: H * 0.82,
+    size: 2.4,
+    spread: 1.25,
+    rise: 0.95,
     intensity: 1.0,
-    embers: 1.15,
-    turbulence: 1.2,
+    embers: 0.75,
+    turbulence: 0.9,
   };
   drawing = (tt) => fireEffect.draw(ctx, p, tt, scene);
 } else if (fx === 'smoke') {

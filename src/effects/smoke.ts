@@ -84,14 +84,15 @@ function softBlob(
   alpha: number,
 ): void {
   if (rx < 0.5 || ry < 0.5 || alpha < 0.008) return;
-  const R = Math.max(rx, ry);
+  const R = Math.max(rx, ry) * 1.15;
   const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
   g.addColorStop(0, withAlpha(color, alpha));
-  g.addColorStop(0.72, withAlpha(color, alpha * 0.25));
+  g.addColorStop(0.45, withAlpha(color, alpha * 0.45));
+  g.addColorStop(0.78, withAlpha(color, alpha * 0.12));
   g.addColorStop(1, withAlpha(color, 0));
   ctx.fillStyle = g;
   ctx.beginPath();
-  ctx.ellipse(cx, cy, rx, ry, rot, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy, rx * 1.12, ry * 1.12, rot, 0, Math.PI * 2);
   ctx.fill();
 }
 

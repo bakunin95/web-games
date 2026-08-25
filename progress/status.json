@@ -4,13 +4,13 @@
     "class": "ok"
   },
   "fire": {
-    "text": "Round6 blind: PREFER photo bar. NEW BAR: fire = wispy tangled luminous threads; ash = ember streak particles (separate).",
-    "class": "gap",
+    "text": "SOFT rewrite: luminous blob mass + soft ember dots \u2014 no threads/lines. Pending A/B.",
+    "class": "wip",
     "capture": "/progress/captures/fire.png"
   },
   "smoke": {
-    "text": "Round6 blind: PREFER photo bar. Gaps: flat wedge vs cauliflower volume, wind shear, wispy dissipation.",
-    "class": "gap",
+    "text": "SOFT edges: fluffier softBlob falloff on plume. Pending A/B.",
+    "class": "wip",
     "capture": "/progress/captures/smoke.png"
   },
   "water": {
@@ -18,5 +18,5 @@
     "class": "wip",
     "capture": "/progress/captures/water.png"
   },
-  "log": "Gauntlet ACTIVE \u2014 Round6 was 0/3; rewrites in flight.\n- WATER: rewritten to open-ocean bar (user Unity-like ref); capture refreshed\n- FIRE: builder targeting wispy threads + ash particles\n- SMOKE: still vs industrial plume photo\n- Gate: blind A/B prefer our captures over bars"
+  "log": "Gauntlet ACTIVE \u2014 user direction: soft fire & soft smoke (no line/thread fire).\n- Fire rewritten to soft luminous tongues\n- Smoke softBlob edges softened\n- Water still on ocean bar\n- Gate: blind A/B prefer our captures"
 }
