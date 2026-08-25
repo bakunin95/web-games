@@ -198,6 +198,8 @@ function bindParams(folder: FolderWithBindings, params: BaseEffectParams): void 
         folder.addBinding(bag, key, { min: 0, max: 2400, step: 1 });
       } else if (key === 'y') {
         folder.addBinding(bag, key, { min: 0, max: 1400, step: 1 });
+      } else if (key === 'width' || key === 'height') {
+        folder.addBinding(bag, key, { min: 40, max: 900, step: 1 });
       } else if (key === 'seed') {
         folder.addBinding(bag, key, { min: 0, max: 1e9, step: 1 });
       } else {
@@ -212,7 +214,7 @@ function bindParams(folder: FolderWithBindings, params: BaseEffectParams): void 
 }
 
 function numericMax(key: string): number {
-  if (key === 'count' || key === 'density' || key === 'threshold') return 1;
+  if (key === 'count' || key === 'density' || key === 'threshold' || key === 'embers') return 1;
   if (
     key === 'length' ||
     key === 'size' ||
@@ -223,7 +225,11 @@ function numericMax(key: string): number {
     key === 'edgeSoftness' ||
     key === 'chromatic' ||
     key === 'spread' ||
-    key === 'speed'
+    key === 'speed' ||
+    key === 'waveStrength' ||
+    key === 'waveScale' ||
+    key === 'reflectivity' ||
+    key === 'shoreFoam'
   ) {
     return 2;
   }
