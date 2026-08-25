@@ -8,8 +8,13 @@ export interface RendererHandles {
 }
 
 export interface EffectRuntime {
+  /** Unique instance id (for creatable emitters). */
+  id: string;
   module: EffectModule;
   params: BaseEffectParams;
+  /** User-spawned via Create VFX — can be removed from the panel. */
+  removable?: boolean;
+  label?: string;
 }
 
 /**

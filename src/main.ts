@@ -1,23 +1,21 @@
 import './styles.css';
 import { createScene, clampCamera } from './core/scene';
 import { createLoop } from './core/loop';
-import { EFFECTS } from './effects';
+import { BUILTIN_EFFECTS } from './effects';
 import { createRenderer } from './playground/renderer';
 import type { EffectRuntime } from './playground/renderer';
 import { attachCameraControls } from './playground/cameraControls';
-import { cloneParams, createPlaygroundUI } from './playground/ui';
+import { createPlaygroundUI, makeBuiltinRuntime } from './playground/ui';
 
 const worldCanvas = document.querySelector<HTMLCanvasElement>('#world-canvas')!;
 const overlayCanvas = document.querySelector<HTMLCanvasElement>('#overlay-canvas')!;
 const cssOverlay = document.querySelector<HTMLElement>('#css-overlay')!;
 const panel = document.querySelector<HTMLElement>('#panel')!;
 const stage = document.querySelector<HTMLElement>('#stage')!;
+const createBtn = document.querySelector<HTMLButtonElement>('#create-vfx-btn');
 
 const scene = createScene();
-const runtimes: EffectRuntime[] = EFFECTS.map((module) => ({
-  module,
-  params: cloneParams(module.defaultParams),
-}));
+const runtimes: EffectRuntime[] = BUILTIN_EFFECTS.map(makeBuiltinRuntime);
 
 const renderer = createRenderer({
   world: worldCanvas,
@@ -39,7 +37,7 @@ const loop = createLoop((t, dt) => {
   );
 });
 
-const ui = createPlaygroundUI(panel, scene, runtimes, loop);
+const ui = createPlaygroundUI(panel, scene, runtimes, loop, createBtn);
 
 function onResize(): void {
   renderer.resize(scene);
@@ -51,7 +49,6 @@ onResize();
 attachCameraControls(stage, scene);
 loop.start();
 
-// Helpful for console experiments / reuse demos
 Object.assign(window, {
-  __vfx: { scene, runtimes, loop, EFFECTS },
+  __vfx: { scene, runtimes, loop, BUILTIN_EFFECTS, createVfx: ui.createVfx },
 });

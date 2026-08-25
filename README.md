@@ -36,6 +36,20 @@ Other scripts:
 | Hazard Atmosphere | world | `src/effects/hazardAtmosphere.ts` |
 | Embers / Smoke | world | `src/effects/embers.ts` |
 | Neon Bloom Overlay | screen | `src/effects/neonBloom.ts` |
+| Fire *(creatable)* | world | `src/effects/fire.ts` |
+| Smoke *(creatable)* | world | `src/effects/smoke.ts` |
+| Sparks *(creatable)* | world | `src/effects/sparks.ts` |
+
+### Create new VFX
+
+Use the **+ Create VFX** button in the header (or the **Create VFX** folder in the panel):
+
+1. Pick a type: Fire, Smoke, or Sparks
+2. A new instance spawns near the camera with a **randomized seed / colors / size / spread** so each create looks different
+3. Tweak `x` / `y`, colors, intensity, etc. live — or hit **Remove**
+
+Creatable templates live in `CREATABLE_EFFECTS` (`src/effects/index.ts`). Add a new emitter module there to show up in the menu.
+
 
 ## Project layout
 
