@@ -113,17 +113,53 @@ function paintBg(kind: string) {
     ctx.fillRect(W * 0.845, H * 0.2, 14, H * 0.54);
     return;
   }
-  // Fire: night ground
-  const g = ctx.createRadialGradient(W * 0.5, H * 0.7, 20, W * 0.5, H * 0.5, H * 0.85);
-  g.addColorStop(0, '#1a1008');
-  g.addColorStop(0.5, '#0a0806');
-  g.addColorStop(1, '#020204');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#14100c';
-  ctx.beginPath();
-  ctx.ellipse(W * 0.5, H * 0.78, 220, 40, 0, 0, Math.PI * 2);
-  ctx.fill();
+  // Fire: night dirt ground (not a pure black void) so spill + fuel bed read
+  {
+    const sky = ctx.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, '#0a0c12');
+    sky.addColorStop(0.45, '#0c0a08');
+    sky.addColorStop(1, '#1a140e');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, H);
+
+    // Dirt / mulch ground plane
+    const groundY = H * 0.62;
+    const dirt = ctx.createLinearGradient(0, groundY, 0, H);
+    dirt.addColorStop(0, '#2a1e14');
+    dirt.addColorStop(0.35, '#1e160f');
+    dirt.addColorStop(1, '#120e0a');
+    ctx.fillStyle = dirt;
+    ctx.fillRect(0, groundY, W, H - groundY);
+
+    // Soft dirt noise patches (deterministic grain)
+    for (let i = 0; i < 420; i++) {
+      const x = ((i * 97) % W) + ((i * 13) % 17) - 8;
+      const y = groundY + ((i * 53) % (H - groundY));
+      const s = 1.2 + (i % 5) * 0.9;
+      const shade = 18 + (i % 7) * 6;
+      const a = 0.08 + (i % 4) * 0.04;
+      ctx.fillStyle = `rgba(${shade + 20},${shade + 10},${shade},${a})`;
+      ctx.beginPath();
+      ctx.ellipse(x, y, s * 2.2, s * 0.9, ((i * 19) % 10) * 0.1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Darker mulch flecks
+    for (let i = 0; i < 180; i++) {
+      const x = ((i * 131) % W) + ((i * 7) % 11);
+      const y = groundY + 8 + ((i * 89) % (H - groundY - 8));
+      ctx.fillStyle = `rgba(8,6,4,${0.15 + (i % 3) * 0.08})`;
+      ctx.fillRect(x, y, 1 + (i % 3), 1 + (i % 2));
+    }
+    // Warm campfire pit depression
+    const pit = ctx.createRadialGradient(W * 0.5, H * 0.82, 10, W * 0.5, H * 0.82, 200);
+    pit.addColorStop(0, 'rgba(40,24,12,0.55)');
+    pit.addColorStop(0.55, 'rgba(22,14,8,0.35)');
+    pit.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = pit;
+    ctx.beginPath();
+    ctx.ellipse(W * 0.5, H * 0.82, 210, 48, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
 }
 
 const scene =
@@ -137,13 +173,13 @@ if (fx === 'fire') {
     ...fireEffect.defaultParams,
     instanceId: 'cap-fire',
     x: W * 0.5,
-    y: H * 0.78,
-    size: 2.4,
-    spread: 1.25,
-    rise: 0.75,
-    intensity: 1.15,
-    embers: 0.9,
-    turbulence: 1.05,
+    y: H * 0.86,
+    size: 3.05,
+    spread: 1.35,
+    rise: 0.72,
+    intensity: 1.2,
+    embers: 1.0,
+    turbulence: 1.1,
   };
   drawing = (tt) => fireEffect.draw(ctx, p, tt, scene);
 } else if (fx === 'smoke') {
