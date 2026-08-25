@@ -63,19 +63,26 @@ export function createRenderer(handles: RendererHandles) {
     `;
   };
 
-  const drawSelectionGizmo = (ctx: CanvasRenderingContext2D, rt: EffectRuntime, t: number) => {
+  const drawSelectionGizmo = (
+    ctx: CanvasRenderingContext2D,
+    rt: EffectRuntime,
+    t: number,
+    zoom: number,
+  ) => {
     if (!isPlacedParams(rt.params)) return;
     const b = getPlacedBounds(rt.module.id, rt.params as never);
     const pulse = 0.55 + Math.sin(t * 4) * 0.2;
+    const inv = 1 / Math.max(0.35, zoom);
     ctx.save();
-    ctx.strokeStyle = `rgba(61, 231, 255, ${0.55 + pulse * 0.35})`;
-    ctx.lineWidth = 2 / Math.max(0.4, 1); // world space; camera zoom applied already
-    ctx.setLineDash([8, 5]);
+    ctx.fillStyle = `rgba(61, 231, 255, ${0.08 + pulse * 0.06})`;
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+    ctx.strokeStyle = `rgba(61, 231, 255, ${0.75 + pulse * 0.25})`;
+    ctx.lineWidth = 2.5 * inv;
+    ctx.setLineDash([8 * inv, 5 * inv]);
     ctx.strokeRect(b.x, b.y, b.w, b.h);
     ctx.setLineDash([]);
 
-    // Corner handles
-    const hs = 6;
+    const hs = 7 * inv;
     ctx.fillStyle = 'rgba(61, 231, 255, 0.95)';
     const corners = [
       [b.x, b.y],
@@ -87,22 +94,20 @@ export function createRenderer(handles: RendererHandles) {
       ctx.fillRect(hx! - hs / 2, hy! - hs / 2, hs, hs);
     }
 
-    // Center crosshair
     const cx = b.x + b.w / 2;
     const cy = b.y + b.h / 2;
-    ctx.strokeStyle = 'rgba(255, 79, 216, 0.85)';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(255, 79, 216, 0.9)';
+    ctx.lineWidth = 1.75 * inv;
     ctx.beginPath();
-    ctx.moveTo(cx - 10, cy);
-    ctx.lineTo(cx + 10, cy);
-    ctx.moveTo(cx, cy - 10);
-    ctx.lineTo(cx, cy + 10);
+    ctx.moveTo(cx - 12 * inv, cy);
+    ctx.lineTo(cx + 12 * inv, cy);
+    ctx.moveTo(cx, cy - 12 * inv);
+    ctx.lineTo(cx, cy + 12 * inv);
     ctx.stroke();
 
-    // Label
-    ctx.font = '12px sans-serif';
-    ctx.fillStyle = 'rgba(232, 238, 252, 0.95)';
-    ctx.fillText(rt.label ?? rt.module.name, b.x, b.y - 8);
+    ctx.font = `${Math.round(13 * inv)}px sans-serif`;
+    ctx.fillStyle = 'rgba(232, 238, 252, 0.98)';
+    ctx.fillText(rt.label ?? rt.module.name, b.x, b.y - 10 * inv);
     ctx.restore();
   };
 
@@ -134,7 +139,7 @@ export function createRenderer(handles: RendererHandles) {
 
     if (opts.selectedId) {
       const selected = effects.find((e) => e.id === opts.selectedId);
-      if (selected) drawSelectionGizmo(worldCtx, selected, t);
+      if (selected) drawSelectionGizmo(worldCtx, selected, t, camera.zoom);
     }
     worldCtx.restore();
 

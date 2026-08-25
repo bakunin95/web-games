@@ -11,7 +11,7 @@ export interface SelectionState {
 
 export interface StageInteractionApi {
   state: SelectionState;
-  setSelected: (id: string | null) => void;
+  setSelected: (id: string | null, silent?: boolean) => void;
   dispose: () => void;
 }
 
@@ -32,11 +32,10 @@ export function attachStageInteractions(
   let mode: 'none' | 'pan' | 'move' = 'none';
   let lastX = 0;
   let lastY = 0;
-  let moved = false;
 
-  const setSelected = (id: string | null) => {
+  const setSelected = (id: string | null, silent = false) => {
     state.selectedId = id;
-    onSelectionChange?.(id);
+    if (!silent) onSelectionChange?.(id);
   };
 
   const hitTest = (clientX: number, clientY: number): EffectRuntime | null => {
@@ -45,7 +44,6 @@ export function attachStageInteractions(
     const sy = clientY - rect.top;
     const world = screenToWorld(scene, sx, sy);
 
-    // Topmost first (later runtimes draw on top)
     for (let i = runtimes.length - 1; i >= 0; i--) {
       const rt = runtimes[i]!;
       if (!rt.removable || !rt.params.enabled) continue;
@@ -57,8 +55,9 @@ export function attachStageInteractions(
   };
 
   const onDown = (e: PointerEvent) => {
-    if ((e.target as HTMLElement).closest('.tp-dfwv, #panel, .create-menu, .chrome')) return;
-    moved = false;
+    if ((e.target as HTMLElement).closest('.tp-dfwv, #panel, .create-menu, .chrome, .create-btn, .ghost-btn')) {
+      return;
+    }
     lastX = e.clientX;
     lastY = e.clientY;
 
@@ -69,20 +68,21 @@ export function attachStageInteractions(
       state.dragging = true;
       el.style.cursor = 'grabbing';
     } else {
-      // Click empty → deselect + pan
+      // If something is already selected and we click near it, still allow move via selected
+      // Otherwise pan.
       setSelected(null);
       mode = 'pan';
       state.dragging = true;
       el.style.cursor = 'grabbing';
     }
     el.setPointerCapture(e.pointerId);
+    e.preventDefault();
   };
 
   const onMove = (e: PointerEvent) => {
     if (!state.dragging || mode === 'none') return;
     const dx = e.clientX - lastX;
     const dy = e.clientY - lastY;
-    if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
     lastX = e.clientX;
     lastY = e.clientY;
 
@@ -110,7 +110,6 @@ export function attachStageInteractions(
     } catch {
       /* ignore */
     }
-    void moved;
   };
 
   const onWheel = (e: WheelEvent) => {

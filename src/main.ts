@@ -24,6 +24,7 @@ const renderer = createRenderer({
   cssOverlay,
 });
 
+/** Single source of truth for the selection gizmo. */
 let selectedId: string | null = null;
 
 const loop = createLoop((t, dt) => {
@@ -38,20 +39,23 @@ const loop = createLoop((t, dt) => {
   });
 });
 
-const ui = createPlaygroundUI(panel, scene, runtimes, loop, createBtn, minimizeBtn);
+const ui = createPlaygroundUI(
+  panel,
+  scene,
+  runtimes,
+  loop,
+  createBtn,
+  minimizeBtn,
+  (id) => {
+    selectedId = id;
+    interactions.setSelected(id, true);
+  },
+);
 
 const interactions = attachStageInteractions(stage, scene, runtimes, (id) => {
   selectedId = id;
   ui.selectRuntime(id);
 });
-
-// Keep selectedId in sync when UI selects from instance list
-const origSelect = ui.selectRuntime.bind(ui);
-ui.selectRuntime = (id: string | null) => {
-  selectedId = id;
-  interactions.setSelected(id);
-  origSelect(id);
-};
 
 function onResize(): void {
   renderer.resize(scene);
@@ -70,5 +74,8 @@ Object.assign(window, {
     BUILTIN_EFFECTS,
     createVfx: ui.createVfx,
     selectRuntime: ui.selectRuntime,
+    get selectedId() {
+      return selectedId;
+    },
   },
 });

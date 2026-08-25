@@ -55,6 +55,7 @@ export function createPlaygroundUI(
   loop: LoopApi,
   createButton?: HTMLElement | null,
   minimizeButton?: HTMLElement | null,
+  onSelectionChange?: (id: string | null) => void,
 ): PlaygroundControls {
   // Shell for minimize
   container.classList.add('panel-shell');
@@ -192,6 +193,7 @@ export function createPlaygroundUI(
     selectedId = id;
     rebuildSelectedFolder();
     refreshInstanceList();
+    onSelectionChange?.(id);
   }
 
   function rebuildSelectedFolder(): void {
