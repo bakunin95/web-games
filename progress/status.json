@@ -1,0 +1,22 @@
+{
+  "infra": {
+    "text": "PASS: materials, select/drag/scale, minimize, 66+ creatables",
+    "class": "ok"
+  },
+  "fire": {
+    "text": "Round3 critic: still PREFER bar. Gaps: chaotic asymmetric tongues, smoke/embers, less radial glow sticker.",
+    "class": "gap",
+    "capture": "/progress/captures/fire.png"
+  },
+  "smoke": {
+    "text": "Round5: dense soft-particle plume (no concentric discs). Still vs photo bar.",
+    "class": "gap",
+    "capture": "/progress/captures/smoke.png"
+  },
+  "water": {
+    "text": "Round3 critic: still PREFER bar. Gaps: shoreline contact, true mirror, Fresnel \u2014 not oval gradient blob.",
+    "class": "gap",
+    "capture": "/progress/captures/water.png"
+  },
+  "log": "Gauntlet ACTIVE \u2014 critics still prefer photo bar 0/3.\n- Multiple builder passes on fire/smoke/water\n- Smoke: particle mass + wind shear; fire: logs+luminous mass; water: mirror/sheen\n- Gate: blind A/B must prefer our captures over refs/"
+}
