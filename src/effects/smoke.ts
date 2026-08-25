@@ -115,56 +115,74 @@ export const drawSmoke: DrawFn<SmokeParams> = (ctx, params, t, scene) => {
   ctx.globalCompositeOperation = 'source-over';
   ctx.globalAlpha = Math.max(0.78, Math.min(1, mat.opacity));
 
-  // --- Structural stations: guarantee continuous connected plume (no gap islands) ---
-  const stations = Math.floor(36 + params.density * 18);
+  // --- Structural stations: continuous wind-sheared plume with cauliflower clusters ---
+  const stations = Math.floor(22 + params.density * 12);
   for (let si = 0; si < stations; si++) {
-    const along = si / (stations - 1);
+    const along0 = si / (stations - 1);
+    const jitter = fbm2(si * 0.7, params.seed * 0.01, 2, params.seed + 3) * 0.04;
+    const along = Math.max(0, Math.min(1, along0 + jitter));
     const s = along * PLUME_LEN * 0.92;
-    const n = fbm2(along * 4 + params.seed * 0.01, t * 0.2, 3, params.seed);
-    const n2 = fbm2(along * 6, t * 0.15 + 2, 2, params.seed + 9);
+    const n = fbm2(along * 3.5 + params.seed * 0.01, t * 0.18, 3, params.seed);
+    const n2 = fbm2(along * 5.5, t * 0.14 + 2, 2, params.seed + 9);
 
     // Narrow mouth → expands downwind into cauliflower width
-    const envH = (5 + along * 62 + along * along * 95) * params.size * (0.75 + params.spread * 0.45);
-    const envCore = (4 + along * 22) * params.size;
+    const envH = (6 + along * 55 + along * along * 80) * params.size * (0.75 + params.spread * 0.45);
+    const envCore = (3.5 + along * 18) * params.size;
 
     const cx = params.x + windSign * s;
-    const cy = params.y - s * rise + n * envH * 0.08;
+    const cy = params.y - s * rise + n * envH * 0.1;
 
-    const trail = along > 0.55 ? Math.max(0.15, 1 - (along - 0.55) / 0.55) : 1;
+    const trail = along > 0.5 ? Math.max(0.12, 1 - (along - 0.5) / 0.6) : 1;
     const baseA =
-      (0.55 - along * 0.22) * params.intensity * (0.8 + params.density * 0.4) * trail * mat.opacity;
+      (0.58 - along * 0.2) * params.intensity * (0.85 + params.density * 0.4) * trail * mat.opacity;
     if (baseA < 0.02) continue;
 
-    // Thin spine tether (low alpha) — mass comes from protruding lobes, not a sausage core
-    const stretch = 1.55 + windAbs * 0.55 + along * 1.5;
+    const stretch = 1.45 + windAbs * 0.5 + along * 1.35;
     softBlob(
       ctx,
       cx,
       cy,
-      envCore * stretch * 0.38,
-      envCore * (0.22 + along * 0.18),
-      n * 0.15,
+      envCore * stretch * 0.42,
+      envCore * (0.25 + along * 0.2),
+      n * 0.12,
       body,
-      baseA * 0.28,
+      baseA * 0.32,
     );
 
-    // Cauliflower billows — lobes protrude hard so silhouette is lumpy, not a brush stroke
-    const lobeCount = 6 + Math.floor(along * 8);
-    for (let li = 0; li < lobeCount; li++) {
-      const ang = (li / lobeCount) * Math.PI * 2 + n * 1.1 + along * 3.2 + t * 0.18;
-      const protrude = 0.65 + (li % 5) * 0.16 + Math.abs(n2) * 0.28;
-      const lx = cx + Math.cos(ang) * envH * protrude * 0.72 + windSign * (li % 3) * along * 8;
-      const ly = cy + Math.sin(ang) * envH * protrude * 0.95;
-      const sc = 0.28 + (li % 5) * 0.14 + along * 0.18 + (li % 2) * 0.08;
-      const lrx = envH * sc * stretch * 0.48;
-      const lry = envH * sc * 0.44;
-      const la = baseA * (0.55 + (li % 3) * 0.14);
-      softBlob(ctx, lx, ly, lrx, lry, ang * 0.25, li % 2 ? mid : body, la);
-      // Stronger underside self-shadow
-      softBlob(ctx, lx + windSign * lrx * 0.04, ly + lry * 0.38, lrx * 0.8, lry * 0.5, 0, dark, la * 0.62);
-      // Subtle top light
-      if (along < 0.7 && li % 2 === 0) {
-        softBlob(ctx, lx - windSign * lrx * 0.1, ly - lry * 0.42, lrx * 0.45, lry * 0.3, 0, lit, la * 0.28 * mat.emissiveIntensity);
+    // Multi-scale cauliflower: large clusters + satellite billows
+    const clusters = 3 + Math.floor(along * 3);
+    for (let ci = 0; ci < clusters; ci++) {
+      const cAng = (ci / clusters) * Math.PI * 2 + n * 0.9 + along * 2.8 + t * 0.12;
+      const cRad = 0.35 + (ci % 3) * 0.18 + Math.abs(n2) * 0.2;
+      const ccx = cx + Math.cos(cAng) * envH * cRad * 0.7 + windSign * along * (ci - 1) * 5;
+      const ccy = cy + Math.sin(cAng) * envH * cRad * 0.85;
+      const cScale = 0.55 + (ci % 3) * 0.18 + along * 0.25;
+      const crx = envH * cScale * stretch * 0.4;
+      const cry = envH * cScale * 0.4;
+      const ca = baseA * (0.5 + (ci % 2) * 0.15);
+
+      softBlob(ctx, ccx, ccy, crx, cry, cAng * 0.15, ci % 2 ? mid : body, ca);
+      softBlob(ctx, ccx + windSign * crx * 0.05, ccy + cry * 0.4, crx * 0.85, cry * 0.55, 0, dark, ca * 0.7);
+      softBlob(
+        ctx,
+        ccx - windSign * crx * 0.12,
+        ccy - cry * 0.45,
+        crx * 0.5,
+        cry * 0.32,
+        0,
+        lit,
+        ca * 0.32 * mat.emissiveIntensity,
+      );
+
+      const sats = 2 + (ci % 2);
+      for (let sj = 0; sj < sats; sj++) {
+        const sAng = cAng + (sj + 1) * 1.4 + n2;
+        const srx = crx * (0.35 + sj * 0.12);
+        const sry = cry * (0.32 + sj * 0.1);
+        const sx = ccx + Math.cos(sAng) * crx * 0.65;
+        const sy = ccy + Math.sin(sAng) * cry * 0.7;
+        softBlob(ctx, sx, sy, srx, sry, sAng * 0.2, body, ca * 0.55);
+        softBlob(ctx, sx, sy + sry * 0.35, srx * 0.75, sry * 0.45, 0, dark, ca * 0.35);
       }
     }
   }
