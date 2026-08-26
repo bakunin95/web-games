@@ -1,12 +1,14 @@
 import type { DrawFn, EffectModule } from '../core/types';
 import type { PlacedEffectParams } from '../core/placed';
-import type { PathPoint } from '../core/path';
 import {
-  pathWorldPoints,
+  pathWorldPointsFull,
   sampleClosedPath,
   traceClosedPath,
   traceOpenPath,
-  worldToPathLocal,
+  appendPathPoint,
+  insertPathPointAfter,
+  drawPathTangentGizmo,
+  type PathPoint,
 } from '../core/path';
 import { applyMaterial, createDefaultMaterial } from '../core/material';
 import { fbm2, mulberry32, withAlpha, lerpColor } from './noise';
@@ -94,7 +96,7 @@ export const drawSoil: DrawFn<SoilParams> = (ctx, params, _t, _scene) => {
   if (!params.enabled || params.intensity <= 0) return;
   if (!hasFillShape(params)) return;
 
-  const wp = pathWorldPoints(params);
+  const wp = pathWorldPointsFull(params);
   const preview = params.pathDrawing;
   const I = params.intensity * (preview ? 0.72 : 1);
 
@@ -126,8 +128,9 @@ export function drawSoilGizmo(
   zoom: number,
   selected: boolean,
   hoverNode = -1,
+  hoverTangent: { index: number; side: 'left' | 'right' } | null = null,
 ): void {
-  const wp = pathWorldPoints(params);
+  const wp = pathWorldPointsFull(params);
   if (wp.length === 0) return;
   const inv = 1 / Math.max(0.35, zoom);
   const ready = isClosed(params);
@@ -142,13 +145,17 @@ export function drawSoilGizmo(
     ctx.lineWidth = 2.5 * inv;
     ctx.setLineDash(ready ? [] : [6 * inv, 4 * inv]);
     ctx.beginPath();
-    if (ready && wp.length >= 3) {
+    if ((ready || wp.length >= 3) && wp.length >= 3) {
       traceClosedPath(ctx, wp, params.smooth, 12);
     } else {
       traceOpenPath(ctx, wp, params.smooth, 12);
     }
     ctx.stroke();
     ctx.setLineDash([]);
+  }
+
+  if (selected) {
+    drawPathTangentGizmo(ctx, params, zoom, 'rgba(255, 210, 140, 0.8)', hoverTangent);
   }
 
   const r = 8 * inv;
@@ -171,7 +178,11 @@ export function drawSoilGizmo(
   if (params.pathDrawing && wp.length >= 3) {
     ctx.font = `${Math.round(12 * inv)}px sans-serif`;
     ctx.fillStyle = 'rgba(232, 220, 200, 0.95)';
-    ctx.fillText('Click first node · Enter · Close shape · Shift+add · right-click remove', wp[0]!.x + 12 * inv, wp[0]!.y - 14 * inv);
+    ctx.fillText(
+      'Drag light handles to bend · Alt=break · first node / Enter closes',
+      wp[0]!.x + 12 * inv,
+      wp[0]!.y - 14 * inv,
+    );
   } else if (params.pathDrawing && wp.length >= 1 && wp.length < 3) {
     ctx.font = `${Math.round(12 * inv)}px sans-serif`;
     ctx.fillStyle = 'rgba(232, 220, 200, 0.9)';
@@ -188,11 +199,11 @@ export function removeSoilNode(params: SoilParams, index: number): void {
 }
 
 export function insertSoilNodeOnEdge(params: SoilParams, afterIndex: number, wx: number, wy: number): void {
-  params.points.splice(afterIndex + 1, 0, worldToPathLocal(params, wx, wy));
+  insertPathPointAfter(params, afterIndex, wx, wy);
 }
 
 export function appendSoilNode(params: SoilParams, wx: number, wy: number): void {
-  params.points.push(worldToPathLocal(params, wx, wy));
+  appendPathPoint(params, wx, wy);
 }
 
 export function closeSoilShape(params: SoilParams): boolean {

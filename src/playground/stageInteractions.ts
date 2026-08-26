@@ -15,13 +15,17 @@ import {
   hitClosedPathEdge,
   hitOpenPathEdge,
   hitPathPointIndex,
+  hitPathTangentHandle,
   insertPathPointAfter,
   isPathParams,
   removePathPoint,
+  setPathTangentWorld,
   worldToPathLocal,
   type PathPoint,
+  type TangentSide,
   pointInClosedPoly,
   pathWorldPoints,
+  pathWorldPointsFull,
 } from '../core/path';
 import {
   isSoilParams,
@@ -42,6 +46,7 @@ export interface SelectionState {
   dragging: boolean;
   pathHoverNode: number;
   pathActiveNode: number;
+  pathHoverTangent: { index: number; side: TangentSide } | null;
 }
 
 export interface StageInteractionApi {
@@ -81,7 +86,7 @@ function minNodesToFinish(rt: EffectRuntime): number {
 }
 
 function tryInsertOnEdge(rt: EffectRuntime, wx: number, wy: number, zoom: number): boolean {
-  const wp = pathWorldPoints(rt.params as never);
+  const wp = pathWorldPointsFull(rt.params as never);
   if (wp.length < 2) return false;
   const threshold = 16 / Math.max(0.35, zoom);
   const smooth = pathSmooth(rt);
@@ -110,13 +115,17 @@ export function attachStageInteractions(
     dragging: false,
     pathHoverNode: -1,
     pathActiveNode: -1,
+    pathHoverTangent: null,
   };
-  let mode: 'none' | 'pan' | 'move' | 'scale' | 'path-point' = 'none';
+  let mode: 'none' | 'pan' | 'move' | 'scale' | 'path-point' | 'path-tangent' = 'none';
   let lastX = 0;
   let lastY = 0;
   let scaleStart = 1;
   let scaleDist0 = 1;
   let pathPointIndex = -1;
+  let tangentIndex = -1;
+  let tangentSide: TangentSide = 'right';
+  let tangentMirror = true;
 
   const setSelected = (id: string | null, silent = false) => {
     state.selectedId = id;
@@ -215,6 +224,25 @@ export function attachStageInteractions(
     }
 
     if (sel && isSplineEffect(sel) && isPathParams(sel.params)) {
+      // Left/right angle handles first
+      const tan = hitPathTangentHandle(sel.params, world.x, world.y, scene.camera.zoom);
+      if (tan) {
+        setSelected(sel.id);
+        mode = 'path-tangent';
+        tangentIndex = tan.index;
+        tangentSide = tan.side;
+        tangentMirror = !e.altKey;
+        if (e.altKey) {
+          const pt = sel.params.points[tan.index] as PathPoint | undefined;
+          if (pt) pt.broken = true;
+        }
+        state.dragging = true;
+        el.style.cursor = 'grabbing';
+        el.setPointerCapture(e.pointerId);
+        e.preventDefault();
+        return;
+      }
+
       const nodeIdx = hitPathPointIndex(sel.params, world.x, world.y, scene.camera.zoom);
       if (nodeIdx !== null && !e.shiftKey) {
         setSelected(sel.id);
@@ -280,7 +308,14 @@ export function attachStageInteractions(
     if (!state.dragging) {
       const sel = selectedRuntime();
       state.pathHoverNode = -1;
+      state.pathHoverTangent = null;
       if (sel && isPathParams(sel.params)) {
+        const tan = hitPathTangentHandle(sel.params, world.x, world.y, scene.camera.zoom);
+        if (tan) {
+          state.pathHoverTangent = tan;
+          el.style.cursor = 'grab';
+          return;
+        }
         const idx = hitPathPointIndex(sel.params, world.x, world.y, scene.camera.zoom);
         if (idx !== null) {
           state.pathHoverNode = idx;
@@ -288,7 +323,7 @@ export function attachStageInteractions(
           return;
         }
         if (isSplineEffect(sel) && !sel.params.pathDrawing) {
-          const wp = pathWorldPoints(sel.params);
+          const wp = pathWorldPointsFull(sel.params);
           const threshold = 16 / Math.max(0.35, scene.camera.zoom);
           const smooth = pathSmooth(sel);
           const onEdge =
@@ -305,7 +340,12 @@ export function attachStageInteractions(
           return;
         }
       }
-      if (el.style.cursor === 'crosshair' || el.style.cursor === 'cell' || el.style.cursor === 'copy') {
+      if (
+        el.style.cursor === 'crosshair' ||
+        el.style.cursor === 'cell' ||
+        el.style.cursor === 'copy' ||
+        el.style.cursor === 'grab'
+      ) {
         el.style.cursor = '';
       }
     }
@@ -320,6 +360,21 @@ export function attachStageInteractions(
       scene.camera.x -= dx / scene.camera.zoom;
       scene.camera.y -= dy / scene.camera.zoom;
       clampCamera(scene.camera, scene);
+      return;
+    }
+
+    if (mode === 'path-tangent' && state.selectedId && tangentIndex >= 0) {
+      const rt = selectedRuntime();
+      if (rt && isPathParams(rt.params)) {
+        setPathTangentWorld(
+          rt.params,
+          tangentIndex,
+          tangentSide,
+          world.x,
+          world.y,
+          tangentMirror && !e.altKey,
+        );
+      }
       return;
     }
 
@@ -356,6 +411,7 @@ export function attachStageInteractions(
     state.dragging = false;
     mode = 'none';
     pathPointIndex = -1;
+    tangentIndex = -1;
     el.style.cursor = '';
     try {
       el.releasePointerCapture(e.pointerId);

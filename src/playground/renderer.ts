@@ -24,6 +24,7 @@ export interface RenderOptions {
   cssIntensity: number;
   cssEnabled: boolean;
   pathHoverNode?: number;
+  pathHoverTangent?: { index: number; side: 'left' | 'right' } | null;
 }
 
 /**
@@ -162,10 +163,24 @@ export function createRenderer(handles: RendererHandles) {
       if (selected) {
         drawSelectionGizmo(worldCtx, selected, t, camera.zoom);
         if (isPlacedParams(selected.params) && isSoilParams(selected.params)) {
-          drawSoilGizmo(worldCtx, selected.params, camera.zoom, true, opts.pathHoverNode ?? -1);
+          drawSoilGizmo(
+            worldCtx,
+            selected.params,
+            camera.zoom,
+            true,
+            opts.pathHoverNode ?? -1,
+            opts.pathHoverTangent ?? null,
+          );
         }
         if (isPlacedParams(selected.params) && isGrassPathParams(selected.params)) {
-          drawGrassPathGizmo(worldCtx, selected.params, camera.zoom, true, opts.pathHoverNode ?? -1);
+          drawGrassPathGizmo(
+            worldCtx,
+            selected.params,
+            camera.zoom,
+            true,
+            opts.pathHoverNode ?? -1,
+            opts.pathHoverTangent ?? null,
+          );
         }
       }
     }

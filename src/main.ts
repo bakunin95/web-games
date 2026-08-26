@@ -39,6 +39,7 @@ const loop = createLoop((t, dt) => {
     cssIntensity: ui.cssOverlay.intensity,
     cssEnabled: ui.cssOverlay.enabled,
     pathHoverNode: interactions?.state.pathHoverNode ?? -1,
+    pathHoverTangent: interactions?.state.pathHoverTangent ?? null,
   });
 });
 

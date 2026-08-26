@@ -8,6 +8,7 @@ import {
   disposeInstancePools,
 } from '../effects';
 import { isPlacedParams } from '../core/placed';
+import { autoFitHandles, type PathPoint } from '../core/path';
 import { MATERIAL_PRESETS, copyMaterial, type BlendMode } from '../core/material';
 
 type PaneWithFolders = Pane & {
@@ -327,6 +328,11 @@ export function createPlaygroundUI(
         .on('click', () => {
           pathBag.pathDrawing = true;
         });
+      pathFolder
+        .addButton({ title: 'Auto-fit angle handles' })
+        .on('click', () => {
+          autoFitHandles(pathBag.points as PathPoint[], false);
+        });
     }
 
     folder.addButton({ title: 'Remove instance' }).on('click', () => removeRuntime(rt));
@@ -366,7 +372,12 @@ export function createPlaygroundUI(
       .on('click', () => {
         pathBag.pathDrawing = true;
       });
-    pathFolder.addButton({ title: 'Tip: Shift+click add · click edge insert · right-click remove' });
+    pathFolder
+      .addButton({ title: 'Auto-fit angle handles' })
+      .on('click', () => {
+        autoFitHandles(pathBag.points as PathPoint[], minNodes >= 3);
+      });
+    pathFolder.addButton({ title: 'Tip: drag light handles to bend · Alt breaks mirror' });
   }
 
   function addSimpleEffectFolder(host: FolderWithBindings, rt: EffectRuntime): void {

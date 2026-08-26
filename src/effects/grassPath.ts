@@ -1,12 +1,13 @@
 import type { DrawFn, EffectModule } from '../core/types';
 import type { PlacedEffectParams } from '../core/placed';
 import { getScale } from '../core/placed';
-import type { PathPoint } from '../core/path';
 import {
-  pathWorldPoints,
+  pathWorldPointsFull,
   samplePath,
   traceOpenPath,
-  worldToPathLocal,
+  appendPathPoint,
+  drawPathTangentGizmo,
+  type PathPoint,
 } from '../core/path';
 import { applyMaterial, createDefaultMaterial } from '../core/material';
 import { mulberry32, withAlpha } from './noise';
@@ -70,7 +71,7 @@ function drawBlade(
 }
 
 function sampleOpenPolyline(
-  wp: { x: number; y: number }[],
+  wp: { x: number; y: number; nx?: number; ny?: number; tx?: number; ty?: number; lx?: number; ly?: number; rx?: number; ry?: number }[],
   smooth: number,
   stepsPerSeg = 12,
 ): { x: number; y: number; nx: number; ny: number; tx: number; ty: number }[] {
@@ -80,7 +81,7 @@ function sampleOpenPolyline(
   const total = (n - 1) * stepsPerSeg;
   for (let i = 0; i <= total; i++) {
     const t = i / total;
-    const s = samplePath(wp, t, smooth);
+    const s = samplePath(wp as never, t, smooth);
     if (s) out.push({ x: s.x, y: s.y, nx: s.nx, ny: s.ny, tx: s.tx, ty: s.ty });
   }
   return out;
@@ -224,7 +225,7 @@ export const drawGrassPath: DrawFn<GrassPathParams> = (ctx, params, t, scene) =>
   if (!params.enabled || params.intensity <= 0) return;
   if (params.points.length < 2) return;
 
-  const wp = pathWorldPoints(params);
+  const wp = pathWorldPointsFull(params);
   const samples = sampleOpenPolyline(wp, params.smooth, 14);
 
   ctx.save();
@@ -244,8 +245,9 @@ export function drawGrassPathGizmo(
   zoom: number,
   selected: boolean,
   hoverNode = -1,
+  hoverTangent: { index: number; side: 'left' | 'right' } | null = null,
 ): void {
-  const wp = pathWorldPoints(params);
+  const wp = pathWorldPointsFull(params);
   if (wp.length === 0) return;
   const inv = 1 / Math.max(0.35, zoom);
 
@@ -260,6 +262,10 @@ export function drawGrassPathGizmo(
     traceOpenPath(ctx, wp, params.smooth, 12);
     ctx.stroke();
     ctx.setLineDash([]);
+  }
+
+  if (selected) {
+    drawPathTangentGizmo(ctx, params, zoom, 'rgba(180, 255, 160, 0.85)', hoverTangent);
   }
 
   const r = 8 * inv;
@@ -285,7 +291,7 @@ export function drawGrassPathGizmo(
     const hint =
       wp.length < 2
         ? 'Click stage to draw open line (need 2+ nodes)'
-        : 'Click to extend line · Enter/Done when finished · drag nodes anytime';
+        : 'Drag light handles to bend angles · Alt breaks · Enter when done';
     ctx.fillText(hint, wp[0]!.x + 12 * inv, wp[0]!.y - 14 * inv);
   }
   ctx.restore();
@@ -305,7 +311,7 @@ export function removeGrassPathNode(params: GrassPathParams, index: number): voi
 }
 
 export function appendGrassPathNode(params: GrassPathParams, wx: number, wy: number): void {
-  params.points.push(worldToPathLocal(params, wx, wy));
+  appendPathPoint(params, wx, wy);
 }
 
 export function disposeGrassPathInstance(_id: string): void {
