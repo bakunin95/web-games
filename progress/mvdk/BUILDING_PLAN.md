@@ -2,7 +2,7 @@
 
 Gauntlet: `/progress/mvdk/` · Status: `/progress/mvdk/status.json`
 
-**Focus:** designing **interesting rooms** (diagrams + critique). Not a playable build.
+**Focus:** designing **perfect puzzle rooms** (diagrams + critique). Not a playable build.
 
 ## Round 0 — Scope (PASS · user)
 
@@ -14,23 +14,27 @@ Readable · one idea/room · construction fantasy · fair fails · short early l
 
 ## Round 2 — Mechanic kit (PASS)
 
-See `MECHANICS.md`.
+See `MECHANICS.md` (includes crate, broken stub, hold-switch).
 
 ## Round 3 — Room templates (PASS)
 
 Teach set T1–T8 in `ROOMS.md` (clarity).  
-Showcase set S1–S7 in `SHOWCASE.md` (interest).
+Showcase set in `SHOWCASE.md` (interest → perfecting).
 
-## Round 4 — World sequence (PASS)
+## Round 4 — World sequence (PASS · updated)
 
-See `WORLDS.md` — teach → test → twist → rest → spike with S1–S7 placed.
+See `WORLDS.md` — spikes use PERFECT rooms S1–S10.
 
 ## Round 5 — Interest critique (PASS)
 
-Rubric: `INTEREST.md`.  
-Showcase S1–S7 all six checks **PASS**. Softlock temptations have taught undo.  
-Critique loop **cleared** for the design package (see `PLAYTEST.md`).
+Floor rubric: `INTEREST.md`. S1–S7 cleared PASS, then raised.
 
-## P5 — Design polish (PASS)
+## Round 6 — Perfecting loop (ACTIVE)
 
-Names, telegraph notes, silhouettes in `POLISH.md`. Not engine juice.
+Ceiling: `PERFECT.md` (7 checks).  
+Hard-critique → v2 for S1–S7 · new S8–S10 · all scored **PERFECT**.  
+Loop continues: revise any room that feels merely “fine,” add icons until the set is dinner-table memorable.
+
+## P5 — Design polish (PASS · living)
+
+Names / telegraph / silhouettes in `POLISH.md` (updated each perfecting pass).

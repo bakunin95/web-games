@@ -17,6 +17,8 @@ A room PASSes only if it is **interesting** under these checks.
 **Room PASS** = all six green.  
 **Remix rooms** may reuse a verb if the *lie* or *tension* is new.
 
+Raised ceiling for iconic rooms: see **`PERFECT.md`** (seven checks). PASS is the floor; PERFECT is the goal.
+
 ## Anti-patterns (instant FAIL)
 
 - Tall empty ladder with door on top (T1-teach is OK as teach; not as showcase)

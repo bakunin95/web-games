@@ -1,11 +1,11 @@
 {
   "overall": {
-    "text": "PASS — Room Design Gauntlet cleared. R1 pillars (user) → kit → rooms → worlds → interest critique → design polish. Showcase S1–S7 PASS.",
-    "class": "ok"
+    "text": "ACTIVE — Perfecting loop (Round 6). Floor PASS cleared; ceiling is PERFECT.md. S1–S7 v2 + S8–S10 scored PERFECT.",
+    "class": "wip"
   },
   "round": {
-    "text": "Critique loop CLEARED (design). S1–S7 interest PASS · P5 polish PASS. Feedback can still remix rooms.",
-    "class": "ok"
+    "text": "R6 ACTIVE: hard-critique → revise → re-score. Next: keep sharpening any room that feels merely fine; world curve uses PERFECT spikes only.",
+    "class": "wip"
   },
   "phases": {
     "p0": { "label": "PASS", "class": "ok" },
@@ -13,7 +13,8 @@
     "p2": { "label": "PASS", "class": "ok" },
     "p3": { "label": "PASS", "class": "ok" },
     "p4": { "label": "PASS", "class": "ok" },
-    "p5": { "label": "PASS", "class": "ok" }
+    "p5": { "label": "PASS", "class": "ok" },
+    "p6": { "label": "WIP", "class": "wip" }
   },
   "rounds": {
     "r0": { "label": "PASS", "class": "ok" },
@@ -21,7 +22,8 @@
     "r2": { "label": "PASS", "class": "ok" },
     "r3": { "label": "PASS", "class": "ok" },
     "r4": { "label": "PASS", "class": "ok" },
-    "r5": { "label": "PASS", "class": "ok" }
+    "r5": { "label": "PASS", "class": "ok" },
+    "r6": { "label": "WIP", "class": "wip" }
   },
-  "log": "MvsDK Puzzle Gauntlet — ROOM DESIGN · CLEARED\n==============================================\nFocus: interesting puzzle rooms (not play).\n\nR0 Scope ..................... PASS (user)\nR1 Pillars ................... PASS (user)\nR2 Mechanic kit .............. PASS (MECHANICS.md)\nR3 Room templates ............ PASS (ROOMS teach + SHOWCASE interest)\nR4 World sequence ............ PASS (WORLDS.md places S1–S7)\nR5 Interest critique ......... PASS (INTEREST.md · S1–S7 all six checks)\nP5 Design polish ............. PASS (POLISH.md names / telegraph / silhouette)\n\nShowcase:\n  S1 Wrong balcony ............. PASS\n  S2 Decoy door / commit ....... PASS\n  S3 Belt prep ................. PASS\n  S4 Enemy step ................ PASS\n  S5 Greedy keys ............... PASS\n  S6 DK metronome .............. PASS\n  S7 Spring or softlock ........ PASS\n\nCritique loop cleared for the design package.\nLive playtest optional later — not required here.\nPage: /progress/mvdk/"
+  "log": "MvsDK Puzzle Gauntlet — PERFECTING LOOP\n========================================\nUser: continue the gauntlet to make perfect levels.\n\nR0–R5 PASS (plan → interest floor)\nR6 Perfecting ACTIVE — ceiling PERFECT.md (7 checks)\n\nHard critique → v2:\n  S1 Wrong balcony ...... PERFECT (one-way pit)\n  S2 Burn the approach .. PERFECT (decoy floor gone)\n  S3 Belt commute ....... PERFECT (dock is a trip)\n  S4 Only his head ...... PERFECT (enemy = only stair)\n  S5 Walk past the door . PERFECT (quiet D, glam X)\n  S6 Key on the hold .... PERFECT (rhythm = unlock)\n  S7 Fake ladder stub ... PERFECT (stub sells the lie)\nNew:\n  S8 Crate on the switch  PERFECT\n  S9 One legal toggle ... PERFECT\n  S10 Empty-handed scout  PERFECT\n\nDocs: PERFECT.md · SHOWCASE.md · POLISH.md · WORLDS.md\nPage: /progress/mvdk/"
 }

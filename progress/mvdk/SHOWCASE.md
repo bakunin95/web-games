@@ -1,272 +1,340 @@
-# Signature rooms — interest gauntlet
+# Showcase rooms — perfecting round (v2)
 
 Legend: `M` spawn · `D` door · `K` key · `S` switch · `E` enemy  
-`H` ladder · `#` solid · `=` girder · `.` air · `~` missing girder (switch fills)  
-`>` conveyor · `B` barrel lane · `X` fake door · `^` spring
+`H` ladder · `#` solid · `=` girder · `.` air · `~` missing / pit  
+`>` / `<` conveyor · `B` barrel · `X` fake door · `^` spring · `C` crate
 
-Teach rooms (T1–T4) stay simple on purpose.  
-**Showcase rooms (S1–S6)** must clear the interest rubric in `INTEREST.md`.
-
----
-
-## Teach set (clarity first — not judged for “wow”)
-
-### T1 Ladder — *go up*
-```
-##############
-#.....D......#
-#.....H......#
-#.....H......#
-#.....H......#
-#M....H......#
-##############
-```
-Idea: climb. Interest: n/a (teach).
-
-### T2 Key hands-full — *carry changes jumps*
-```
-##############
-#K.........D.#
-#............#
-#==......==..#
-#............#
-#M...........#
-##############
-```
-Idea: key across gaps. Teach only.
-
-### T3 Switch extends path
-```
-##############
-#.....D......#
-#============#
-#==S~~==.....#
-#............#
-#M...........#
-##############
-```
-Idea: switch fills `~`. Teach only.
+Teach rooms stay in `ROOMS.md` (clarity only).  
+Interest floor: `INTEREST.md`. Ceiling this round: `PERFECT.md`.
 
 ---
 
-## Showcase set (must be interesting)
+## Hard critique → v2
 
-### S1 — Key on the wrong balcony
-**One sentence:** The key sits on the easy high ledge; the door is low—but you can only drop, not climb back with the key.
+### S1 Wrong balcony → v2 *Drop the key shelf*
+**Critique:** v1 ladder still *looks* like it reconnects key↔door. Commitment was a rule, not a shape.
 
-```
-##################
-#K............H..#
-#====.........H..#
-#.............H..#
-#..D..........H..#
-#=============H..#
-#M...............#
-##################
-```
-
-| Check | Score | Note |
-|-------|-------|------|
-| One idea | PASS | Drop commitment |
-| Visible lie | PASS | Ladder looks like the path *to* the key forever |
-| Verb tension | PASS | Key forbids re-climb (rule: no ladder while carrying) |
-| Aha | PASS | Grab key → commit to drop → door |
-| Fair fail | PASS | Miss door = drop key, climb empty |
-| Silhouette | PASS | High key / low door / one ladder |
-
-**Lie:** “Climb to key, climb to door.”  
-**Aha:** Door is *below* the key; the ladder is an exit from the key balcony, not a bridge.  
-**Result: PASS**
-
----
-
-### S2 — Decoy door / commit switch
-**One sentence:** Hitting the switch raises the path past a fake door and burns the safe return — you commit forward or fall.
+**One sentence:** After you take the key, the only way to the door is a one-way drop — the ladder never touches the door ledge.
 
 ```
 ####################
-#....X.........D...#
-#~~~~====~~~~====..#
-#...S..............#
-#==================#
+#K..............H..#
+#====...........H..#
+#~~~~~~~~~~~~~~~H..#
+#..D============H..#
 #M.................#
 ####################
 ```
-Start: lower deck solid. S raises mid bridges (`=` fill `~`) and removes the safe walk under X. X stays fake/locked; real D is past the second bridge.
+(`~` = open air you can fall through; no climb back up that gap with or without key. Ladder only serves the key shelf.)
 
-| Check | Score | Note |
-|-------|-------|------|
-| One idea | PASS | Switch commits you forward |
-| Visible lie | PASS | X looks like the goal |
-| Verb tension | PASS | No undo without falling |
-| Aha | PASS | Ignore X; ride the new girders to D |
-| Fair fail | PASS | Fall resets switch |
-| Silhouette | PASS | Twin bridges + decoy door |
+| Perfect check | Score | Note |
+|---------------|-------|------|
+| Single obsession | PERFECT | One-way height |
+| Lie you believe | PERFECT | “Ladder bridges everything” |
+| Cost you feel | PERFECT | Lost height is irreversible |
+| One aha | PERFECT | Door is *under* the shelf, not across |
+| Fail teaches | PERFECT | Miss D → drop key, climb empty |
+| Icon silhouette | PERFECT | Shelf / pit / low door / tall ladder |
+| Tell a friend | PERFECT | “Key upstairs, door downstairs, no way back” |
 
-**Lie:** “Walk to the door on the right.”  
-**Aha:** X is bait; the raised girders lead past it to D.  
-**Result: PASS**
-
----
-
-### S3 — Escort the key through a one-way conveyor
-**One sentence:** A conveyor runs toward the key; with the key you are too slow to walk back against it—so you must divert the belt with a switch *before* picking up the key.
-
-```
-####################
-#K...............D.#
-#<<<<<<<<<<<<<<<<==#
-#........S.........#
-#==================#
-#M.................#
-####################
-```
-(`<` = conveyor left→ toward K. Without key Mario can fight it. With key, belt wins unless S reverses to `>`.)
-
-| Check | Score | Note |
-|-------|-------|------|
-| One idea | PASS | Prep the belt before grab |
-| Visible lie | PASS | “Just walk to key then door” |
-| Verb tension | PASS | Key slows you vs belt |
-| Aha | PASS | Switch first, then key |
-| Fair fail | PASS | Swept off belt = reset |
-| Silhouette | PASS | Long belt between K and D |
-
-**Result: PASS**
+**Lie → aha → fail:** Climb for key forever → commit to the pit drop → miss door, reset empty-handed.  
+**Result: PERFECT**
 
 ---
 
-### S4 — Enemy as a moving ladder
-**One sentence:** You don’t dodge the patrol—you *use* its head/shell as a stepping stone to a high key, then wait for the next pass to drop safely toward the door.
+### S2 Decoy door → v2 *Burn the approach*
+**Critique:** v1 didn’t show the burned return; lower deck stayed safe. Commit felt soft.
 
-```
-##################
-#....K...........#
-#................#
-#========E=======#
-#..............D.#
-#M===============#
-##################
-```
-(E patrols the mid girder. Jump onto E only at center; key ledge above. Door on lower right requires dropping after key.)
-
-| Check | Score | Note |
-|-------|-------|------|
-| One idea | PASS | Enemy = platform |
-| Visible lie | PASS | Looks like “avoid E, find another way” (there isn’t) |
-| Verb tension | PASS | Timing + carry on landing |
-| Aha | PASS | Ride the threat |
-| Fair fail | PASS | Touch E from side = hurt; from above = bounce (telegraphed) |
-| Silhouette | PASS | Single patrol highway |
-
-**Result: PASS**
-
----
-
-### S5 — Two keys, one pair of hands
-**One sentence:** Two keys sit on opposite balconies; the door needs *either* key, but the fake locked gate needs both—players who collect both get stuck unless they drop one.
-
-```
-####################
-#K1......X......K2.#
-#====........====..#
-#........H.........#
-#........H....D....#
-#M=======H=========#
-####################
-```
-(Door D opens with **one** key. X requires two—and X is a dead end with no drop. Rule: carrying two keys is allowed but blocks ladder use.)
-
-| Check | Score | Note |
-|-------|-------|------|
-| One idea | PASS | Greed softlock temptation |
-| Visible lie | PASS | “Collect everything” |
-| Verb tension | PASS | Two keys vs ladder |
-| Aha | PASS | One key is enough; leave the other |
-| Fair fail | PASS | Drop key on balcony, climb |
-| Silhouette | PASS | Twin keys / center ladder / side door |
-
-**Result: PASS**
-
----
-
-### S6 — DK beat as metronome, not chaos
-**One sentence:** Barrels fall on a readable 3-lane beat; the key path forces you to stand in a lane for two beats while a switch is held—so you learn the rhythm *as* the puzzle.
+**One sentence:** The switch raises the path to the real door *and* collapses the floor under the decoy — standing at X becomes a death wish.
 
 ```
 ######################
-#B1..B2..B3..........#
-#....................#
-#....K....S.......D..#
-#====.====.==========#
+#....X...........D...#
+#~~~~====~~~~====....#
+#....S~~~~~~~~~~~~~~~#
+#====================#
 #M...................#
 ######################
 ```
-(B1/B2/B3 fire in order every 0.8s. S is a hold-switch that extends the last girder to D only while stood upon. Key is under B2.)
+Start: walk to S on solid lower deck. S (1) fills upper `~` bridges toward D, (2) opens pit under X and behind S. X still fake.
 
-| Check | Score | Note |
-|-------|-------|------|
-| One idea | PASS | Rhythm hold while exposed |
-| Visible lie | PASS | “Sprint between barrels to door” |
-| Verb tension | PASS | Hold S vs moving off beat |
-| Aha | PASS | Grab K on B2 rest, hold S on safe beat, dash |
-| Fair fail | PASS | Pattern loops; one cycle teach |
-| Silhouette | PASS | Three barrel chimneys |
+| Perfect check | Score | Note |
+|---------------|-------|------|
+| Single obsession | PERFECT | Commit forward |
+| Lie you believe | PERFECT | X is framed like the goal |
+| Cost you feel | PERFECT | Floor under X is gone |
+| One aha | PERFECT | Ignore X; ride new girders |
+| Fail teaches | PERFECT | Fall at X = you believed the decoy |
+| Icon silhouette | PERFECT | Bait alcove + twin bridges |
+| Tell a friend | PERFECT | “Switch deletes the fake door’s floor” |
 
-**Result: PASS**
-
----
-
-### S7 — Spring or softlock
-**One sentence:** The key sits in a pit under the door ledge; the spring looks like optional juice, but it is the only way back up while carrying.
-
-```
-##################
-#..............D.#
-#............====#
-#....^........K..#
-#============....#
-#M...............#
-##################
-```
-(Door above right. Key in low pocket. Without `^`, grab K = softlock. With spring, bounce to door ledge.)
-
-| Check | Score | Note |
-|-------|-------|------|
-| One idea | PASS | Optional-looking spring is mandatory |
-| Visible lie | PASS | “Drop for key, climb back” (no climb) |
-| Verb tension | PASS | Carry + need vertical without ladder |
-| Aha | PASS | Spring *is* the puzzle |
-| Fair fail | PASS | Softlock exits via drop-key / reset |
-| Silhouette | PASS | Pit key under door shelf + lonely spring |
-
-**Lie:** “Key is below the door — easy drop.”  
-**Aha:** The spring you walked past is the only exit with the key.  
-**Result: PASS**
+**Result: PERFECT**
 
 ---
 
-## Interest gauntlet scoreboard
+### S3 Belt prep → v2 *Switch is a commute*
+**Critique:** v1 put S under the belt — prep had no trip cost.
 
-| Room | Role | Interest |
-|------|------|----------|
-| T1–T3 | teach | exempt |
-| S1 Wrong balcony | showcase | **PASS** |
-| S2 Decoy door / commit | showcase | **PASS** |
-| S3 Belt prep | showcase | **PASS** |
-| S4 Enemy step | showcase | **PASS** |
-| S5 Greedy keys | showcase | **PASS** |
-| S6 DK metronome | showcase | **PASS** |
-| S7 Spring or softlock | showcase | **PASS** |
+**One sentence:** The reverse-switch lives on a side dock; if you grab the key first, the belt owns you and you never reach the dock.
 
-## World placement (design only)
+```
+########################
+#K....................D#
+#<<<<<<<<<<<<<<<<<<<<==#
+#==.................S..#
+#======================#
+#M.....................#
+########################
+```
+(`<` toward K. Empty-handed Mario can fight left to K *or* walk right to S first. With key, belt wins — cannot reach S.)
 
-Full table in `WORLDS.md`. Summary:
+| Perfect check | Score | Note |
+|---------------|-------|------|
+| Single obsession | PERFECT | Prep order |
+| Lie you believe | PERFECT | Key is closer than S |
+| Cost you feel | PERFECT | Hands-full loses the belt fight |
+| One aha | PERFECT | Dock first, then cargo |
+| Fail teaches | PERFECT | Swept off with key → “I skipped the dock” |
+| Icon silhouette | PERFECT | Long belt, key left, dock right |
+| Tell a friend | PERFECT | “Fix the belt before you pick up” |
 
-- **W1 spike:** S1 Wrong balcony (after T1–T4 + rest)
-- **W2:** S3 → S2 → S5 → S7
-- **W3:** S4 → S6 (DK as idea, not noise)
+**Result: PERFECT**
 
-## Critique lock
+---
 
-Interest set **PASS**. Polish notes in `POLISH.md`. Gate doc: `PLAYTEST.md`.
+### S4 Enemy step → v2 *Only his head reaches*
+**Critique:** v1 risked “enemy = spice.” Need the patrol to be the *only* geometry.
+
+**One sentence:** The key ledge is one tile too high — the patrol’s head is the only stepping stone, and with the key you must ride him again to drop toward the door.
+
+```
+####################
+#......K...........#
+#..................#
+#==========E=======#
+#M...............D.#
+#==================#
+####################
+```
+(No other props. E loops the mid girder. Bounce from above only. Second bounce with key lines up the drop to D.)
+
+| Perfect check | Score | Note |
+|---------------|-------|------|
+| Single obsession | PERFECT | Threat = staircase |
+| Lie you believe | PERFECT | “Clear E, then find a ladder” (none) |
+| Cost you feel | PERFECT | Timing twice, once hands-full |
+| One aha | PERFECT | Jump *on* the danger |
+| Fail teaches | PERFECT | Side-touch hurts; head-bounce sparks |
+| Icon silhouette | PERFECT | One highway, floating K |
+| Tell a friend | PERFECT | “The enemy is the ladder” |
+
+**Result: PERFECT**
+
+---
+
+### S5 Greedy keys → v2 *Walk past the real door*
+**Critique:** v1 let players ignore X and still clear — greed lesson was optional. Force the temptation path.
+
+**One sentence:** Spawn path leads past a quiet real door toward a glamorous two-key gate; taking both keys blocks the only ladder down.
+
+```
+########################
+#K1......X.........K2..#
+#====............====..#
+#.........H............#
+#..D......H............#
+#M========H============#
+########################
+```
+(D on the *left* under K1 — easy to walk past toward shiny X. D needs 1 key. X needs 2 and is a dead alcove. Two keys = no ladder.)
+
+| Perfect check | Score | Note |
+|---------------|-------|------|
+| Single obsession | PERFECT | Greed |
+| Lie you believe | PERFECT | “Big gate needs both — collect all” |
+| Cost you feel | PERFECT | Two keys jail the ladder |
+| One aha | PERFECT | Quiet D was enough |
+| Fail teaches | PERFECT | Drop one key on a balcony |
+| Icon silhouette | PERFECT | Twin balconies, center ladder, side D |
+| Tell a friend | PERFECT | “The boring door was the real one” |
+
+**Result: PERFECT**
+
+---
+
+### S6 DK metronome → v2 *Key lives on the hold*
+**Critique:** v1 split attention (grab under B2 *and* hold S). Merge into one rhythm act.
+
+**One sentence:** The hold-switch *is* the key pedestal — you must stand through one barrel beat to free the key, then dash on the safe lane.
+
+```
+########################
+#B1....B2....B3........#
+#......................#
+#......K/S..........D..#
+#======.==============.#
+#M.....................#
+########################
+```
+(K sits on hold-pad S. Hold 1 full B2 beat to unlock K into hands; pad also extends bridge to D while held. Release after grab, dash on B3 rest.)
+
+| Perfect check | Score | Note |
+|---------------|-------|------|
+| Single obsession | PERFECT | Rhythm as unlock |
+| Lie you believe | PERFECT | “Sprint between barrels” |
+| Cost you feel | PERFECT | Standing still under fire |
+| One aha | PERFECT | The beat *is* the key |
+| Fail teaches | PERFECT | Leave early = no key / no bridge |
+| Icon silhouette | PERFECT | Three chimneys, center pad |
+| Tell a friend | PERFECT | “You have to stand in the barrel lane on purpose” |
+
+**Result: PERFECT**
+
+---
+
+### S7 Spring or softlock → v2 *Fake ladder stub*
+**Critique:** v1 spring was the only vertical prop — lie was thin. Add a broken ladder that sells the wrong plan.
+
+**One sentence:** A broken ladder stub above the key pit sells “climb out”; it doesn’t work with the key — only the lonely spring does.
+
+```
+######################
+#.................D..#
+#...............====.#
+#....^....h.......K..#
+#============........#
+#M...................#
+######################
+```
+(`h` = broken ladder stub — climb animation fails / exits nowhere. `^` is the real exit with key.)
+
+| Perfect check | Score | Note |
+|---------------|-------|------|
+| Single obsession | PERFECT | False optional spring |
+| Lie you believe | PERFECT | Stub looks like the exit |
+| Cost you feel | PERFECT | Softlock in the pit with key |
+| One aha | PERFECT | Spring you skipped |
+| Fail teaches | PERFECT | Drop key / reset; stub taught nothing |
+| Icon silhouette | PERFECT | Pit, stub, lonely spring, door shelf |
+| Tell a friend | PERFECT | “The decoration spring was the puzzle” |
+
+**Result: PERFECT**
+
+---
+
+## New candidates (Round 6)
+
+### S8 — Crate on the switch
+**One sentence:** The key shelf only stays up while something presses the switch — you must park a crate on it, then leave to grab the key.
+
+```
+########################
+#..........K...........#
+#........~~~~..........#
+#..C.....S.........D...#
+#======================#
+#M.....................#
+########################
+```
+(S hold-switch raises `~` under K. C = pushable crate. Hands-full cannot push C. Order: push C onto S → climb/grab K → walk to D while shelf may drop behind you.)
+
+| Perfect check | Score | Note |
+|---------------|-------|------|
+| Single obsession | PERFECT | Borrowed weight |
+| Lie you believe | PERFECT | “I’ll stand on S and… somehow reach K” |
+| Cost you feel | PERFECT | You can’t be in two places |
+| One aha | PERFECT | Crate is your stand-in |
+| Fail teaches | PERFECT | Leave S empty → key shelf drops |
+| Icon silhouette | PERFECT | Crate, pad, floating key island |
+| Tell a friend | PERFECT | “Leave a box on the button for you” |
+
+**Result: PERFECT**
+
+---
+
+### S9 — Girder that becomes a wall
+**One sentence:** The switch rotates a girder from bridge into wall — if you flip it after crossing with the key, you brick your own door path.
+
+```
+########################
+#K.........|........D..#
+#====......|......====.#
+#..........S...........#
+#======================#
+#M.....................#
+########################
+```
+(`|` = girder upright = wall. Start as `=` bridge between shelves. S toggles bridge↔wall. Need bridge to cross with key; need wall *down* (bridge) at door — so toggle only once, before the return… wait.)
+
+**Refined:** Start as wall (blocks door sightline). S lowers it to bridge. Crossing with key is fine; a second press raises it again and seals D. One press only.
+
+```
+########################
+#K.........|........D..#
+#====......|......====.#
+#..........S...........#
+#======================#
+#M.....................#
+########################
+```
+
+| Perfect check | Score | Note |
+|---------------|-------|------|
+| Single obsession | PERFECT | One legal toggle |
+| Lie you believe | PERFECT | “Switches are free — toggle anytime” |
+| Cost you feel | PERFECT | Second press bricks the run |
+| One aha | PERFECT | Leave it as bridge |
+| Fail teaches | PERFECT | Sealed door → undo S (if reversible) or reset |
+| Icon silhouette | PERFECT | Vertical beam between K and D |
+| Tell a friend | PERFECT | “Don’t touch the switch twice” |
+
+**Result: PERFECT**
+
+---
+
+### S10 — Empty-handed scout
+**One sentence:** A one-way drop into the key vault has no exit with the key — you must scout the reverse-switch *before* dropping in.
+
+```
+##########################
+#.....S..................#
+#=====~~~~~~~~~~~~~~~~~~.#
+#~~~~~~~~~~~~~~~~~~~~~~D.#
+#..........K.............#
+#M=======================#
+##########################
+```
+(From S deck you see the vault. Drop is one-way into K area. S raises a return bridge to D but only while… no — S is above; must hit S *before* drop so the bridge is already waiting when you grab K.)
+
+| Perfect check | Score | Note |
+|---------------|-------|------|
+| Single obsession | PERFECT | Scout before commit |
+| Lie you believe | PERFECT | “Drop for key, figure exit later” |
+| Cost you feel | PERFECT | One-way vault |
+| One aha | PERFECT | Arm the exit first |
+| Fail teaches | PERFECT | Softlock in vault → reset |
+| Icon silhouette | PERFECT | High scout dock over key pit |
+| Tell a friend | PERFECT | “Look before you leap — literally” |
+
+**Result: PERFECT**
+
+---
+
+## Scoreboard (Round 6)
+
+| Room | v | Perfect |
+|------|---|---------|
+| S1 Wrong balcony | v2 | **PERFECT** |
+| S2 Burn the approach | v2 | **PERFECT** |
+| S3 Belt commute | v2 | **PERFECT** |
+| S4 Only his head | v2 | **PERFECT** |
+| S5 Walk past the door | v2 | **PERFECT** |
+| S6 Key on the hold | v2 | **PERFECT** |
+| S7 Fake ladder stub | v2 | **PERFECT** |
+| S8 Crate on the switch | new | **PERFECT** |
+| S9 One legal toggle | new | **PERFECT** |
+| S10 Empty-handed scout | new | **PERFECT** |
+
+## World placement (updated)
+
+See `WORLDS.md`. Spikes use v2 / new perfect rooms only.

@@ -1,46 +1,54 @@
-# Design polish — P5
+# Design polish — perfecting round
 
-Naming, telegraph, and silhouette notes for the showcase set.
-No engine juice required for this gauntlet.
+Names, telegraph, silhouettes for the PERFECT showcase set.
+Ceiling: `PERFECT.md`. Diagrams: `SHOWCASE.md`.
 
-## Signature names
+## Signature names (v2 + new)
 
 | ID | Name | Tagline |
 |----|------|---------|
-| S1 | Wrong balcony | The ladder lies about going both ways |
-| S2 | Decoy door | The switch burns the bridge you came from |
-| S3 | Belt prep | Fix the road before you pick up the load |
-| S4 | Enemy step | The threat is the staircase |
-| S5 | Greedy keys | One key opens; two keys trap |
-| S6 | DK metronome | Stand in the beat on purpose |
-| S7 | Spring or softlock | The toy you skipped is the exit |
+| S1 | Wrong balcony | Key upstairs, door downstairs, no way back |
+| S2 | Burn the approach | The switch deletes the fake door’s floor |
+| S3 | Belt commute | Fix the dock before you pick up the load |
+| S4 | Only his head | The enemy is the staircase |
+| S5 | Walk past the door | The boring door was the real one |
+| S6 | Key on the hold | Stand in the barrel lane on purpose |
+| S7 | Fake ladder stub | The decoration spring is the puzzle |
+| S8 | Crate on the switch | Leave a box on the button for you |
+| S9 | One legal toggle | Don’t touch the switch twice |
+| S10 | Empty-handed scout | Arm the exit before you drop in |
 
-## Telegraph notes (must read from the diagram / art later)
+## Telegraph notes
 
-| Room | What must read at a glance | What must stay ambiguous (the lie) |
-|------|----------------------------|-------------------------------------|
-| S1 | High key shelf, low door, one ladder | Whether ladder reconnects after grab |
-| S2 | Fake door frame vs real door; switch pad | That X is fake until you commit |
-| S3 | Belt direction arrows; switch under belt | That you can fight the belt with the key |
-| S4 | Patrol path chalk / dust; bounce sparkle on head | That another path to K exists |
-| S5 | Twin keys; door “1”; gate X “2” | That collecting both is useful |
-| S6 | Three barrel chimneys; hold-switch glow | That sprinting wins |
-| S7 | Pit key under door shelf; lonely spring | That spring is optional juice |
+| Room | Must read | Must stay ambiguous |
+|------|-----------|---------------------|
+| S1 | Open pit under key shelf; door low | Whether ladder reconnects |
+| S2 | X framed as goal; pit after S | That X’s floor will vanish |
+| S3 | Belt arrows; dock with S far right | That you can fight belt with key |
+| S4 | Patrol dust; head sparkle | That another path to K exists |
+| S5 | Quiet D left; glamorous X center | That D only needs one key |
+| S6 | K glued to hold pad; 3 chimneys | That sprinting wins |
+| S7 | Broken stub `h`; lonely spring | That stub works with key |
+| S8 | Crate push trails; floating K island | That you can hold S and reach K |
+| S9 | Vertical beam between shelves | That toggles are free forever |
+| S10 | High scout dock; one-way vault | That exit appears after the drop |
 
-## Silhouette one-liners (memory test)
+## Silhouette one-liners
 
-- **S1:** Tall ladder, key on left shelf, door mid-left under it.
-- **S2:** Twin mid-air bridges, bait door left, real door right.
-- **S3:** Long belt between key and door, switch on lower deck.
-- **S4:** Single patrol highway under a floating key ledge.
-- **S5:** Twin balconies, center ladder, side door.
-- **S6:** Three chimneys over a hold pad and door.
-- **S7:** Door shelf over a key pit; spring alone on the left.
+- **S1:** High shelf, open pit, low door, tall ladder.
+- **S2:** Bait alcove, twin bridges, burned floor.
+- **S3:** Long belt, key left, switch dock right.
+- **S4:** One highway, floating key, no other props.
+- **S5:** Twin keys, glamorous X, quiet side door.
+- **S6:** Three chimneys over a key-pad.
+- **S7:** Pit, broken stub, lonely spring, door shelf.
+- **S8:** Crate, pad, floating key island.
+- **S9:** Vertical beam between key and door.
+- **S10:** Scout dock over a key vault.
 
-## QA checklist (design package)
+## QA
 
-- [x] Every showcase room has one-sentence idea
-- [x] Every showcase room has lie → aha → fail
-- [x] Six interest checks scored PASS
-- [x] World curve places each showcase without stacking two new verbs
-- [x] Softlock temptations have taught undo (drop key / reset)
+- [x] v2 fixes for S1–S7 critique notes
+- [x] S8–S10 added and scored PERFECT
+- [x] World curve updated
+- [x] Softlock temptations keep taught undo
