@@ -1,0 +1,47 @@
+{
+  "game": "platformer",
+  "levels": [
+    {
+      "id": "dh-r00-backyard",
+      "name": "Backyard Basics",
+      "order": 0,
+      "coinReward": 20,
+      "theme": "city-alley",
+      "scope": "campaign",
+      "objective": "Collect 3 bones and reach the exit bed.",
+      "width": 28,
+      "height": 16,
+      "spawn": { "x": 8, "y": 12 },
+      "exit": { "x": 22, "y": 11, "w": 3, "h": 2 },
+      "platforms": [
+        { "x": 0, "y": 14, "w": 28, "h": 2, "kind": "floor" },
+        { "x": 0, "y": 0, "w": 28, "h": 1, "kind": "block" },
+        { "x": 0, "y": 0, "w": 0.55, "h": 16, "kind": "wall" },
+        { "x": 27.45, "y": 0, "w": 0.55, "h": 16, "kind": "wall" },
+        { "x": 9.5, "y": 12.2, "w": 2.5, "h": 0.55, "kind": "shelf" },
+        { "x": 17, "y": 10.8, "w": 3, "h": 0.55, "kind": "shelf" },
+        { "x": 22, "y": 12.5, "w": 3.5, "h": 0.75, "kind": "bed" },
+        { "x": 21.5, "y": 8, "w": 0.5, "h": 4.5, "kind": "fence" }
+      ],
+      "bones": [
+        { "x": 10.4, "y": 11.4 },
+        { "x": 4.8, "y": 13.2 },
+        { "x": 18.2, "y": 10.0 }
+      ],
+      "digs": [
+        {
+          "x": 4.2,
+          "y": 13.4,
+          "w": 1.6,
+          "h": 0.8,
+          "kind": "loot",
+          "note": "Uncovers bone B already placed at this mound — does not spawn a 4th bone"
+        }
+      ],
+      "decors": [
+        { "x": 3.5, "y": 12.5, "w": 1.2, "h": 0.6, "kind": "dirt-mound" },
+        { "x": 16.5, "y": 7.5, "w": 2, "h": 3, "kind": "tree" }
+      ]
+    }
+  ]
+}
