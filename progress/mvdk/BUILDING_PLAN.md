@@ -23,14 +23,14 @@ Showcase set S1–S7 in `SHOWCASE.md` (interest).
 
 ## Round 4 — World sequence (PASS)
 
-See `WORLDS.md` + showcase placement in `SHOWCASE.md`.
+See `WORLDS.md` — teach → test → twist → rest → spike with S1–S7 placed.
 
-## Round 5 — Interest critique (ACTIVE)
+## Round 5 — Interest critique (PASS)
 
 Rubric: `INTEREST.md`.  
-Showcase rooms S1–S7 scored **PASS** on paper.  
-Loop continues by proposing new rooms → score six checks → revise or cut.
+Showcase S1–S7 all six checks **PASS**. Softlock temptations have taught undo.  
+Critique loop **cleared** for the design package (see `PLAYTEST.md`).
 
-## P5 — Polish bar (design polish)
+## P5 — Design polish (PASS)
 
-Naming, silhouette thumbnails, telegraph notes — not engine juice.
+Names, telegraph notes, silhouettes in `POLISH.md`. Not engine juice.

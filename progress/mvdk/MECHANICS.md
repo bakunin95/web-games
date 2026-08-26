@@ -15,9 +15,11 @@ Atomic verbs for Mario vs Donkey Kong–style puzzles. Each must be teachable in
 
 ### Puzzle objects
 - **Key** — pick up / drop. While carrying: no climb in W1; W2+ may allow ladder-with-key as the twist.
-- **Switch** — toggle platforms, conveyors, or doors. Binary state, visible.
-- **Conveyor** — constant direction; reverse only via switch.
-- **Goal door** — opens with key or Mini-Mario delivery.
+- **Two keys** — allowed late (S5). Carrying two blocks ladder use. Door UI must show how many it needs.
+- **Switch** — toggle platforms, conveyors, or doors. Binary state, visible. Hold-switch (S6) stays on only while stood upon.
+- **Conveyor** — constant direction; reverse only via switch. Hands-full may lose a fight against the belt (S3).
+- **Spring** — predictable arc; may look optional but can be the only exit with a key (S7).
+- **Goal door** — opens with key or Mini-Mario delivery. Fake doors (`X`) never open.
 
 ### Threats
 - **Enemy patrol** — fixed loop, no aggro turnarounds in W1.
@@ -33,6 +35,13 @@ Atomic verbs for Mario vs Donkey Kong–style puzzles. Each must be teachable in
 | Key + enemy | T5 / W2-1 | risk |
 | Dual switch order | T6 / W2-3 | sequence |
 | DK barrels + key | T8 / W3-2 | pressure |
+| Key + drop commit | S1 / W1-7 | no re-climb |
+| Switch + decoy door | S2 / W2-4 | misdirection |
+| Belt prep + key | S3 / W2-2 | order |
+| Enemy as step | S4 / W3-2 | reframe threat |
+| Dual key greed | S5 / W2-6 | optionalism |
+| Hold-switch + barrels | S6 / W3-5 | rhythm |
+| Spring or softlock | S7 / W2-7 | false optional |
 
 ## Cuts (out of kit for v1)
 

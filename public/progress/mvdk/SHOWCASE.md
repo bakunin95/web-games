@@ -261,6 +261,12 @@ Start: lower deck solid. S raises mid bridges (`=` fill `~`) and removes the saf
 
 ## World placement (design only)
 
-- **W1:** T1–T3 → S1 (first real aha)
-- **W2:** S2, S3, S5, S7
-- **W3:** S4, S6 (DK as idea, not noise)
+Full table in `WORLDS.md`. Summary:
+
+- **W1 spike:** S1 Wrong balcony (after T1–T4 + rest)
+- **W2:** S3 → S2 → S5 → S7
+- **W3:** S4 → S6 (DK as idea, not noise)
+
+## Critique lock
+
+Interest set **PASS**. Polish notes in `POLISH.md`. Gate doc: `PLAYTEST.md`.

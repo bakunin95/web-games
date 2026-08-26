@@ -1,11 +1,11 @@
 {
   "overall": {
-    "text": "PASS (user) plan locked. Focus = interesting ROOM DESIGN (not play). Showcase S1–S7 cleared interest rubric; critique loop continues.",
+    "text": "PASS — Room Design Gauntlet cleared. R1 pillars (user) → kit → rooms → worlds → interest critique → design polish. Showcase S1–S7 PASS.",
     "class": "ok"
   },
   "round": {
-    "text": "Active: interest critique loop — score rooms with INTEREST.md. Showcase S1–S7 PASS. Propose next room or revise from feedback.",
-    "class": "wip"
+    "text": "Critique loop CLEARED (design). S1–S7 interest PASS · P5 polish PASS. Feedback can still remix rooms.",
+    "class": "ok"
   },
   "phases": {
     "p0": { "label": "PASS", "class": "ok" },
@@ -13,7 +13,7 @@
     "p2": { "label": "PASS", "class": "ok" },
     "p3": { "label": "PASS", "class": "ok" },
     "p4": { "label": "PASS", "class": "ok" },
-    "p5": { "label": "WIP", "class": "wip" }
+    "p5": { "label": "PASS", "class": "ok" }
   },
   "rounds": {
     "r0": { "label": "PASS", "class": "ok" },
@@ -23,5 +23,5 @@
     "r4": { "label": "PASS", "class": "ok" },
     "r5": { "label": "PASS", "class": "ok" }
   },
-  "log": "MvsDK Puzzle Gauntlet — ROOM DESIGN focus\n==========================================\nUser: not about playing — about interesting puzzle rooms. Pivot accepted.\n\nR0–R4 PASS (user plan lock)\nR5 Interest critique: rubric INTEREST.md\n\nTeach rooms T1–T3 = clarity only (exempt from wow)\nShowcase rooms (SHOWCASE.md):\n  S1 Wrong balcony ............. PASS\n  S2 Decoy door / commit switch . PASS\n  S3 Belt prep before key ...... PASS\n  S4 Enemy as step ............. PASS\n  S5 Greedy two-keys ........... PASS\n  S6 DK metronome hold ......... PASS\n  S7 Spring or softlock ........ PASS\n\nInterest checks: one idea · visible lie · verb tension · aha · fair fail · silhouette\n\nNext: feedback on S1–S7, or propose another showcase room.\nDocs: INTEREST.md · SHOWCASE.md · ROOMS.md · WORLDS.md\nPage: /progress/mvdk/"
+  "log": "MvsDK Puzzle Gauntlet — ROOM DESIGN · CLEARED\n==============================================\nFocus: interesting puzzle rooms (not play).\n\nR0 Scope ..................... PASS (user)\nR1 Pillars ................... PASS (user)\nR2 Mechanic kit .............. PASS (MECHANICS.md)\nR3 Room templates ............ PASS (ROOMS teach + SHOWCASE interest)\nR4 World sequence ............ PASS (WORLDS.md places S1–S7)\nR5 Interest critique ......... PASS (INTEREST.md · S1–S7 all six checks)\nP5 Design polish ............. PASS (POLISH.md names / telegraph / silhouette)\n\nShowcase:\n  S1 Wrong balcony ............. PASS\n  S2 Decoy door / commit ....... PASS\n  S3 Belt prep ................. PASS\n  S4 Enemy step ................ PASS\n  S5 Greedy keys ............... PASS\n  S6 DK metronome .............. PASS\n  S7 Spring or softlock ........ PASS\n\nCritique loop cleared for the design package.\nLive playtest optional later — not required here.\nPage: /progress/mvdk/"
 }
