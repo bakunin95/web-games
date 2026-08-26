@@ -19,7 +19,7 @@ See `MECHANICS.md`.
 ## Round 3 — Room templates (PASS)
 
 Teach set T1–T8 in `ROOMS.md` (clarity).  
-Showcase set S1–S6 in `SHOWCASE.md` (interest).
+Showcase set S1–S7 in `SHOWCASE.md` (interest).
 
 ## Round 4 — World sequence (PASS)
 
@@ -28,7 +28,7 @@ See `WORLDS.md` + showcase placement in `SHOWCASE.md`.
 ## Round 5 — Interest critique (ACTIVE)
 
 Rubric: `INTEREST.md`.  
-Showcase rooms S1–S6 scored **PASS** on paper.  
+Showcase rooms S1–S7 scored **PASS** on paper.  
 Loop continues by proposing new rooms → score six checks → revise or cut.
 
 ## P5 — Polish bar (design polish)

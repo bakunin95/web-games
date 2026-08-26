@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MvsDK Puzzle Gauntlet — Building Plan</title>
+    <title>MvsDK Puzzle Gauntlet — Room Design</title>
     <style>
       :root {
         color-scheme: dark;
@@ -38,7 +38,7 @@
       }
       h1 span.mario { color: var(--mario); }
       h1 span.dk { color: #c48a4a; }
-      .sub { color: var(--muted); margin: 0 0 1.4rem; max-width: 68ch; }
+      .sub { color: var(--muted); margin: 0 0 1.4rem; max-width: 70ch; }
       a { color: var(--accent); }
       .grid {
         display: grid;
@@ -66,23 +66,6 @@
       ul { margin: 0; padding-left: 1.15rem; font-size: 0.9rem; color: var(--muted); }
       li { margin: 0.35rem 0; }
       li strong { color: var(--ink); }
-      .phase { display: grid; gap: 0.55rem; }
-      .phase-row {
-        display: grid;
-        grid-template-columns: 5.5rem 1fr auto;
-        gap: 0.75rem;
-        align-items: start;
-        padding: 0.55rem 0.65rem;
-        border: 1px solid rgba(255,255,255,0.06);
-        background: rgba(0,0,0,0.22);
-      }
-      .phase-id {
-        font-family: ui-monospace, monospace;
-        font-size: 0.72rem;
-        color: var(--accent);
-      }
-      .phase-body strong { display: block; color: var(--ink); font-size: 0.92rem; }
-      .phase-body span { color: var(--muted); font-size: 0.82rem; }
       .badge {
         font-size: 0.68rem;
         text-transform: uppercase;
@@ -93,36 +76,6 @@
       }
       .badge.ok { color: var(--ok); }
       .badge.wip { color: var(--wip); }
-      .badge.gap { color: var(--gap); }
-      .round {
-        border-left: 3px solid var(--accent);
-        padding: 0.55rem 0.75rem;
-        margin: 0.55rem 0;
-        background: rgba(255, 193, 7, 0.04);
-      }
-      .round h3 { margin: 0 0 0.3rem; font-size: 0.95rem; }
-      .round p { margin: 0; font-size: 0.84rem; color: var(--muted); }
-      .criteria { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.45rem; }
-      .chip {
-        font-size: 0.7rem;
-        padding: 0.18rem 0.45rem;
-        border: 1px solid rgba(255,255,255,0.14);
-        color: var(--muted);
-        background: rgba(0,0,0,0.25);
-      }
-      .kit {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 0.45rem;
-      }
-      .kit-item {
-        border: 1px solid rgba(255,255,255,0.08);
-        padding: 0.5rem 0.55rem;
-        background: rgba(0,0,0,0.2);
-        font-size: 0.8rem;
-      }
-      .kit-item b { display: block; color: var(--ink); margin-bottom: 0.15rem; }
-      .kit-item span { color: var(--muted); font-size: 0.74rem; }
       .nav {
         display: flex;
         flex-wrap: wrap;
@@ -131,38 +84,46 @@
         font-size: 0.88rem;
       }
       pre.diagram {
-        margin: 0.4rem 0 0;
+        margin: 0.45rem 0 0;
         padding: 0.55rem 0.65rem;
         background: #050608;
         border: 1px solid rgba(255,255,255,0.08);
-        font-size: 0.72rem;
-        line-height: 1.2;
+        font-size: 0.68rem;
+        line-height: 1.15;
         overflow: auto;
         color: #b8e986;
       }
       .rooms {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 0.75rem;
+      }
+      .room-card h3 { margin: 0 0 0.25rem; font-size: 0.92rem; }
+      .room-card .idea { margin: 0; font-size: 0.82rem; color: var(--ink); }
+      .room-card .meta { margin: 0.25rem 0 0; font-size: 0.75rem; color: var(--muted); }
+      .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.45rem; }
+      .chip {
+        font-size: 0.68rem;
+        padding: 0.15rem 0.4rem;
+        border: 1px solid rgba(255,255,255,0.14);
+        color: var(--muted);
+      }
+      .phase { display: grid; gap: 0.45rem; }
+      .phase-row {
+        display: grid;
+        grid-template-columns: 4rem 1fr auto;
         gap: 0.65rem;
+        padding: 0.45rem 0.55rem;
+        border: 1px solid rgba(255,255,255,0.06);
+        background: rgba(0,0,0,0.22);
+        font-size: 0.88rem;
       }
-      .room-card h3 { margin: 0 0 0.25rem; font-size: 0.88rem; }
-      .room-card p { margin: 0; font-size: 0.78rem; color: var(--muted); }
-      table.score {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.8rem;
-      }
-      table.score th, table.score td {
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-        padding: 0.35rem 0.4rem;
-        text-align: left;
-      }
-      table.score th { color: var(--accent); font-weight: 600; }
+      .phase-id { color: var(--accent); font-family: ui-monospace, monospace; font-size: 0.72rem; }
       #log {
-        font-family: ui-monospace, "IBM Plex Mono", monospace;
+        font-family: ui-monospace, monospace;
         font-size: 0.78rem;
         white-space: pre-wrap;
-        max-height: 340px;
+        max-height: 300px;
         overflow: auto;
         color: #c8d0e0;
         background: rgba(0,0,0,0.35);
@@ -172,21 +133,18 @@
     </style>
   </head>
   <body>
-    <h1><span class="mario">Mario</span> vs <span class="dk">Donkey Kong</span> — Puzzle Gauntlet</h1>
+    <h1><span class="mario">Mario</span> vs <span class="dk">Donkey Kong</span> — Room Design Gauntlet</h1>
     <p class="sub">
-      Building plan + critique loop for MvsDK-style puzzle rooms.
-      <strong>User approved</strong> — plan hard-locked. Live proto:
-      <a href="/progress/mvdk/play/">Play T1–T3</a>. Round 5 playtest + P5 polish in progress.
+      This loop is about <strong>interesting puzzle rooms</strong> — diagrams, lies, verb tension, aha beats —
+      not a playable build. Teach rooms stay simple; showcase rooms must clear the interest rubric.
     </p>
     <div class="nav">
       <a href="/progress/">← VFX gauntlet</a>
-      <a href="/progress/mvdk/play/"><strong>▶ Play T1–T3 proto</strong></a>
-      <a href="/">Playground</a>
-      <a href="/progress/mvdk/BUILDING_PLAN.md">BUILDING_PLAN</a>
-      <a href="/progress/mvdk/MECHANICS.md">MECHANICS</a>
-      <a href="/progress/mvdk/ROOMS.md">ROOMS</a>
+      <a href="/progress/mvdk/INTEREST.md"><strong>INTEREST rubric</strong></a>
+      <a href="/progress/mvdk/SHOWCASE.md"><strong>SHOWCASE S1–S7</strong></a>
+      <a href="/progress/mvdk/ROOMS.md">Teach T1–T8</a>
       <a href="/progress/mvdk/WORLDS.md">WORLDS</a>
-      <a href="/progress/mvdk/PLAYTEST.md">PLAYTEST</a>
+      <a href="/progress/mvdk/MECHANICS.md">MECHANICS</a>
       <a href="/progress/mvdk/status.json">status.json</a>
     </div>
 
@@ -195,182 +153,132 @@
         <h2>Gauntlet status</h2>
         <p class="status ok" id="overall-status">Loading…</p>
         <ul>
-          <li><strong>Lock rule:</strong> advance on PASS (plan lock for R1–R5 paper; user hard-lock for ship)</li>
-          <li><strong>Bar:</strong> classic MvsDK construction clarity</li>
-          <li><strong>Docs:</strong> linked above</li>
+          <li><strong>Judged:</strong> room interest (six checks)</li>
+          <li><strong>Not judged:</strong> engine / playable proto</li>
+          <li><strong>Loop:</strong> propose room → score → revise or cut</li>
         </ul>
       </section>
 
       <section>
-        <h2>Design pillars (R1 PASS)</h2>
+        <h2>Interest checks</h2>
         <ul>
-          <li><strong>Readable in one glance</strong></li>
-          <li><strong>One new idea per room</strong></li>
-          <li><strong>Construction fantasy</strong></li>
+          <li><strong>One sentence idea</strong></li>
+          <li><strong>Visible lie</strong> (wrong first plan)</li>
+          <li><strong>Verb tension</strong> (carry / switch / timing cost)</li>
+          <li><strong>Aha beat</strong></li>
           <li><strong>Fair fail</strong></li>
-          <li><strong>Short early loop (≤90s)</strong></li>
+          <li><strong>Memorable silhouette</strong></li>
         </ul>
+        <p class="sub" style="margin:0.6rem 0 0">Anti-pattern: tall empty ladder, flat key-walk, switch beside its gate.</p>
       </section>
 
       <section class="wide">
-        <h2>Building plan — phases</h2>
-        <div class="phase" id="phases">
-          <div class="phase-row">
-            <div class="phase-id">P0</div>
-            <div class="phase-body"><strong>Fantasy &amp; constraints</strong><span>Tone, grid, verbs, fail/respawn.</span></div>
-            <span class="badge ok" data-phase="p0">PASS</span>
-          </div>
-          <div class="phase-row">
-            <div class="phase-id">P1</div>
-            <div class="phase-body"><strong>Mechanic kit</strong><span>Atomic verbs + combinations.</span></div>
-            <span class="badge ok" data-phase="p1">PASS</span>
-          </div>
-          <div class="phase-row">
-            <div class="phase-id">P2</div>
-            <div class="phase-body"><strong>Room templates</strong><span>T1–T8 diagrammed with aha + fails.</span></div>
-            <span class="badge ok" data-phase="p2">PASS</span>
-          </div>
-          <div class="phase-row">
-            <div class="phase-id">P3</div>
-            <div class="phase-body"><strong>World sequence</strong><span>W1 factory → W2 twist → W3 DK.</span></div>
-            <span class="badge ok" data-phase="p3">PASS</span>
-          </div>
-          <div class="phase-row">
-            <div class="phase-id">P4</div>
-            <div class="phase-body"><strong>Playtest gauntlet</strong><span>Paper rubric PASS; live re-score later.</span></div>
-            <span class="badge ok" data-phase="p4">PASS</span>
-          </div>
-          <div class="phase-row">
-            <div class="phase-id">P5</div>
-            <div class="phase-body"><strong>Polish &amp; ship bar</strong><span>Juice, audio, assists — user hard-lock.</span></div>
-            <span class="badge wip" data-phase="p5">WIP</span>
-          </div>
+        <h2>Building plan</h2>
+        <div class="phase">
+          <div class="phase-row"><div class="phase-id">P0–P3</div><div>Scope, kit, teach templates, worlds</div><span class="badge ok" data-phase="p0">PASS</span></div>
+          <div class="phase-row"><div class="phase-id">P4</div><div>Interest critique on showcase rooms</div><span class="badge ok" data-phase="p4">PASS</span></div>
+          <div class="phase-row"><div class="phase-id">P5</div><div>Design polish (names, thumbnails, notes)</div><span class="badge wip" data-phase="p5">WIP</span></div>
         </div>
+        <p class="status wip" id="round-status" style="margin-top:0.75rem">Loading…</p>
       </section>
 
       <section class="wide">
-        <h2>Gauntlet rounds</h2>
-        <p class="status ok" id="round-status">Loading…</p>
-
-        <div class="round" id="r0">
-          <h3>Round 0 — Scope lock <span class="badge ok" data-round="r0">PASS</span></h3>
-          <p>Puzzle-platformer + construction props; side-view grid; key→door / Mini-Mario. No open sandbox builder.</p>
-        </div>
-        <div class="round" id="r1">
-          <h3>Round 1 — Pillars &amp; fantasy <span class="badge ok" data-round="r1">PASS</span></h3>
-          <p>Plan lock: readable, one idea/room, construction, fair fails, short loops.</p>
-          <div class="criteria">
-            <span class="chip">one glance</span><span class="chip">one idea</span><span class="chip">fair fails</span><span class="chip">≤90s</span>
-          </div>
-        </div>
-        <div class="round" id="r2">
-          <h3>Round 2 — Mechanic kit <span class="badge ok" data-round="r2">PASS</span></h3>
-          <p>Verbs locked in MECHANICS.md. Orphan gimmicks cut. Combinations scheduled by world.</p>
-        </div>
-        <div class="round" id="r3">
-          <h3>Round 3 — Room templates <span class="badge ok" data-round="r3">PASS</span></h3>
-          <p>T1–T8 diagrammed with spawn, goal, fail, aha, target time.</p>
-        </div>
-        <div class="round" id="r4">
-          <h3>Round 4 — Sequence &amp; curve <span class="badge ok" data-round="r4">PASS</span></h3>
-          <p>W1 teach · W2 twist · W3 DK pressure. Rest rooms every 4–5 levels.</p>
-        </div>
-        <div class="round" id="r5">
-          <h3>Round 5 — Playtest gate <span class="badge ok" data-round="r5">PASS</span></h3>
-          <p>Paper scores: all T1–T8 PASS rubric. Live playtest replaces scores when proto exists.</p>
-        </div>
-      </section>
-
-      <section class="wide">
-        <h2>Mechanic kit (R2)</h2>
-        <div class="kit">
-          <div class="kit-item"><b>Walk / run</b><span>base locomotion</span></div>
-          <div class="kit-item"><b>Jump</b><span>1–2 tile gaps</span></div>
-          <div class="kit-item"><b>Ladder / girder</b><span>climb &amp; traverse</span></div>
-          <div class="kit-item"><b>Carry key</b><span>hands-full tradeoffs</span></div>
-          <div class="kit-item"><b>Switch</b><span>toggle platforms</span></div>
-          <div class="kit-item"><b>Conveyor</b><span>timing / direction</span></div>
-          <div class="kit-item"><b>Enemy patrol</b><span>predictable loops</span></div>
-          <div class="kit-item"><b>Spring / lift</b><span>vertical access</span></div>
-          <div class="kit-item"><b>DK hazard</b><span>barrels / smash beat</span></div>
-          <div class="kit-item"><b>Goal door</b><span>key or Mini-Mario</span></div>
-        </div>
-      </section>
-
-      <section class="wide">
-        <h2>Room templates (sample diagrams)</h2>
+        <h2>Showcase rooms (interest PASS)</h2>
         <div class="rooms">
           <div class="room-card">
-            <h3>T1 Teach ladder <span class="badge ok">PASS</span></h3>
-            <p>Aha: climb to door · ≤20s</p>
-            <pre class="diagram">############
-#....D.....#
-#....H.....#
-#....H.....#
-#M.........#
-############</pre>
+            <h3>S1 Wrong balcony <span class="badge ok">PASS</span></h3>
+            <p class="idea">Key is high; door is low — carrying blocks re-climb.</p>
+            <p class="meta">Lie: ladder bridges key↔door forever · Aha: drop commitment</p>
+            <pre class="diagram">##################
+#K............H..#
+#====.........H..#
+#..D..........H..#
+#=============H..#
+#M...............#
+##################</pre>
+            <div class="chips"><span class="chip">commitment</span><span class="chip">carry tension</span></div>
           </div>
           <div class="room-card">
-            <h3>T3 Switch gate <span class="badge ok">PASS</span></h3>
-            <p>Aha: switch creates path · ≤35s</p>
-            <pre class="diagram">############
-#....D.....#
-#==S....==.#
-#..........#
-#M.........#
-############</pre>
+            <h3>S2 Decoy door <span class="badge ok">PASS</span></h3>
+            <p class="idea">Switch commits you forward; fake door pulls the eye.</p>
+            <p class="meta">Lie: walk to X · Aha: ignore X, ride new girders to D</p>
+            <pre class="diagram">####################
+#....X.........D...#
+#~~~~====~~~~====..#
+#...S..............#
+#==================#
+#M.................#
+####################</pre>
+            <div class="chips"><span class="chip">misdirection</span><span class="chip">no undo</span></div>
           </div>
           <div class="room-card">
-            <h3>T5 Key + enemy <span class="badge ok">PASS</span></h3>
-            <p>Aha: time pickup past patrol · ≤50s</p>
-            <pre class="diagram">############
-#K.......D.#
-#..E.......#
-#==========#
-#M.........#
-############</pre>
+            <h3>S3 Belt prep <span class="badge ok">PASS</span></h3>
+            <p class="idea">Reverse the conveyor <em>before</em> grabbing the key.</p>
+            <p class="meta">Lie: key then door · Aha: switch first or belt traps you</p>
+            <pre class="diagram">####################
+#K...............D.#
+#<<<<<<<<<<<<<<<<==#
+#........S.........#
+#==================#
+#M.................#
+####################</pre>
+            <div class="chips"><span class="chip">prep order</span><span class="chip">hands-full</span></div>
           </div>
           <div class="room-card">
-            <h3>T8 DK pressure <span class="badge ok">PASS</span></h3>
-            <p>Aha: move between barrel beats · ≤75s</p>
-            <pre class="diagram">##############
-#B B B ......#
-#......K...D.#
-#====....====#
-#M...........#
-##############</pre>
+            <h3>S4 Enemy step <span class="badge ok">PASS</span></h3>
+            <p class="idea">The patrol is the stepping stone to the key.</p>
+            <p class="meta">Lie: avoid E · Aha: bounce on E to reach K</p>
+            <pre class="diagram">##################
+#....K...........#
+#========E=======#
+#..............D.#
+#M===============#
+##################</pre>
+            <div class="chips"><span class="chip">reframe threat</span><span class="chip">timing</span></div>
+          </div>
+          <div class="room-card">
+            <h3>S5 Greedy keys <span class="badge ok">PASS</span></h3>
+            <p class="idea">Door needs one key; taking both blocks the ladder.</p>
+            <p class="meta">Lie: collect everything · Aha: leave one key behind</p>
+            <pre class="diagram">####################
+#K1......X......K2.#
+#====........====..#
+#........H....D....#
+#M=======H=========#
+####################</pre>
+            <div class="chips"><span class="chip">greed trap</span><span class="chip">optionalism</span></div>
+          </div>
+          <div class="room-card">
+            <h3>S6 DK metronome <span class="badge ok">PASS</span></h3>
+            <p class="idea">Barrel rhythm is the puzzle clock for a hold-switch.</p>
+            <p class="meta">Lie: sprint through · Aha: stand through beats on purpose</p>
+            <pre class="diagram">######################
+#B1..B2..B3..........#
+#....K....S.......D..#
+#====.====.==========#
+#M...................#
+######################</pre>
+            <div class="chips"><span class="chip">rhythm</span><span class="chip">DK as idea</span></div>
+          </div>
+          <div class="room-card">
+            <h3>S7 Spring or softlock <span class="badge ok">PASS</span></h3>
+            <p class="idea">Key is in a pit under the door; the “optional” spring is the only way up with it.</p>
+            <p class="meta">Lie: drop for key, climb back · Aha: spring is mandatory</p>
+            <pre class="diagram">##################
+#..............D.#
+#............====#
+#....^........K..#
+#============....#
+#M...............#
+##################</pre>
+            <div class="chips"><span class="chip">false optional</span><span class="chip">softlock bait</span></div>
           </div>
         </div>
-        <p class="sub" style="margin:0.75rem 0 0">Full T1–T8 + QA checklist: <a href="/progress/mvdk/ROOMS.md">ROOMS.md</a></p>
-      </section>
-
-      <section>
-        <h2>World sequence (R4)</h2>
-        <ul>
-          <li><strong>W1 Toy Factory</strong> — teach ladder→key→switch→conveyor; rest; light spike</li>
-          <li><strong>W2 Girder Gardens</strong> — key+enemy, reverse conveyor, switch order, false path</li>
-          <li><strong>W3 DK Rooftop</strong> — barrels → key under fire → finale smash cycle</li>
-        </ul>
-        <p class="sub" style="margin:0.6rem 0 0"><a href="/progress/mvdk/WORLDS.md">WORLDS.md</a></p>
-      </section>
-
-      <section>
-        <h2>Playtest scores (R5 paper)</h2>
-        <table class="score">
-          <thead><tr><th>Room</th><th>Result</th></tr></thead>
-          <tbody>
-            <tr><td>T1–T5</td><td class="status ok">PASS</td></tr>
-            <tr><td>T6 Multi-switch</td><td class="status ok">PASS (reversible)</td></tr>
-            <tr><td>T7 False path</td><td class="status ok">PASS</td></tr>
-            <tr><td>T8 DK pressure</td><td class="status ok">PASS</td></tr>
-          </tbody>
-        </table>
-        <p class="sub" style="margin:0.6rem 0 0"><a href="/progress/mvdk/PLAYTEST.md">PLAYTEST.md</a> — live re-score when proto exists</p>
       </section>
 
       <section class="wide">
         <h2>Loop log</h2>
-        <div id="log">Loading MvsDK gauntlet status…</div>
+        <div id="log">Loading…</div>
       </section>
     </div>
 
@@ -380,8 +288,7 @@
           const res = await fetch('/progress/mvdk/status.json?' + Date.now());
           if (!res.ok) return;
           const data = await res.json();
-          const log = document.getElementById('log');
-          if (data.log) log.textContent = data.log;
+          if (data.log) document.getElementById('log').textContent = data.log;
           if (data.overall) {
             const el = document.getElementById('overall-status');
             el.textContent = data.overall.text;
@@ -394,21 +301,13 @@
           }
           if (data.phases) {
             for (const [id, info] of Object.entries(data.phases)) {
-              const badge = document.querySelector('[data-phase="' + id + '"]');
-              if (!badge) continue;
-              badge.textContent = info.label || String(info.class || '').toUpperCase();
-              badge.className = 'badge ' + (info.class || 'gap');
+              document.querySelectorAll('[data-phase="' + id + '"]').forEach((badge) => {
+                badge.textContent = info.label;
+                badge.className = 'badge ' + info.class;
+              });
             }
           }
-          if (data.rounds) {
-            for (const [id, info] of Object.entries(data.rounds)) {
-              const badge = document.querySelector('[data-round="' + id + '"]');
-              if (!badge) continue;
-              badge.textContent = info.label || String(info.class || '').toUpperCase();
-              badge.className = 'badge ' + (info.class || 'gap');
-            }
-          }
-        } catch (_) { /* ignore */ }
+        } catch (_) {}
       }
       tick();
       setInterval(tick, 4000);

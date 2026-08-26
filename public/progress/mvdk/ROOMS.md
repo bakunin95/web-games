@@ -1,4 +1,8 @@
-# Room templates T1–T8 — Round 3
+# Room templates T1–T8 — Round 3 (teach / clarity)
+
+These rooms teach verbs. They are **not** judged for “interesting.”
+
+For interest-scored rooms see **`SHOWCASE.md`** (S1–S6+) and the rubric in **`INTEREST.md`**.
 
 Legend: `M` Mario spawn · `D` door · `K` key · `S` switch · `E` enemy · `^` spring · `>` conveyor · `H` ladder · `#` solid · `=` girder · `.` air · `B` barrel path
 

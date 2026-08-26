@@ -80,28 +80,8 @@ Idea: switch fills `~`. Teach only.
 
 ---
 
-### S2 — Switch that opens the wrong gap
-**One sentence:** The obvious switch bridges you toward a fake door; the real path opens *behind* Mario when the same switch retracts the floor he stood on.
-
-```
-####################
-#........X.......D.#
-#~~~~~~~~~~~~~~~~==#
-#S==============...#
-#..................#
-#M.................#
-####################
-```
-(`~` = open pit when switch ON; `=` when OFF. At start switch is OFF = solid walk to S.)
-
-| Check | Score | Note |
-|-------|-------|------|
-| One idea | PASS | Same switch, two opposite effects |
-| Visible lie | PASS | Fake door X pulls attention right |
-| Verb tension | PASS | Leaving the switch pad collapses the approach |
-| Aha | PASS | You must hit S then run *left/back* before floor drops… wait — redesign: |
-
-**Refined rule:** Start: path to S solid. Hitting S (1) opens bridge under X→D side *and* (2) opens a hole behind S so you cannot return the same way—you must take the new bridge. Fake door X is locked; real D is past a second gap that only exists after S.
+### S2 — Decoy door / commit switch
+**One sentence:** Hitting the switch raises the path past a fake door and burns the safe return — you commit forward or fall.
 
 ```
 ####################
@@ -112,7 +92,7 @@ Idea: switch fills `~`. Teach only.
 #M.................#
 ####################
 ```
-Start: lower deck solid. S raises mid bridges (`=` appear on `~` rows) and *removes* the safe walk back under X (X stays fake).
+Start: lower deck solid. S raises mid bridges (`=` fill `~`) and removes the safe walk under X. X stays fake/locked; real D is past the second bridge.
 
 | Check | Score | Note |
 |-------|-------|------|
@@ -123,6 +103,8 @@ Start: lower deck solid. S raises mid bridges (`=` appear on `~` rows) and *remo
 | Fair fail | PASS | Fall resets switch |
 | Silhouette | PASS | Twin bridges + decoy door |
 
+**Lie:** “Walk to the door on the right.”  
+**Aha:** X is bait; the raised girders lead past it to D.  
 **Result: PASS**
 
 ---
@@ -235,20 +217,50 @@ Start: lower deck solid. S raises mid bridges (`=` appear on `~` rows) and *remo
 
 ---
 
+### S7 — Spring or softlock
+**One sentence:** The key sits in a pit under the door ledge; the spring looks like optional juice, but it is the only way back up while carrying.
+
+```
+##################
+#..............D.#
+#............====#
+#....^........K..#
+#============....#
+#M...............#
+##################
+```
+(Door above right. Key in low pocket. Without `^`, grab K = softlock. With spring, bounce to door ledge.)
+
+| Check | Score | Note |
+|-------|-------|------|
+| One idea | PASS | Optional-looking spring is mandatory |
+| Visible lie | PASS | “Drop for key, climb back” (no climb) |
+| Verb tension | PASS | Carry + need vertical without ladder |
+| Aha | PASS | Spring *is* the puzzle |
+| Fair fail | PASS | Softlock exits via drop-key / reset |
+| Silhouette | PASS | Pit key under door shelf + lonely spring |
+
+**Lie:** “Key is below the door — easy drop.”  
+**Aha:** The spring you walked past is the only exit with the key.  
+**Result: PASS**
+
+---
+
 ## Interest gauntlet scoreboard
 
 | Room | Role | Interest |
 |------|------|----------|
 | T1–T3 | teach | exempt |
 | S1 Wrong balcony | showcase | **PASS** |
-| S2 Wrong gap / decoy door | showcase | **PASS** |
+| S2 Decoy door / commit | showcase | **PASS** |
 | S3 Belt prep | showcase | **PASS** |
 | S4 Enemy step | showcase | **PASS** |
 | S5 Greedy keys | showcase | **PASS** |
 | S6 DK metronome | showcase | **PASS** |
+| S7 Spring or softlock | showcase | **PASS** |
 
 ## World placement (design only)
 
 - **W1:** T1–T3 → S1 (first real aha)
-- **W2:** S2, S3, S5
+- **W2:** S2, S3, S5, S7
 - **W3:** S4, S6 (DK as idea, not noise)
