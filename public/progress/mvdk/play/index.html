@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MvsDK Proto — T1–T3</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0c10;
+        --ink: #f2efe6;
+        --muted: #9aa3b5;
+        --accent: #ffc107;
+        --mario: #e52521;
+        --ok: #5dff9a;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+        background:
+          radial-gradient(ellipse 80% 40% at 20% 0%, rgba(229, 37, 33, 0.16), transparent 50%),
+          linear-gradient(180deg, #141820, var(--bg));
+        color: var(--ink);
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        place-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+      }
+      header {
+        width: min(960px, 100%);
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 0.5rem;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.05rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      h1 span { color: var(--mario); }
+      .meta { color: var(--muted); font-size: 0.85rem; }
+      a { color: var(--accent); }
+      #wrap {
+        position: relative;
+        border: 2px solid rgba(255, 193, 7, 0.35);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+        background: #050608;
+      }
+      canvas { display: block; image-rendering: pixelated; }
+      #hud {
+        position: absolute;
+        left: 10px;
+        top: 8px;
+        font-size: 12px;
+        color: #fff;
+        text-shadow: 0 1px 2px #000;
+        pointer-events: none;
+        line-height: 1.45;
+      }
+      #banner {
+        position: absolute;
+        inset: 0;
+        display: none;
+        place-items: center;
+        background: rgba(0, 0, 0, 0.55);
+        text-align: center;
+        padding: 1rem;
+      }
+      #banner.show { display: grid; }
+      #banner h2 { margin: 0 0 0.4rem; color: var(--ok); font-size: 1.4rem; }
+      #banner p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+      footer {
+        width: min(960px, 100%);
+        color: var(--muted);
+        font-size: 0.82rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.25rem;
+      }
+      .rooms { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+      button.room {
+        appearance: none;
+        border: 1px solid rgba(255, 193, 7, 0.4);
+        background: rgba(0, 0, 0, 0.35);
+        color: var(--ink);
+        padding: 0.35rem 0.65rem;
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.8rem;
+      }
+      button.room.active {
+        background: rgba(255, 193, 7, 0.2);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      button.room:hover { border-color: var(--accent); }
+      kbd {
+        font-family: ui-monospace, monospace;
+        font-size: 0.75rem;
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 0.05rem 0.3rem;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1><span>MvsDK</span> Proto · Teach rooms</h1>
+      <div class="meta">
+        <a href="/progress/mvdk/">← Gauntlet plan</a>
+        · Live playtest for T1–T3
+      </div>
+    </header>
+
+    <div id="wrap">
+      <canvas id="c" width="768" height="448" aria-label="Mario vs DK puzzle room"></canvas>
+      <div id="hud"></div>
+      <div id="banner"><div><h2 id="banner-title">Clear!</h2><p id="banner-sub">Press Enter / N for next room</p></div></div>
+    </div>
+
+    <footer>
+      <div class="rooms" id="room-btns"></div>
+      <div>
+        Move <kbd>A</kbd>/<kbd>D</kbd> or ←/→ · Jump <kbd>Space</kbd>/<kbd>W</kbd>/<kbd>↑</kbd>
+        · Climb <kbd>W</kbd>/<kbd>S</kbd> on ladder · Reset <kbd>R</kbd> · Next <kbd>N</kbd>
+      </div>
+    </footer>
+
+    <script type="module" src="./game.js"></script>
+  </body>
+</html>
