@@ -1,10 +1,10 @@
 {
   "overall": {
-    "text": "ACTIVE — Doghouse Level Gauntlet. Rooms 0–3 PASS. Next: Room 4 plate parking.",
-    "class": "wip"
+    "text": "PASS — Doghouse Level Gauntlet CLEARED. Curriculum rooms 0–9 locked (builder→critic).",
+    "class": "ok"
   },
   "round": {
-    "text": "Rooms 2–3 LOCKED this pass (key shop, crate step). Next: pressure plate + door.",
+    "text": "All rooms PASS. 3 bones → bed. Alley doors + vertical interiors. No DK/Mario.",
     "class": "ok"
   },
   "rooms": {
@@ -12,12 +12,12 @@
     "r1": { "label": "PASS", "class": "ok" },
     "r2": { "label": "PASS", "class": "ok" },
     "r3": { "label": "PASS", "class": "ok" },
-    "r4": { "label": "TODO", "class": "wip" },
-    "r5": { "label": "TODO", "class": "wip" },
-    "r6": { "label": "TODO", "class": "wip" },
-    "r7": { "label": "TODO", "class": "wip" },
-    "r8": { "label": "TODO", "class": "wip" },
-    "r9": { "label": "TODO", "class": "wip" }
+    "r4": { "label": "PASS", "class": "ok" },
+    "r5": { "label": "PASS", "class": "ok" },
+    "r6": { "label": "PASS", "class": "ok" },
+    "r7": { "label": "PASS", "class": "ok" },
+    "r8": { "label": "PASS", "class": "ok" },
+    "r9": { "label": "PASS", "class": "ok" }
   },
-  "log": "Doghouse Level Gauntlet\n========================\nWin: 3 bones → glowing bed → curl up.\nStreet = hallway of doors. Height = interiors + roof.\n\nRoom 0 Backyard basics ........ PASS\nRoom 1 Deli block ............. PASS\nRoom 2 Key shop ............... PASS\nRoom 3 Crate step ............. PASS\nRoom 4 Plate parking .......... TODO\n\nR2: gold key upstairs, gate same sightline, roof bed past gate.\nR3: push crate on flat, then crate-as-step for shelf bone; loft + roof bed.\n\nFiles: /progress/doghouse/"
+  "log": "Doghouse Level Gauntlet — CLEARED\n==================================\nWin: 3 bones → glowing bed → curl up.\nStreet = hallway of doors. Height = interiors + roof.\n\nRoom 0 Backyard basics ........ PASS\nRoom 1 Deli block ............. PASS\nRoom 2 Key shop ............... PASS\nRoom 3 Crate step ............. PASS\nRoom 4 Plate parking .......... PASS\nRoom 5 Belt job ............... PASS\nRoom 6 Lift job ............... PASS\nRoom 7 Heat (slag + raft) ..... PASS\nRoom 8 Zip / roof run ......... PASS\nRoom 9 Liftworks combine ...... PASS\n\nCurriculum complete. Remix only on request.\nFiles: /progress/doghouse/"
 }

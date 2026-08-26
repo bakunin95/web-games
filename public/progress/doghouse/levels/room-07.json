@@ -1,0 +1,96 @@
+{
+  "game": "platformer",
+  "levels": [
+    {
+      "id": "dh-r07-alley",
+      "name": "Heat — Alley",
+      "order": 7,
+      "coinReward": 45,
+      "theme": "city-alley",
+      "scope": "campaign",
+      "objective": "Collect 3 bones. Cross the slag on a raft, then curl up on the roof.",
+      "width": 40,
+      "height": 16,
+      "spawn": { "x": 2.5, "y": 12 },
+      "platforms": [
+        { "x": 0, "y": 14, "w": 40, "h": 2, "kind": "floor" },
+        { "x": 0, "y": 0, "w": 40, "h": 1, "kind": "block" },
+        { "x": 0, "y": 0, "w": 0.55, "h": 16, "kind": "wall" },
+        { "x": 39.45, "y": 0, "w": 0.55, "h": 16, "kind": "wall" },
+        { "x": 12, "y": 5, "w": 10, "h": 9, "kind": "facade", "label": "SLAG" },
+        { "x": 15, "y": 3.8, "w": 3.5, "h": 0.7, "kind": "bed-landmark" },
+        { "x": 6.5, "y": 13.1, "w": 1.5, "h": 0.4, "kind": "curb" }
+      ],
+      "bones": [{ "x": 7.0, "y": 12.5 }],
+      "portals": [
+        {
+          "x": 15.5,
+          "y": 11.5,
+          "w": 2.2,
+          "h": 2.5,
+          "targetLevelId": "dh-r07-slag",
+          "targetSpawn": { "x": 3, "y": 20 },
+          "label": "SLAG"
+        }
+      ],
+      "decors": [{ "x": 13.5, "y": 4.5, "w": 4, "h": 1, "kind": "sign", "text": "SLAG WORKS" }]
+    },
+    {
+      "id": "dh-r07-slag",
+      "name": "Heat — Slag Room",
+      "order": 7,
+      "coinReward": 0,
+      "theme": "shop-interior",
+      "scope": "interior",
+      "parentLevelId": "dh-r07-alley",
+      "objective": "Raft across readable slag. Climb to the roof bed.",
+      "width": 36,
+      "height": 28,
+      "spawn": { "x": 3, "y": 20 },
+      "exit": { "x": 28, "y": 3.5, "w": 3, "h": 2 },
+      "platforms": [
+        { "x": 0, "y": 0, "w": 0.55, "h": 28, "kind": "wall" },
+        { "x": 35.45, "y": 0, "w": 0.55, "h": 28, "kind": "wall" },
+        { "x": 0, "y": 0, "w": 36, "h": 1, "kind": "block" },
+        { "x": 0, "y": 22, "w": 10, "h": 1.1, "kind": "floor" },
+        { "x": 22, "y": 22, "w": 13, "h": 1.1, "kind": "floor" },
+        { "x": 10, "y": 23.2, "w": 12, "h": 2.2, "kind": "lava", "edge": "readable" },
+        { "x": 30, "y": 19.5, "w": 3, "h": 0.5, "kind": "shelf", "label": "escape-ledge" },
+        { "x": 0, "y": 12, "w": 36, "h": 1.0, "kind": "floor", "label": "story-2" },
+        { "x": 16, "y": 10.6, "w": 3, "h": 0.45, "kind": "shelf" },
+        { "x": 0, "y": 5.0, "w": 36, "h": 0.9, "kind": "floor", "label": "roof" },
+        { "x": 28, "y": 3.8, "w": 3.5, "h": 0.75, "kind": "bed" },
+        { "x": 32, "y": 13, "w": 0.7, "h": 9, "kind": "ladder", "solid": false },
+        { "x": 30, "y": 5.0, "w": 0.7, "h": 7, "kind": "ladder", "solid": false }
+      ],
+      "waters": [
+        { "x": 10, "y": 23.2, "w": 12, "h": 2.2, "kind": "lava", "deadly": true }
+      ],
+      "rafts": [
+        { "id": "raft-1", "x": 9.2, "y": 21.3, "w": 2.2, "h": 0.7, "paddle": true }
+      ],
+      "conveyors": [
+        { "id": "belt-dock", "x": 22, "y": 21.5, "w": 6, "h": 0.5, "dir": "left", "speed": 2.0 }
+      ],
+      "bones": [
+        { "x": 24.5, "y": 20.8 },
+        { "x": 17.2, "y": 9.8 }
+      ],
+      "portals": [
+        {
+          "x": 1.5,
+          "y": 19.5,
+          "w": 2.0,
+          "h": 2.5,
+          "targetLevelId": "dh-r07-alley",
+          "targetSpawn": { "x": 16.5, "y": 12 },
+          "label": "ALLEY"
+        }
+      ],
+      "decors": [
+        { "x": 11, "y": 21.0, "w": 2, "h": 0.6, "kind": "sign", "text": "HOT" },
+        { "x": 30, "y": 18.5, "w": 2.5, "h": 0.6, "kind": "sign", "text": "LEDGE" }
+      ]
+    }
+  ]
+}

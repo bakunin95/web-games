@@ -186,22 +186,19 @@
       <a href="/progress/">← Progress hub</a>
       <a href="/progress/doghouse/PLAN.md"><strong>PLAN</strong></a>
       <a href="/progress/doghouse/LEVEL-BUILDING-GUIDE.md">Author guide</a>
-      <a href="/progress/doghouse/curriculum/room-00-backyard.md">Room 0 note</a>
-      <a href="/progress/doghouse/curriculum/room-01-deli-block.md">Room 1 note</a>
-      <a href="/progress/doghouse/curriculum/room-02-key-shop.md">Room 2 note</a>
-      <a href="/progress/doghouse/curriculum/room-03-crate-step.md">Room 3 note</a>
-      <a href="/progress/doghouse/levels/room-00.json">JSONs</a>
+      <a href="/progress/doghouse/curriculum/room-00-backyard.md">Notes 0–9</a>
+      <a href="/progress/doghouse/levels/room-00.json">JSON packs</a>
       <a href="/progress/doghouse/status.json">status.json</a>
     </div>
 
     <div class="grid">
       <section>
         <h2>Gauntlet status</h2>
-        <p class="status wip" id="overall-status">Loading…</p>
+        <p class="status ok" id="overall-status">Loading…</p>
         <ul>
           <li><strong>Win:</strong> 3 bones → glowing bed</li>
           <li><strong>Loop:</strong> note → JSON → critic → lock</li>
-          <li><strong>Next:</strong> Room 3 crate step</li>
+          <li><strong>Curriculum:</strong> Rooms 0–9 CLEARED</li>
         </ul>
       </section>
 
@@ -257,13 +254,13 @@ story 1  counter  ← portal from alley</pre>
           <div class="row"><div class="id">R0</div><div class="body"><strong>Backyard basics</strong><span>move, jump, dig, bed</span></div><span class="badge ok" data-room="r0">PASS</span></div>
           <div class="row"><div class="id">R1</div><div class="body"><strong>Deli block</strong><span>portal + 2–3 story interior (alley thesis)</span></div><span class="badge ok" data-room="r1">PASS</span></div>
           <div class="row"><div class="id">R2</div><div class="body"><strong>Key shop</strong><span>key + matching door</span></div><span class="badge ok" data-room="r2">PASS</span></div>
-          <div class="row"><div class="id">R3</div><div class="body"><strong>Crate step</strong><span>push crate as a step</span></div><span class="badge wip" data-room="r3">TODO</span></div>
-          <div class="row"><div class="id">R4</div><div class="body"><strong>Plate parking</strong><span>pressure plate + door</span></div><span class="badge wip" data-room="r4">TODO</span></div>
-          <div class="row"><div class="id">R5</div><div class="body"><strong>Belt job</strong><span>conveyor (+ crate)</span></div><span class="badge wip" data-room="r5">TODO</span></div>
-          <div class="row"><div class="id">R6</div><div class="body"><strong>Lift job</strong><span>elevator</span></div><span class="badge wip" data-room="r6">TODO</span></div>
-          <div class="row"><div class="id">R7</div><div class="body"><strong>Heat</strong><span>slag + raft / readable pit</span></div><span class="badge wip" data-room="r7">TODO</span></div>
-          <div class="row"><div class="id">R8</div><div class="body"><strong>Zip / rope</strong><span>one of: zipline or rope</span></div><span class="badge wip" data-room="r8">TODO</span></div>
-          <div class="row"><div class="id">R9</div><div class="body"><strong>Liftworks combine</strong><span>no new toy — full block</span></div><span class="badge wip" data-room="r9">TODO</span></div>
+          <div class="row"><div class="id">R3</div><div class="body"><strong>Crate step</strong><span>push crate as a step</span></div><span class="badge ok" data-room="r3">PASS</span></div>
+          <div class="row"><div class="id">R4</div><div class="body"><strong>Plate parking</strong><span>pressure plate + door</span></div><span class="badge ok" data-room="r4">PASS</span></div>
+          <div class="row"><div class="id">R5</div><div class="body"><strong>Belt job</strong><span>conveyor (+ crate)</span></div><span class="badge ok" data-room="r5">PASS</span></div>
+          <div class="row"><div class="id">R6</div><div class="body"><strong>Lift job</strong><span>elevator</span></div><span class="badge ok" data-room="r6">PASS</span></div>
+          <div class="row"><div class="id">R7</div><div class="body"><strong>Heat</strong><span>slag + raft / readable pit</span></div><span class="badge ok" data-room="r7">PASS</span></div>
+          <div class="row"><div class="id">R8</div><div class="body"><strong>Zip / roof run</strong><span>zipline</span></div><span class="badge ok" data-room="r8">PASS</span></div>
+          <div class="row"><div class="id">R9</div><div class="body"><strong>Liftworks combine</strong><span>no new toy — full block</span></div><span class="badge ok" data-room="r9">PASS</span></div>
         </div>
         <p class="status ok" id="round-status" style="margin-top:0.75rem">Loading…</p>
       </section>
@@ -308,6 +305,50 @@ DELI:  ROOF  C●  BED▬
 LOCKSMITH: s2  KEY◆ on rail (visible from s1)
            s1  counter ← enter</pre>
             <div class="chips"><span class="chip">key + door</span><span class="chip">sightline</span><span class="chip"><a href="/progress/doghouse/levels/room-02.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R3 Crate step <span class="badge ok">PASS</span></h3>
+            <p class="idea">Push on flat ground first, then park the crate under a high shelf and step up.</p>
+            <p class="meta">A curb · B shelf via crate · C loft · bed on stockroom roof</p>
+            <pre class="diagram">ALLEY: A●  [STOCKROOM]  bed landmark↑
+STOCK: s1 ▢crate → B● · s2 C● · roof BED</pre>
+            <div class="chips"><span class="chip">crate</span><span class="chip"><a href="/progress/doghouse/levels/room-03.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R4 Plate parking <span class="badge ok">PASS</span></h3>
+            <p class="idea">Park crate on plate; shutter in the same sightline stays open.</p>
+            <pre class="diagram">LOADING: ▢→PLATE · DOOR▮ · B● bay · C● loft · BED</pre>
+            <div class="chips"><span class="chip">plate</span><span class="chip"><a href="/progress/doghouse/levels/room-04.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R5 Belt job <span class="badge ok">PASS</span></h3>
+            <p class="idea">Ride the belt; crate can ride for a step.</p>
+            <pre class="diagram">FOUNDRY: >>>belt>>> B● · ▢ on belt → ledge · C● catwalk · BED</pre>
+            <div class="chips"><span class="chip">conveyor</span><span class="chip"><a href="/progress/doghouse/levels/room-05.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R6 Lift job <span class="badge ok">PASS</span></h3>
+            <p class="idea">Elevator cabin starts at lowY (top); ride stories.</p>
+            <pre class="diagram">LIFTWORKS: s1 call · lift ↕ · B● s2 · C● roof BED · lowY=top</pre>
+            <div class="chips"><span class="chip">elevator</span><span class="chip"><a href="/progress/doghouse/levels/room-06.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R7 Heat <span class="badge ok">PASS</span></h3>
+            <p class="idea">Raft across readable slag; escape ledge always.</p>
+            <pre class="diagram">SLAG: raft≈≈≈ B● shore · ledge · C● · BED</pre>
+            <div class="chips"><span class="chip">raft</span><span class="chip"><a href="/progress/doghouse/levels/room-07.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R8 Zip / roof run <span class="badge ok">PASS</span></h3>
+            <p class="idea">Safe grab zipline across roofs (no rope).</p>
+            <pre class="diagram">ROOFS: zip—— B● mid · zip—— C● BED</pre>
+            <div class="chips"><span class="chip">zipline</span><span class="chip"><a href="/progress/doghouse/levels/room-08.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R9 Liftworks combine <span class="badge ok">PASS</span></h3>
+            <p class="idea">No new toy: dig key → lift → plate → zip → roof bed (rain alley).</p>
+            <pre class="diagram">dig KEY · lift+▢ · PLATE · zip · C● BED</pre>
+            <div class="chips"><span class="chip">combine</span><span class="chip"><a href="/progress/doghouse/levels/room-09.json">JSON</a></span></div>
           </div>
         </div>
       </section>
