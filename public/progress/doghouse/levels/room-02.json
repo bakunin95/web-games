@@ -1,0 +1,128 @@
+{
+  "game": "platformer",
+  "levels": [
+    {
+      "id": "dh-r02-alley",
+      "name": "Key Shop — Alley",
+      "order": 2,
+      "coinReward": 35,
+      "theme": "city-alley",
+      "scope": "campaign",
+      "objective": "Collect 3 bones. Get the gold key from the locksmith, open the gate, curl up on the roof bed.",
+      "width": 52,
+      "height": 16,
+      "spawn": { "x": 2.5, "y": 12 },
+      "exit": { "x": 46, "y": 4.2, "w": 3, "h": 2 },
+      "platforms": [
+        { "x": 0, "y": 14, "w": 52, "h": 2, "kind": "floor" },
+        { "x": 0, "y": 0, "w": 52, "h": 1, "kind": "block" },
+        { "x": 0, "y": 0, "w": 0.55, "h": 16, "kind": "wall" },
+        { "x": 51.45, "y": 0, "w": 0.55, "h": 16, "kind": "wall" },
+
+        { "x": 10, "y": 6, "w": 7, "h": 8, "kind": "facade", "label": "LOCKSMITH" },
+        { "x": 19, "y": 8, "w": 5, "h": 6, "kind": "facade", "label": "SHUTTERED" },
+
+        { "x": 28, "y": 10, "w": 1.2, "h": 4, "kind": "door", "doorId": "gate-gold", "color": "yellow", "locked": true },
+        { "x": 28, "y": 9.2, "w": 1.4, "h": 0.35, "kind": "gate-frame" },
+
+        { "x": 32, "y": 12.4, "w": 2.2, "h": 0.5, "kind": "shelf" },
+        { "x": 36, "y": 11.2, "w": 2.2, "h": 0.5, "kind": "shelf" },
+        { "x": 40, "y": 10.0, "w": 2.4, "h": 0.5, "kind": "shelf" },
+
+        { "x": 43.5, "y": 8.5, "w": 0.7, "h": 5.5, "kind": "ladder", "solid": false },
+        { "x": 44, "y": 5.5, "w": 6, "h": 0.7, "kind": "floor", "label": "roof" },
+        { "x": 46, "y": 4.3, "w": 3.5, "h": 0.75, "kind": "bed" },
+
+        { "x": 6.5, "y": 13.1, "w": 1.5, "h": 0.4, "kind": "curb" }
+      ],
+      "bones": [
+        { "x": 7.0, "y": 12.5 },
+        { "x": 37.0, "y": 10.4 },
+        { "x": 48.2, "y": 4.7 }
+      ],
+      "doors": [
+        {
+          "id": "gate-gold",
+          "color": "yellow",
+          "x": 28,
+          "y": 10,
+          "w": 1.2,
+          "h": 4,
+          "kind": "gate",
+          "requiresKey": "yellow"
+        }
+      ],
+      "portals": [
+        {
+          "x": 12.2,
+          "y": 11.5,
+          "w": 2.2,
+          "h": 2.5,
+          "targetLevelId": "dh-r02-locksmith",
+          "targetSpawn": { "x": 3, "y": 20 },
+          "label": "LOCKSMITH"
+        }
+      ],
+      "decors": [
+        { "x": 10.5, "y": 5.2, "w": 3.2, "h": 1.1, "kind": "sign", "text": "LOCKSMITH" },
+        { "x": 27.2, "y": 8.5, "w": 2.5, "h": 0.8, "kind": "sign", "text": "GATE" },
+        { "x": 46.2, "y": 3.2, "w": 2.4, "h": 0.8, "kind": "sign", "text": "BED" }
+      ]
+    },
+    {
+      "id": "dh-r02-locksmith",
+      "name": "Key Shop — Locksmith Interior",
+      "order": 2,
+      "coinReward": 0,
+      "theme": "shop-interior",
+      "scope": "interior",
+      "parentLevelId": "dh-r02-alley",
+      "objective": "Climb to the gold key on story 2 (visible from the floor), then return to the alley.",
+      "width": 24,
+      "height": 28,
+      "spawn": { "x": 3, "y": 20 },
+      "platforms": [
+        { "x": 0, "y": 0, "w": 0.55, "h": 28, "kind": "wall" },
+        { "x": 23.45, "y": 0, "w": 0.55, "h": 28, "kind": "wall" },
+        { "x": 0, "y": 0, "w": 24, "h": 1, "kind": "block" },
+
+        { "x": 0, "y": 22, "w": 24, "h": 1.1, "kind": "floor", "label": "story-1" },
+        { "x": 5, "y": 20.6, "w": 4, "h": 0.5, "kind": "counter" },
+
+        { "x": 0, "y": 14, "w": 24, "h": 1.0, "kind": "floor", "label": "story-2" },
+        { "x": 14, "y": 12.8, "w": 4, "h": 0.45, "kind": "rail" },
+
+        { "x": 0, "y": 7, "w": 24, "h": 0.9, "kind": "floor", "label": "story-3" },
+        { "x": 8, "y": 5.8, "w": 3, "h": 0.4, "kind": "shelf" },
+
+        { "x": 20.5, "y": 15, "w": 0.7, "h": 7, "kind": "ladder", "solid": false },
+        { "x": 3, "y": 8, "w": 0.7, "h": 6, "kind": "ladder", "solid": false }
+      ],
+      "keys": [
+        {
+          "id": "key-gold",
+          "color": "yellow",
+          "x": 15.5,
+          "y": 12.2,
+          "carried": false
+        }
+      ],
+      "bones": [],
+      "portals": [
+        {
+          "x": 1.5,
+          "y": 19.5,
+          "w": 2.0,
+          "h": 2.5,
+          "targetLevelId": "dh-r02-alley",
+          "targetSpawn": { "x": 13.2, "y": 12 },
+          "label": "ALLEY"
+        }
+      ],
+      "decors": [
+        { "x": 15.0, "y": 11.0, "w": 1.2, "h": 0.9, "kind": "sign", "text": "KEY" },
+        { "x": 6, "y": 18.5, "w": 2, "h": 2, "kind": "tool-rack" }
+      ]
+    }
+  ]
+}

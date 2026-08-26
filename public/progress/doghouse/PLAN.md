@@ -23,8 +23,8 @@ Stop after a pass. Do not “improve” a passed room in the same round.
 |---|------|-----|--------|
 | 0 | Backyard basics | move, jump, dig, bed | **PASS** |
 | 1 | Deli block (alley thesis) | portal + 2–3 story interior | **PASS** |
-| 2 | Key shop | key + door | TODO |
-| 3 | Crate step | push crate as step | TODO |
+| 2 | Key shop | key + door | **PASS** |
+| 3 | Crate step | push crate as step | **PASS** |
 | 4 | Plate parking | pressure plate + door | TODO |
 | 5 | Belt job | conveyor | TODO |
 | 6 | Lift job | elevator | TODO |

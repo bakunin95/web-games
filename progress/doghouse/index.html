@@ -188,8 +188,9 @@
       <a href="/progress/doghouse/LEVEL-BUILDING-GUIDE.md">Author guide</a>
       <a href="/progress/doghouse/curriculum/room-00-backyard.md">Room 0 note</a>
       <a href="/progress/doghouse/curriculum/room-01-deli-block.md">Room 1 note</a>
-      <a href="/progress/doghouse/levels/room-00.json">room-00.json</a>
-      <a href="/progress/doghouse/levels/room-01.json">room-01.json</a>
+      <a href="/progress/doghouse/curriculum/room-02-key-shop.md">Room 2 note</a>
+      <a href="/progress/doghouse/curriculum/room-03-crate-step.md">Room 3 note</a>
+      <a href="/progress/doghouse/levels/room-00.json">JSONs</a>
       <a href="/progress/doghouse/status.json">status.json</a>
     </div>
 
@@ -200,7 +201,7 @@
         <ul>
           <li><strong>Win:</strong> 3 bones → glowing bed</li>
           <li><strong>Loop:</strong> note → JSON → critic → lock</li>
-          <li><strong>Next:</strong> Room 2 key shop</li>
+          <li><strong>Next:</strong> Room 3 crate step</li>
         </ul>
       </section>
 
@@ -255,7 +256,7 @@ story 1  counter  ← portal from alley</pre>
         <div class="curriculum" id="curriculum">
           <div class="row"><div class="id">R0</div><div class="body"><strong>Backyard basics</strong><span>move, jump, dig, bed</span></div><span class="badge ok" data-room="r0">PASS</span></div>
           <div class="row"><div class="id">R1</div><div class="body"><strong>Deli block</strong><span>portal + 2–3 story interior (alley thesis)</span></div><span class="badge ok" data-room="r1">PASS</span></div>
-          <div class="row"><div class="id">R2</div><div class="body"><strong>Key shop</strong><span>key + matching door</span></div><span class="badge wip" data-room="r2">TODO</span></div>
+          <div class="row"><div class="id">R2</div><div class="body"><strong>Key shop</strong><span>key + matching door</span></div><span class="badge ok" data-room="r2">PASS</span></div>
           <div class="row"><div class="id">R3</div><div class="body"><strong>Crate step</strong><span>push crate as a step</span></div><span class="badge wip" data-room="r3">TODO</span></div>
           <div class="row"><div class="id">R4</div><div class="body"><strong>Plate parking</strong><span>pressure plate + door</span></div><span class="badge wip" data-room="r4">TODO</span></div>
           <div class="row"><div class="id">R5</div><div class="body"><strong>Belt job</strong><span>conveyor (+ crate)</span></div><span class="badge wip" data-room="r5">TODO</span></div>
@@ -296,6 +297,17 @@ DELI:  ROOF  C●  BED▬
        s2    B● shelf
        s1    counter ← enter</pre>
             <div class="chips"><span class="chip">alley thesis</span><span class="chip">3 stories</span><span class="chip"><a href="/progress/doghouse/levels/room-01.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R2 Key shop <span class="badge ok">PASS</span></h3>
+            <p class="idea">Gold key upstairs in the locksmith — open the alley gate that shares its sightline.</p>
+            <p class="meta">A curb · key on story 2 · B past gate · C + bed on fire-escape roof</p>
+            <pre class="diagram">ALLEY: A● [LOCKSMITH] … GATE▮ … B● jumps … C● BED▬
+              portal↑         same sightline
+
+LOCKSMITH: s2  KEY◆ on rail (visible from s1)
+           s1  counter ← enter</pre>
+            <div class="chips"><span class="chip">key + door</span><span class="chip">sightline</span><span class="chip"><a href="/progress/doghouse/levels/room-02.json">JSON</a></span></div>
           </div>
         </div>
       </section>
