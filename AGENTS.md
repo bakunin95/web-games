@@ -6,6 +6,8 @@ VFX Playground — atmospheric Canvas 2D effects with live parameter tweaking. S
 
 ### Services
 - **VFX Playground (Vite)** — only app in this repo. Start with `pnpm dev` (binds `0.0.0.0:5173`). Production check: `pnpm build` then `pnpm preview` on port `4173`.
+- **Progress:** `http://localhost:5173/progress/`
+- **MvsDK puzzle gauntlet:** `http://localhost:5173/progress/mvdk/` — building plan + critique rounds for Mario vs Donkey Kong–style puzzle levels (`status.json` live-updates the page).
 
 ### Commands
 - Install: `pnpm install` (lockfile: `pnpm-lock.yaml`)

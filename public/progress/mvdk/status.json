@@ -1,0 +1,29 @@
+{
+  "overall": {
+    "text": "PASS — Critique loop CLEARED. R1 (user) → kit → rooms → worlds → interest → perfect lock. Showcase S1–S10 PERFECT (R6.1).",
+    "class": "ok"
+  },
+  "round": {
+    "text": "R6 LOCKED. R6.1 fixes: S3 hatch, S4 one-bounce, S6 hold-only, S8 step, S9 latch, S10 latch scout. Set cohesion unique lies.",
+    "class": "ok"
+  },
+  "phases": {
+    "p0": { "label": "PASS", "class": "ok" },
+    "p1": { "label": "PASS", "class": "ok" },
+    "p2": { "label": "PASS", "class": "ok" },
+    "p3": { "label": "PASS", "class": "ok" },
+    "p4": { "label": "PASS", "class": "ok" },
+    "p5": { "label": "PASS", "class": "ok" },
+    "p6": { "label": "PASS", "class": "ok" }
+  },
+  "rounds": {
+    "r0": { "label": "PASS", "class": "ok" },
+    "r1": { "label": "PASS", "class": "ok" },
+    "r2": { "label": "PASS", "class": "ok" },
+    "r3": { "label": "PASS", "class": "ok" },
+    "r4": { "label": "PASS", "class": "ok" },
+    "r5": { "label": "PASS", "class": "ok" },
+    "r6": { "label": "PASS", "class": "ok" }
+  },
+  "log": "MvsDK Puzzle Gauntlet — CRITIQUE LOOP CLEARED\n==============================================\nFocus: perfect room design (not play).\n\nR0 Scope ..................... PASS (user)\nR1 Pillars ................... PASS (user)\nR2 Mechanic kit .............. PASS\nR3 Room templates ............ PASS\nR4 World sequence ............ PASS\nR5 Interest floor ............ PASS\nR6 Perfect ceiling ........... PASS LOCKED (R6.1)\nP5 Design polish ............. PASS\n\nR6.1 lock fixes:\n  S3 hatch from dock\n  S4 one bounce only\n  S6 hold unlocks key only\n  S8 visible island step\n  S9 second press latches forever\n  S10 scout switch = latch\n  Cohesion: unique lie per room\n\nShowcase S1–S10 .............. PERFECT\nPage: /progress/mvdk/"
+}
