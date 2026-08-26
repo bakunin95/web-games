@@ -1,10 +1,10 @@
 {
   "overall": {
-    "text": "PASS (user): plan hard-locked. Proto playable at /progress/mvdk/play/ — T1–T3 live. P5 polish + T4–T8 next.",
+    "text": "PASS (user) plan locked. Focus = interesting ROOM DESIGN (not play). Showcase S1–S6 cleared interest rubric; critique loop continues on new rooms.",
     "class": "ok"
   },
   "round": {
-    "text": "User approved plan. Loop active: implement + playtest proto rooms (T1–T3 shipping; T4+ queued).",
+    "text": "Active: interest critique loop — score rooms with INTEREST.md (lie / tension / aha). Showcase S1–S6 PASS. Propose next room or revise.",
     "class": "wip"
   },
   "phases": {
@@ -12,7 +12,7 @@
     "p1": { "label": "PASS", "class": "ok" },
     "p2": { "label": "PASS", "class": "ok" },
     "p3": { "label": "PASS", "class": "ok" },
-    "p4": { "label": "WIP", "class": "wip" },
+    "p4": { "label": "PASS", "class": "ok" },
     "p5": { "label": "WIP", "class": "wip" }
   },
   "rounds": {
@@ -21,7 +21,7 @@
     "r2": { "label": "PASS", "class": "ok" },
     "r3": { "label": "PASS", "class": "ok" },
     "r4": { "label": "PASS", "class": "ok" },
-    "r5": { "label": "WIP", "class": "wip" }
+    "r5": { "label": "PASS", "class": "ok" }
   },
-  "log": "MvsDK Puzzle Gauntlet — Building Plan\n=====================================\nUSER APPROVED — plan hard-locked (R0–R4).\n\nRound 1 pillars PASS (user)\nRound 2 mechanic kit PASS\nRound 3 T1–T8 templates PASS\nRound 4 W1–W3 sequence PASS\nRound 5 playtest WIP — live proto at /progress/mvdk/play/\n\nProto rooms shipping:\n  T1 Teach ladder\n  T2 Teach key\n  T3 Switch gate\n\nNext: playtest T1–T3, then T4–T8 + polish (P5).\nPage: /progress/mvdk/ · Play: /progress/mvdk/play/"
+  "log": "MvsDK Puzzle Gauntlet — ROOM DESIGN focus\n==========================================\nUser: not about playing — about interesting puzzle rooms. Pivot accepted.\n\nR0–R4 PASS (user plan lock)\nR5 Interest critique: rubric INTEREST.md\n\nTeach rooms T1–T3 = clarity only (exempt from wow)\nShowcase rooms (SHOWCASE.md):\n  S1 Wrong balcony ............. PASS\n  S2 Decoy door / commit switch . PASS\n  S3 Belt prep before key ...... PASS\n  S4 Enemy as step ............. PASS\n  S5 Greedy two-keys ........... PASS\n  S6 DK metronome hold ......... PASS\n\nInterest checks: one idea · visible lie · verb tension · aha · fair fail · silhouette\n\nNext in loop: design another showcase room OR refine S1–S6 from feedback.\nDocs: INTEREST.md · SHOWCASE.md · ROOMS.md · WORLDS.md\nPage: /progress/mvdk/"
 }

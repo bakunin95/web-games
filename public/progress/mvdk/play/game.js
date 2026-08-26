@@ -39,14 +39,14 @@ const ROOMS = [
       '########################',
       '#......................#',
       '#K...................D.#',
-      '#......................#',
-      '#====............====..#',
-      '#......................#',
-      '#......====....====....#',
+      '#====............======#',
       '#......................#',
       '#......................#',
-      '#....====........====..#',
+      '#......========........#',
       '#......................#',
+      '#......................#',
+      '#......................#',
+      '#==========............#',
       '#......................#',
       '#M.....................#',
       '########################',
@@ -62,14 +62,14 @@ const ROOMS = [
       '#......................#',
       '#....................D.#',
       '#......................#',
-      '#......................#',
       '#====S~~~~========.....#',
-      '#......................#',
-      '#......................#',
-      '#........====..........#',
-      '#......................#',
-      '#......................#',
-      '#....====..............#',
+      '#H.....................#',
+      '#H.....................#',
+      '#H.....................#',
+      '#H.....................#',
+      '#H.....................#',
+      '#H.....................#',
+      '#H.....................#',
       '#M.....................#',
       '########################',
     ],
@@ -192,72 +192,82 @@ function moveAxis(dx, dy) {
   player.x += dx;
   player.y += dy;
 
-  // Resolve solid collisions (treat girder top as solid only from above for feet)
-  const feetY = player.y + player.h;
-  const headY = player.y;
-  const left = player.x + 2;
-  const right = player.x + player.w - 2;
+  const inset = 3;
+  const left = player.x + inset;
+  const right = player.x + player.w - inset;
+  const top = player.y + 2;
+  const bottom = player.y + player.h;
+
+  const sampleSolid = (px, py, fromAbove) => {
+    const t = tileAt(px, py);
+    if (t === '#') return true;
+    if (t === '=') {
+      // girder platform: only solid near its top when landing from above
+      if (!fromAbove) return false;
+      return py % TILE <= 12;
+    }
+    return false;
+  };
 
   if (dx !== 0) {
     if (
-      solidAt(left, headY + 4) ||
-      solidAt(right, headY + 4) ||
-      solidAt(left, feetY - 4) ||
-      solidAt(right, feetY - 4)
+      sampleSolid(left, top + 6, false) ||
+      sampleSolid(right, top + 6, false) ||
+      sampleSolid(left, bottom - 6, false) ||
+      sampleSolid(right, bottom - 6, false)
     ) {
-      // push out
-      if (dx > 0) player.x = Math.floor(right / TILE) * TILE - player.w + 2;
-      else player.x = Math.floor(left / TILE) * TILE + TILE - 2;
+      if (dx > 0) player.x = Math.floor(right / TILE) * TILE - player.w + inset;
+      else player.x = Math.ceil(left / TILE) * TILE - inset;
+      // safer snap
+      if (dx > 0) player.x = Math.floor((player.x + player.w - inset) / TILE) * TILE - player.w + inset;
+      else player.x = Math.floor(left / TILE + 1) * TILE - inset;
       player.vx = 0;
     }
   }
 
-  if (dy !== 0) {
-    const hittingFloor =
-      dy > 0 &&
-      (solidAt(left, feetY) || solidAt(right, feetY) || solidAt(player.x + player.w / 2, feetY));
-    const hittingCeil =
-      dy < 0 &&
-      (solidAt(left, headY) || solidAt(right, headY));
-
-    // Girder: only collide when falling onto top surface
-    const onGirderTop = (px, py) => {
-      const t = tileAt(px, py);
-      if (t !== '=') return solidAt(px, py);
-      const local = py % TILE;
-      return local < 8;
-    };
-
-    if (dy > 0) {
-      if (
-        onGirderTop(left, feetY) ||
-        onGirderTop(right, feetY) ||
-        onGirderTop(player.x + player.w / 2, feetY)
-      ) {
-        player.y = Math.floor(feetY / TILE) * TILE - player.h;
-        // if on girder, snap to top of tile
-        const t = tileAt(player.x + player.w / 2, player.y + player.h + 1);
-        if (t === '=' || t === '#') {
-          player.y = Math.floor((player.y + player.h + 1) / TILE) * TILE - player.h;
-        }
-        player.vy = 0;
-        player.onGround = true;
+  if (dy > 0) {
+    if (
+      sampleSolid(left, bottom, true) ||
+      sampleSolid(right, bottom, true) ||
+      sampleSolid(player.x + player.w / 2, bottom, true)
+    ) {
+      player.y = Math.floor(bottom / TILE) * TILE - player.h;
+      // if girder, stand on top band
+      const t = tileAt(player.x + player.w / 2, player.y + player.h + 1);
+      if (t === '=') {
+        player.y = Math.floor((player.y + player.h + 1) / TILE) * TILE + 10 - player.h;
       }
-    } else if (hittingCeil) {
-      player.y = Math.floor(headY / TILE) * TILE + TILE;
+      player.vy = 0;
+      player.onGround = true;
+    }
+  } else if (dy < 0) {
+    if (
+      sampleSolid(left, top, false) ||
+      sampleSolid(right, top, false) ||
+      sampleSolid(player.x + player.w / 2, top, false)
+    ) {
+      player.y = Math.floor(top / TILE) * TILE + TILE - 2;
       player.vy = 0;
     }
+  }
+
+  // hard world clamp
+  if (player.x < TILE) player.x = TILE;
+  if (player.x + player.w > (COLS - 1) * TILE) player.x = (COLS - 1) * TILE - player.w;
+  if (player.y < 0) {
+    player.y = 0;
+    player.vy = 0;
   }
 }
 
 function update(dt) {
   if (cleared) return;
 
-  const left = keys.has('ArrowLeft') || keys.has('a') || keys.has('A');
-  const right = keys.has('ArrowRight') || keys.has('d') || keys.has('D');
-  const up = keys.has('ArrowUp') || keys.has('w') || keys.has('W');
-  const down = keys.has('ArrowDown') || keys.has('s') || keys.has('S');
-  const jump = keys.has(' ') || keys.has('Space') || up;
+  const left = leftHeld();
+  const right = rightHeld();
+  const up = upHeld();
+  const down = downHeld();
+  const jump = jumpHeld();
 
   const midX = player.x + player.w / 2;
   const midY = player.y + player.h * 0.5;
@@ -479,14 +489,35 @@ function frame(now) {
 
 window.addEventListener('keydown', (e) => {
   keys.add(e.key);
-  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
+  if (e.code) keys.add(e.code);
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Space'].includes(e.key) || e.code === 'Space') {
+    e.preventDefault();
+  }
   if (e.key === 'r' || e.key === 'R') resetPlayer();
   if (e.key === 'n' || e.key === 'N' || e.key === 'Enter') {
     if (cleared || e.key === 'n' || e.key === 'N') loadRoom(roomIndex + 1);
   }
   if (e.key >= '1' && e.key <= '3') loadRoom(Number(e.key) - 1);
 });
-window.addEventListener('keyup', (e) => keys.delete(e.key));
+window.addEventListener('keyup', (e) => {
+  keys.delete(e.key);
+  if (e.code) keys.delete(e.code);
+});
+canvas.addEventListener('pointerdown', () => canvas.focus());
+
+const leftHeld = () =>
+  keys.has('ArrowLeft') || keys.has('a') || keys.has('A') || keys.has('KeyA');
+const rightHeld = () =>
+  keys.has('ArrowRight') || keys.has('d') || keys.has('D') || keys.has('KeyD');
+const upHeld = () =>
+  keys.has('ArrowUp') || keys.has('w') || keys.has('W') || keys.has('KeyW');
+const downHeld = () =>
+  keys.has('ArrowDown') || keys.has('s') || keys.has('S') || keys.has('KeyS');
+const jumpHeld = () =>
+  keys.has(' ') || keys.has('Space') || keys.has('Spacebar');
+
+// Patch update to use helpers — replace local const left/right/... inside update
+void 0;
 
 ROOMS.forEach((room, i) => {
   const b = document.createElement('button');
@@ -499,3 +530,39 @@ ROOMS.forEach((room, i) => {
 
 loadRoom(0);
 requestAnimationFrame(frame);
+
+/** Test API for automated playtest */
+window.__mvdk = {
+  loadRoom,
+  resetPlayer,
+  get state() {
+    return {
+      room: ROOMS[roomIndex].id,
+      cleared,
+      hasKey,
+      switchOn,
+      deaths,
+      x: player?.x,
+      y: player?.y,
+      onLadder: player?.onLadder,
+      onGround: player?.onGround,
+    };
+  },
+  hold(key) {
+    keys.add(key);
+  },
+  release(key) {
+    keys.delete(key);
+  },
+  clearKeys() {
+    keys.clear();
+  },
+  async wait(ms) {
+    await new Promise((r) => setTimeout(r, ms));
+  },
+  async holdFor(key, ms) {
+    keys.add(key);
+    await this.wait(ms);
+    keys.delete(key);
+  },
+};

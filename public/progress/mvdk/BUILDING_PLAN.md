@@ -1,51 +1,36 @@
-# Mario vs Donkey Kong — Puzzle Building Plan (full)
+# Mario vs Donkey Kong — Puzzle Building Plan
 
 Gauntlet: `/progress/mvdk/` · Status: `/progress/mvdk/status.json`
 
-## Round 0 — Scope (PASS)
+**Focus:** designing **interesting rooms** (diagrams + critique). Not a playable build.
 
-- Side-view puzzle-platformer
-- Grid-snapped construction props (not open sandbox builder)
-- Win: key → door **or** Mini-Mario / toy goal
-- DK = pressure (barrels, smash beats), not unfair random deaths
+## Round 0 — Scope (PASS · user)
 
-## Round 1 — Pillars (PASS · plan lock)
+Side-view puzzle-platformer with construction props. Key→door / Mini-Mario. DK = readable pressure.
 
-1. **Readable in one glance** — threat, path, goal visible from spawn
-2. **One new idea per room** — then remix; never pile-on
-3. **Construction fantasy** — girders, ladders, switches, conveyors as verbs
-4. **Fair fail** — deaths teach; no hidden crush windows
-5. **Short early loop** — enter → solve → exit ≤ ~90s for World 1
+## Round 1 — Pillars (PASS · user)
+
+Readable · one idea/room · construction fantasy · fair fails · short early loops.
 
 ## Round 2 — Mechanic kit (PASS)
 
-| Verb | Teach | Combine with | Telegraph |
-|------|-------|--------------|-----------|
-| Walk / run | Always | everything | silhouette |
-| Jump (1–2 tile) | Gap room | conveyor, enemy | floor marks |
-| Climb ladder / girder | Safe climb | key carry | distinct color |
-| Carry key | Hands-full | jump, enemy | key glow + slow |
-| Switch | Toggle path | order puzzles | lever animation |
-| Conveyor | Direction/timing | jump windows | chevrons + hum |
-| Enemy patrol | Predictable loop | key risk | eyes + path dust |
-| Spring / lift | Vertical access | timing | bounce squash |
-| DK hazard | Pressure beat | while carrying | rumble + shadow |
-| Goal door | Exit | key/Mini-Mario | door light |
+See `MECHANICS.md`.
 
-**Orphan rule:** any verb without a teach room is cut.
+## Round 3 — Room templates (PASS)
 
-## Round 3 — Room templates T1–T8 (PASS)
-
-See `ROOMS.md` for ASCII diagrams, spawn/goal/fail/aha.
+Teach set T1–T8 in `ROOMS.md` (clarity).  
+Showcase set S1–S6 in `SHOWCASE.md` (interest).
 
 ## Round 4 — World sequence (PASS)
 
-See `WORLDS.md` — W1 teach, W2 twist, W3 DK setpiece + rest beats.
+See `WORLDS.md` + showcase placement in `SHOWCASE.md`.
 
-## Round 5 — Playtest gate (PASS on paper samples)
+## Round 5 — Interest critique (ACTIVE)
 
-See `PLAYTEST.md` — rubric + scored sample rooms. Softlock = FAIL. Blind insight &gt; 30s = FAIL.
+Rubric: `INTEREST.md`.  
+Showcase rooms S1–S6 scored **PASS** on paper.  
+Loop continues by proposing new rooms → score six checks → revise or cut.
 
-## Polish bar (P5)
+## P5 — Polish bar (design polish)
 
-Juice, audio telegraph, difficulty options — ship when user hard-locks.
+Naming, silhouette thumbnails, telegraph notes — not engine juice.
