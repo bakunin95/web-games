@@ -1,7 +1,7 @@
 # World sequence — perfecting curve
 
 Curve: **teach → test → twist → rest → spike**.  
-Spikes use PERFECT showcase rooms (`SHOWCASE.md` v2 + S8–S10).
+Spikes use PERFECT showcase rooms (`SHOWCASE.md` R6 LOCK / R6.1).
 
 ## World 1 — Toy Factory (intro)
 

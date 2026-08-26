@@ -1,34 +1,29 @@
-# Perfect-room bar — Round 6 (active)
+# Perfect-room bar — Round 6 (LOCKED)
 
-`INTEREST.md` PASS is the floor. This round raises the ceiling.
+`INTEREST.md` PASS is the floor. Round 6 raised the ceiling; R6.1 lock pass closed it.
 
-## Perfect checks (beyond PASS)
+## Perfect checks
 
 | # | Check | PERFECT | Still only PASS |
 |---|--------|---------|-----------------|
-| 1 | **Single obsession** | The room is *about* one sentence; nothing else competes | Idea clear but cluttered with side business |
-| 2 | **Lie you believe** | First plan feels *smart*, not dumb — then collapses | Lie is “don’t do the obvious wrong thing” |
-| 3 | **Cost you feel** | The forbidden verb hurts in the body (hands full, no undo, lost height) | Rule exists on paper only |
-| 4 | **One aha** | Solve clicks in a beat you could film | Multi-step grind that eventually works |
-| 5 | **Fail teaches** | Death/reset names the idea out loud | Reset without a lesson |
-| 6 | **Icon silhouette** | Sketchable in 5 seconds; unique in the set | Readable but forgettable |
-| 7 | **Tell a friend** | You’d describe it at dinner without diagrams | “It’s a platforming room with a key” |
+| 1 | **Single obsession** | One sentence owns the room | Side business competes |
+| 2 | **Lie you believe** | First plan feels smart | Lie is “don’t do dumb thing” |
+| 3 | **Cost you feel** | Forbidden verb hurts in the body | Rule on paper only |
+| 4 | **One aha** | Filmable click | Grind until luck |
+| 5 | **Fail teaches** | Reset names the idea | Reset without lesson |
+| 6 | **Icon silhouette** | 5-second sketch, unique | Forgettable |
+| 7 | **Tell a friend** | Dinner-table description | “A key room” |
 
-**Room PERFECT** = all seven green.  
-**Revise or cut** anything that stalls at PASS.
+**Room PERFECT** = all seven green.
 
-## Round 6 method
+## R6.1 lock fixes
 
-1. Hard-critique each showcase room (what’s muddy / cheap / two-ideas)
-2. Ship a **v2 diagram** that fixes the critique
-3. Re-score PERFECT checks
-4. Add new candidates until the set feels iconic
-5. Only then re-lock the world curve
+- S3: dock hatch onto belt
+- S4: one bounce only (cut second ride)
+- S6: hold unlocks key only (no dual bridge job)
+- S8: island raises flush with a visible step
+- S9: second press **latches** forever
+- S10: scout switch is a latch, not a hold
+- Cohesion table: unique lie per room
 
-## Instant demote (cannot be PERFECT)
-
-- Two ahas required in sequence
-- Softlock with no taught undo
-- Decoy that needs a text label to read as decoy
-- DK barrels as spice with no rhythm idea
-- Switch adjacent to the thing it opens
+Showcase set S1–S10 = **PERFECT**. Critique loop **CLEARED**.

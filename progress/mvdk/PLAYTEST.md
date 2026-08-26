@@ -1,15 +1,10 @@
-# Critique / playtest gate
+# Critique gate — CLEARED
 
-**Design-only.** Floor = `INTEREST.md`. Ceiling = `PERFECT.md`.
+Design-only. Floor `INTEREST.md` · Ceiling `PERFECT.md`.
 
-## Current lock
+| Set | Status |
+|-----|--------|
+| Teach T1–T8 | PASS (clarity) |
+| Showcase S1–S10 | **PERFECT** · R6 LOCKED |
 
-| Set | Gate | Status |
-|-----|------|--------|
-| Teach T1–T8 | clarity | PASS |
-| Showcase S1–S7 v1 | interest | PASS (superseded by v2) |
-| Showcase S1–S10 v2 | perfect | **PERFECT** (Round 6 active — keep sharpening) |
-
-Softlock *temptation* allowed if drop-key / reset was taught. Softlock with no undo = FAIL.
-
-Live player playtest is optional later — not required for this gauntlet.
+Critique loop **CLEARED** for the design package after R6.1 lock fixes.
