@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MvsDK Puzzle Gauntlet — Perfect Rooms</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0c10;
+        --panel: rgba(18, 22, 30, 0.92);
+        --ink: #f2efe6;
+        --muted: #9aa3b5;
+        --ok: #5dff9a;
+        --gap: #ff6b5a;
+        --wip: #ffc857;
+        --accent: #ffc107;
+        --mario: #e52521;
+        --line: rgba(255, 193, 7, 0.22);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+        background:
+          radial-gradient(ellipse 90% 50% at 10% -10%, rgba(229, 37, 33, 0.18), transparent 50%),
+          radial-gradient(ellipse 70% 40% at 90% 0%, rgba(255, 193, 7, 0.12), transparent 45%),
+          linear-gradient(180deg, #12151c, var(--bg));
+        color: var(--ink);
+        padding: 1.5rem clamp(1rem, 3vw, 2.5rem) 3rem;
+        line-height: 1.5;
+      }
+      h1 {
+        margin: 0 0 0.2rem;
+        font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+      h1 span.mario { color: var(--mario); }
+      h1 span.dk { color: #c48a4a; }
+      .sub { color: var(--muted); margin: 0 0 1.4rem; max-width: 70ch; }
+      a { color: var(--accent); }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+      }
+      section {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 1rem 1.1rem 1.15rem;
+      }
+      section.wide { grid-column: 1 / -1; }
+      section h2 {
+        margin: 0 0 0.7rem;
+        font-size: 0.82rem;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .status { font-size: 0.88rem; margin: 0 0 0.65rem; }
+      .status.ok { color: var(--ok); }
+      .status.gap { color: var(--gap); }
+      .status.wip { color: var(--wip); }
+      ul { margin: 0; padding-left: 1.15rem; font-size: 0.9rem; color: var(--muted); }
+      li { margin: 0.35rem 0; }
+      li strong { color: var(--ink); }
+      .badge {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 0.2rem 0.45rem;
+        border: 1px solid currentColor;
+        white-space: nowrap;
+      }
+      .badge.ok { color: var(--ok); }
+      .badge.wip { color: var(--wip); }
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        font-size: 0.88rem;
+      }
+      pre.diagram {
+        margin: 0.45rem 0 0;
+        padding: 0.55rem 0.65rem;
+        background: #050608;
+        border: 1px solid rgba(255,255,255,0.08);
+        font-size: 0.68rem;
+        line-height: 1.15;
+        overflow: auto;
+        color: #b8e986;
+      }
+      .rooms {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 0.75rem;
+      }
+      .room-card h3 { margin: 0 0 0.25rem; font-size: 0.92rem; }
+      .room-card .idea { margin: 0; font-size: 0.82rem; color: var(--ink); }
+      .room-card .meta { margin: 0.25rem 0 0; font-size: 0.75rem; color: var(--muted); }
+      .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.45rem; }
+      .chip {
+        font-size: 0.68rem;
+        padding: 0.15rem 0.4rem;
+        border: 1px solid rgba(255,255,255,0.14);
+        color: var(--muted);
+      }
+      .phase { display: grid; gap: 0.45rem; }
+      .phase-row {
+        display: grid;
+        grid-template-columns: 4rem 1fr auto;
+        gap: 0.65rem;
+        padding: 0.45rem 0.55rem;
+        border: 1px solid rgba(255,255,255,0.06);
+        background: rgba(0,0,0,0.22);
+        font-size: 0.88rem;
+      }
+      .phase-id { color: var(--accent); font-family: ui-monospace, monospace; font-size: 0.72rem; }
+      #log {
+        font-family: ui-monospace, monospace;
+        font-size: 0.78rem;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow: auto;
+        color: #c8d0e0;
+        background: rgba(0,0,0,0.35);
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 0.75rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1><span class="mario">Mario</span> vs <span class="dk">Donkey Kong</span> — Perfect Room Gauntlet</h1>
+    <p class="sub">
+      This loop designs <strong>perfect puzzle rooms</strong> — diagrams, lies, aha beats.
+      Not a playable build. Floor: interest PASS. Ceiling: <a href="/progress/mvdk/PERFECT.md">PERFECT.md</a> (locked).
+    </p>
+    <div class="nav">
+      <a href="/progress/">← VFX gauntlet</a>
+      <a href="/progress/mvdk/PERFECT.md"><strong>PERFECT bar</strong></a>
+      <a href="/progress/mvdk/INTEREST.md">INTEREST floor</a>
+      <a href="/progress/mvdk/SHOWCASE.md"><strong>SHOWCASE S1–S10</strong></a>
+      <a href="/progress/mvdk/POLISH.md">POLISH</a>
+      <a href="/progress/mvdk/WORLDS.md">WORLDS</a>
+      <a href="/progress/mvdk/MECHANICS.md">MECHANICS</a>
+      <a href="/progress/mvdk/status.json">status.json</a>
+    </div>
+
+    <div class="grid">
+      <section>
+        <h2>Gauntlet status</h2>
+        <p class="status ok" id="overall-status">Loading…</p>
+        <ul>
+          <li><strong>Judged:</strong> PERFECT seven-check bar</li>
+          <li><strong>Not judged:</strong> engine / playable proto</li>
+          <li><strong>Loop:</strong> CLEARED — S1–S10 locked PERFECT</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Perfect checks</h2>
+        <ul>
+          <li><strong>Single obsession</strong></li>
+          <li><strong>Lie you believe</strong> (smart wrong plan)</li>
+          <li><strong>Cost you feel</strong></li>
+          <li><strong>One aha</strong></li>
+          <li><strong>Fail teaches</strong></li>
+          <li><strong>Icon silhouette</strong></li>
+          <li><strong>Tell a friend</strong></li>
+        </ul>
+      </section>
+
+      <section class="wide">
+        <h2>Building plan</h2>
+        <div class="phase">
+          <div class="phase-row"><div class="phase-id">P0–P3</div><div>Scope, kit, teach templates, worlds</div><span class="badge ok" data-phase="p0">PASS</span></div>
+          <div class="phase-row"><div class="phase-id">P4–P5</div><div>Interest floor + design polish</div><span class="badge ok" data-phase="p4">PASS</span></div>
+          <div class="phase-row"><div class="phase-id">P6</div><div>Perfecting lock — R6.1 fixes + unique lies</div><span class="badge ok" data-phase="p6">PASS</span></div>
+        </div>
+        <p class="status ok" id="round-status" style="margin-top:0.75rem">Loading…</p>
+      </section>
+
+      <section class="wide">
+        <h2>Showcase rooms (S1–S10 · PERFECT · locked)</h2>
+        <div class="rooms">
+          <div class="room-card">
+            <h3>S1 Wrong balcony <span class="badge ok">PERFECT</span></h3>
+            <p class="idea">Key upstairs, door downstairs — open pit, no way back.</p>
+            <p class="meta">v2 fix: commitment is a shape, not only a rule</p>
+            <pre class="diagram">####################
+#K..............H..#
+#====...........H..#
+#~~~~~~~~~~~~~~~H..#
+#..D============H..#
+#M.................#
+####################</pre>
+            <div class="chips"><span class="chip">one-way height</span><span class="chip">v2</span></div>
+          </div>
+          <div class="room-card">
+            <h3>S2 Burn the approach <span class="badge ok">PERFECT</span></h3>
+            <p class="idea">Switch raises the real path and deletes the decoy’s floor.</p>
+            <p class="meta">v2 fix: commit is lethal if you believed X</p>
+            <pre class="diagram">######################
+#....X...........D...#
+#~~~~====~~~~====....#
+#....S~~~~~~~~~~~~~~~#
+#====================#
+#M...................#
+######################</pre>
+            <div class="chips"><span class="chip">decoy</span><span class="chip">v2</span></div>
+          </div>
+          <div class="room-card">
+            <h3>S3 Belt commute <span class="badge ok">PERFECT</span></h3>
+            <p class="idea">Far dock + hatch — flip the belt, climb up, then take the key.</p>
+            <p class="meta">R6.1: hatch onto belt from the dock</p>
+            <pre class="diagram">########################
+#K....................D#
+#<<<<<<<<<<<<<<<<<<<<==#
+#==.................S.H#
+#======================#
+#M.....................#
+########################</pre>
+            <div class="chips"><span class="chip">prep order</span><span class="chip">v3</span></div>
+          </div>
+          <div class="room-card">
+            <h3>S4 Only his head <span class="badge ok">PERFECT</span></h3>
+            <p class="idea">One bounce on the patrol to the key — then drop to the door.</p>
+            <p class="meta">R6.1: cut the second ride (one aha)</p>
+            <pre class="diagram">####################
+#......K...........#
+#==========E=======#
+#..............D...#
+#M=================#
+####################</pre>
+            <div class="chips"><span class="chip">reframe threat</span><span class="chip">v3</span></div>
+          </div>
+          <div class="room-card">
+            <h3>S5 Walk past the door <span class="badge ok">PERFECT</span></h3>
+            <p class="idea">Quiet real door on the left; glamorous two-key gate pulls you past it.</p>
+            <p class="meta">v2 fix: greed path is the default walk</p>
+            <pre class="diagram">########################
+#K1......X.........K2..#
+#====............====..#
+#..D......H............#
+#M========H============#
+########################</pre>
+            <div class="chips"><span class="chip">greed</span><span class="chip">v2</span></div>
+          </div>
+          <div class="room-card">
+            <h3>S6 Key on the hold <span class="badge ok">PERFECT</span></h3>
+            <p class="idea">Stand through a barrel beat to unlock the key — path to door is already open.</p>
+            <p class="meta">R6.1: hold unlocks only (no dual bridge job)</p>
+            <pre class="diagram">########################
+#B1....B2....B3........#
+#......K/S..........D..#
+#======================#
+#M.....................#
+########################</pre>
+            <div class="chips"><span class="chip">rhythm</span><span class="chip">v3</span></div>
+          </div>
+          <div class="room-card">
+            <h3>S7 Fake ladder stub <span class="badge ok">PERFECT</span></h3>
+            <p class="idea">Broken stub sells “climb out”; only the lonely spring works with the key.</p>
+            <p class="meta">v2 fix: lie has a prop, not just a missing ladder</p>
+            <pre class="diagram">######################
+#.................D..#
+#...............====.#
+#....^....h.......K..#
+#============........#
+#M...................#
+######################</pre>
+            <div class="chips"><span class="chip">false optional</span><span class="chip">v2</span></div>
+          </div>
+          <div class="room-card">
+            <h3>S8 Crate on the switch <span class="badge ok">PERFECT</span></h3>
+            <p class="idea">Park a crate so the key island stays up while you leave to take it.</p>
+            <p class="meta">R6.1: island raises flush with a visible step</p>
+            <pre class="diagram">########################
+#..........K...........#
+#........====..........#
+#..C.....S.........D...#
+#======================#
+#M.....................#
+########################</pre>
+            <div class="chips"><span class="chip">crate</span><span class="chip">v3</span></div>
+          </div>
+          <div class="room-card">
+            <h3>S9 One legal toggle <span class="badge ok">PERFECT</span></h3>
+            <p class="idea">First press lowers the wall; second press latches it up forever.</p>
+            <p class="meta">R6.1: second press is permanent (no undo)</p>
+            <pre class="diagram">########################
+#K.........|........D..#
+#====......|......====.#
+#..........S...........#
+#======================#
+#M.....................#
+########################</pre>
+            <div class="chips"><span class="chip">latch</span><span class="chip">v3</span></div>
+          </div>
+          <div class="room-card">
+            <h3>S10 Empty-handed scout <span class="badge ok">PERFECT</span></h3>
+            <p class="idea">Latch the exit bridge on the scout dock before the one-way vault drop.</p>
+            <p class="meta">R6.1: scout switch is a latch, not a hold</p>
+            <pre class="diagram">##########################
+#.....S..................#
+#=====~~~~~~~~~~~~~~~~~~.#
+#~~~~~~~~~~K~~~~~~~~~~D..#
+#M=======================#
+##########################</pre>
+            <div class="chips"><span class="chip">scout</span><span class="chip">v3</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="wide">
+        <h2>Loop log</h2>
+        <div id="log">Loading…</div>
+      </section>
+    </div>
+
+    <script>
+      async function tick() {
+        try {
+          const res = await fetch('/progress/mvdk/status.json?' + Date.now());
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data.log) document.getElementById('log').textContent = data.log;
+          if (data.overall) {
+            const el = document.getElementById('overall-status');
+            el.textContent = data.overall.text;
+            el.className = 'status ' + (data.overall.class || 'wip');
+          }
+          if (data.round) {
+            const el = document.getElementById('round-status');
+            el.textContent = data.round.text;
+            el.className = 'status ' + (data.round.class || 'wip');
+          }
+          if (data.phases) {
+            for (const [id, info] of Object.entries(data.phases)) {
+              document.querySelectorAll('[data-phase="' + id + '"]').forEach((badge) => {
+                badge.textContent = info.label;
+                badge.className = 'badge ' + info.class;
+              });
+            }
+          }
+        } catch (_) {}
+      }
+      tick();
+      setInterval(tick, 4000);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,107 @@
+{
+  "game": "platformer",
+  "levels": [
+    {
+      "id": "dh-r03-alley",
+      "name": "Crate Step — Alley",
+      "order": 3,
+      "coinReward": 30,
+      "theme": "city-alley",
+      "scope": "campaign",
+      "objective": "Collect 3 bones. Learn to push a crate and use it as a step, then curl up on the stockroom roof.",
+      "width": 40,
+      "height": 16,
+      "spawn": { "x": 2.5, "y": 12 },
+      "platforms": [
+        { "x": 0, "y": 14, "w": 40, "h": 2, "kind": "floor" },
+        { "x": 0, "y": 0, "w": 40, "h": 1, "kind": "block" },
+        { "x": 0, "y": 0, "w": 0.55, "h": 16, "kind": "wall" },
+        { "x": 39.45, "y": 0, "w": 0.55, "h": 16, "kind": "wall" },
+        { "x": 12, "y": 5.5, "w": 9, "h": 8.5, "kind": "facade", "label": "STOCKROOM" },
+        { "x": 14.5, "y": 4.2, "w": 3.5, "h": 0.7, "kind": "bed-landmark" },
+        { "x": 24, "y": 8, "w": 6, "h": 6, "kind": "facade", "label": "CLOSED" },
+        { "x": 6.5, "y": 13.1, "w": 1.5, "h": 0.4, "kind": "curb" }
+      ],
+      "bones": [
+        { "x": 7.0, "y": 12.5 }
+      ],
+      "portals": [
+        {
+          "x": 15,
+          "y": 11.5,
+          "w": 2.2,
+          "h": 2.5,
+          "targetLevelId": "dh-r03-stockroom",
+          "targetSpawn": { "x": 3, "y": 20 },
+          "label": "STOCKROOM"
+        }
+      ],
+      "decors": [
+        { "x": 13, "y": 4.8, "w": 4, "h": 1, "kind": "sign", "text": "STOCKROOM" },
+        { "x": 14.8, "y": 3.2, "w": 2.6, "h": 0.8, "kind": "sign", "text": "ROOF BED" }
+      ]
+    },
+    {
+      "id": "dh-r03-stockroom",
+      "name": "Crate Step — Stockroom",
+      "order": 3,
+      "coinReward": 0,
+      "theme": "shop-interior",
+      "scope": "interior",
+      "parentLevelId": "dh-r03-alley",
+      "objective": "Push the crate, use it as a step for a bone, climb to the loft bone, then the roof bed.",
+      "width": 28,
+      "height": 28,
+      "spawn": { "x": 3, "y": 20 },
+      "exit": { "x": 20, "y": 3.5, "w": 3, "h": 2 },
+      "platforms": [
+        { "x": 0, "y": 0, "w": 0.55, "h": 28, "kind": "wall" },
+        { "x": 27.45, "y": 0, "w": 0.55, "h": 28, "kind": "wall" },
+        { "x": 0, "y": 0, "w": 28, "h": 1, "kind": "block" },
+
+        { "x": 0, "y": 22, "w": 28, "h": 1.1, "kind": "floor", "label": "story-1" },
+        { "x": 16, "y": 18.5, "w": 3.5, "h": 0.5, "kind": "shelf" },
+
+        { "x": 0, "y": 12, "w": 28, "h": 1.0, "kind": "floor", "label": "story-2" },
+        { "x": 10, "y": 10.6, "w": 3, "h": 0.45, "kind": "shelf" },
+        { "x": 15, "y": 10.6, "w": 3, "h": 0.45, "kind": "shelf" },
+
+        { "x": 0, "y": 5.0, "w": 28, "h": 0.9, "kind": "floor", "label": "roof" },
+        { "x": 20, "y": 3.8, "w": 3.5, "h": 0.75, "kind": "bed" },
+
+        { "x": 24, "y": 13, "w": 0.7, "h": 9, "kind": "ladder", "solid": false },
+        { "x": 22, "y": 5.0, "w": 0.7, "h": 7, "kind": "ladder", "solid": false }
+      ],
+      "boxes": [
+        {
+          "id": "crate-1",
+          "x": 8,
+          "y": 20.7,
+          "w": 1.4,
+          "h": 1.4,
+          "pushable": true,
+          "gravity": true
+        }
+      ],
+      "bones": [
+        { "x": 17.5, "y": 17.7 },
+        { "x": 16.2, "y": 9.8 }
+      ],
+      "portals": [
+        {
+          "x": 1.5,
+          "y": 19.5,
+          "w": 2.0,
+          "h": 2.5,
+          "targetLevelId": "dh-r03-alley",
+          "targetSpawn": { "x": 16, "y": 12 },
+          "label": "ALLEY"
+        }
+      ],
+      "decors": [
+        { "x": 6, "y": 19.5, "w": 1.5, "h": 1.2, "kind": "sign", "text": "PUSH" },
+        { "x": 16.5, "y": 16.8, "w": 2, "h": 0.8, "kind": "sign", "text": "STEP UP" }
+      ]
+    }
+  ]
+}

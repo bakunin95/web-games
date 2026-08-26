@@ -1,0 +1,23 @@
+{
+  "overall": {
+    "text": "PASS — Doghouse Level Gauntlet CLEARED. Curriculum rooms 0–9 locked (builder→critic).",
+    "class": "ok"
+  },
+  "round": {
+    "text": "All rooms PASS. 3 bones → bed. Alley doors + vertical interiors. No DK/Mario.",
+    "class": "ok"
+  },
+  "rooms": {
+    "r0": { "label": "PASS", "class": "ok" },
+    "r1": { "label": "PASS", "class": "ok" },
+    "r2": { "label": "PASS", "class": "ok" },
+    "r3": { "label": "PASS", "class": "ok" },
+    "r4": { "label": "PASS", "class": "ok" },
+    "r5": { "label": "PASS", "class": "ok" },
+    "r6": { "label": "PASS", "class": "ok" },
+    "r7": { "label": "PASS", "class": "ok" },
+    "r8": { "label": "PASS", "class": "ok" },
+    "r9": { "label": "PASS", "class": "ok" }
+  },
+  "log": "Doghouse Level Gauntlet — CLEARED\n==================================\nWin: 3 bones → glowing bed → curl up.\nStreet = hallway of doors. Height = interiors + roof.\n\nRoom 0 Backyard basics ........ PASS\nRoom 1 Deli block ............. PASS\nRoom 2 Key shop ............... PASS\nRoom 3 Crate step ............. PASS\nRoom 4 Plate parking .......... PASS\nRoom 5 Belt job ............... PASS\nRoom 6 Lift job ............... PASS\nRoom 7 Heat (slag + raft) ..... PASS\nRoom 8 Zip / roof run ......... PASS\nRoom 9 Liftworks combine ...... PASS\n\nCurriculum complete. Remix only on request.\nFiles: /progress/doghouse/"
+}

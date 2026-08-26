@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Doghouse Level Gauntlet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #12100e;
+        --panel: rgba(28, 22, 18, 0.92);
+        --ink: #f3e6d4;
+        --muted: #a89886;
+        --ok: #7dce6a;
+        --wip: #e8b84a;
+        --gap: #e07058;
+        --accent: #f0a45a;
+        --bone: #efe6d2;
+        --bed: #c4a86d;
+        --line: rgba(240, 164, 90, 0.28);
+        --alley: #2a3340;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Space Grotesk", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(ellipse 80% 45% at 15% -5%, rgba(240, 164, 90, 0.16), transparent 55%),
+          radial-gradient(ellipse 60% 40% at 90% 0%, rgba(90, 120, 160, 0.12), transparent 50%),
+          linear-gradient(180deg, #1a1612, var(--bg));
+        padding: 1.4rem clamp(1rem, 3vw, 2.4rem) 3rem;
+        line-height: 1.5;
+      }
+      h1 {
+        font-family: Literata, Georgia, serif;
+        font-size: clamp(1.55rem, 3vw, 2.15rem);
+        margin: 0 0 0.25rem;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+      h1 .bone { color: var(--bone); }
+      h1 .bed { color: var(--accent); }
+      .sub { color: var(--muted); max-width: 62ch; margin: 0 0 1.15rem; }
+      .sub strong { color: var(--ink); font-weight: 500; }
+      a { color: var(--accent); }
+      .nav {
+        display: flex; flex-wrap: wrap; gap: 0.7rem 1rem;
+        margin-bottom: 1.2rem; font-size: 0.88rem;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+      }
+      section {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 2px;
+        padding: 1rem 1.1rem 1.15rem;
+      }
+      section.wide { grid-column: 1 / -1; }
+      section h2 {
+        margin: 0 0 0.65rem;
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .status { font-size: 0.9rem; margin: 0 0 0.55rem; }
+      .status.ok { color: var(--ok); }
+      .status.wip { color: var(--wip); }
+      .status.gap { color: var(--gap); }
+      ul { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: 0.9rem; }
+      li { margin: 0.3rem 0; }
+      li strong { color: var(--ink); font-weight: 500; }
+      .badge {
+        font-size: 0.65rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0.18rem 0.4rem;
+        border: 1px solid currentColor;
+        white-space: nowrap;
+      }
+      .badge.ok { color: var(--ok); }
+      .badge.wip { color: var(--wip); }
+      .world {
+        display: grid;
+        grid-template-columns: 1.1fr 1.4fr;
+        gap: 0.75rem;
+      }
+      @media (max-width: 720px) { .world { grid-template-columns: 1fr; } }
+      .world-card {
+        background: rgba(0,0,0,0.28);
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 0.75rem 0.85rem;
+      }
+      .world-card h3 {
+        margin: 0 0 0.35rem;
+        font-size: 0.95rem;
+        font-family: Literata, Georgia, serif;
+      }
+      .world-card p { margin: 0; font-size: 0.82rem; color: var(--muted); }
+      pre.diagram {
+        margin: 0.5rem 0 0;
+        padding: 0.55rem 0.65rem;
+        background: #0a0908;
+        border: 1px solid rgba(255,255,255,0.07);
+        font-size: 0.62rem;
+        line-height: 1.2;
+        overflow: auto;
+        color: #b8d4a0;
+        font-family: ui-monospace, "Cascadia Code", monospace;
+      }
+      .curriculum { display: grid; gap: 0.4rem; }
+      .row {
+        display: grid;
+        grid-template-columns: 2.4rem 1fr auto;
+        gap: 0.65rem;
+        align-items: start;
+        padding: 0.45rem 0.55rem;
+        border: 1px solid rgba(255,255,255,0.06);
+        background: rgba(0,0,0,0.22);
+        font-size: 0.88rem;
+      }
+      .row .id { color: var(--accent); font-family: ui-monospace, monospace; font-size: 0.72rem; padding-top: 0.15rem; }
+      .row .body strong { display: block; color: var(--ink); font-size: 0.9rem; }
+      .row .body span { color: var(--muted); font-size: 0.78rem; }
+      .rooms {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 0.85rem;
+      }
+      .room-card h3 {
+        margin: 0 0 0.3rem;
+        font-size: 1rem;
+        font-family: Literata, Georgia, serif;
+      }
+      .room-card .idea { margin: 0; font-size: 0.86rem; }
+      .room-card .meta { margin: 0.3rem 0 0; font-size: 0.75rem; color: var(--muted); }
+      .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.45rem; }
+      .chip {
+        font-size: 0.68rem;
+        padding: 0.12rem 0.4rem;
+        border: 1px solid rgba(255,255,255,0.12);
+        color: var(--muted);
+      }
+      #log {
+        font-family: ui-monospace, monospace;
+        font-size: 0.76rem;
+        white-space: pre-wrap;
+        max-height: 280px;
+        overflow: auto;
+        color: #d2c4b2;
+        background: rgba(0,0,0,0.35);
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 0.75rem;
+      }
+      .recipe {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.4rem;
+        font-size: 0.78rem;
+      }
+      @media (max-width: 720px) { .recipe { grid-template-columns: 1fr 1fr; } }
+      .recipe div {
+        background: rgba(0,0,0,0.25);
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 0.45rem 0.5rem;
+      }
+      .recipe b { display: block; color: var(--accent); font-size: 0.65rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    </style>
+  </head>
+  <body>
+    <h1><span class="bone">Doghouse</span> Level Gauntlet — <span class="bed">3 bones → bed</span></h1>
+    <p class="sub">
+      Tiny dog in a built city. Find <strong>exactly 3 bones</strong>, the bed glows, curl up. Room over.
+      The <strong>street is a hallway of doors</strong>. <strong>Height lives inside</strong> 2–3 story buildings (roof as payoff).
+      Not a collectathon. Not combat. Builder → critic → lock.
+    </p>
+    <div class="nav">
+      <a href="/progress/">← Progress hub</a>
+      <a href="/progress/doghouse/PLAN.md"><strong>PLAN</strong></a>
+      <a href="/progress/doghouse/LEVEL-BUILDING-GUIDE.md">Author guide</a>
+      <a href="/progress/doghouse/curriculum/room-00-backyard.md">Notes 0–9</a>
+      <a href="/progress/doghouse/levels/room-00.json">JSON packs</a>
+      <a href="/progress/doghouse/status.json">status.json</a>
+    </div>
+
+    <div class="grid">
+      <section>
+        <h2>Gauntlet status</h2>
+        <p class="status ok" id="overall-status">Loading…</p>
+        <ul>
+          <li><strong>Win:</strong> 3 bones → glowing bed</li>
+          <li><strong>Loop:</strong> note → JSON → critic → lock</li>
+          <li><strong>Curriculum:</strong> Rooms 0–9 CLEARED</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Hard fails (critic)</h2>
+        <ul>
+          <li>≠ 3 bones / bone in solid</li>
+          <li>Bed not a real exit</li>
+          <li>Two new toys in one room</li>
+          <li>Alley with no 2–3 story interior</li>
+          <li>Flat “building,” dead-end patrol</li>
+          <li>Switch/door not same sightline</li>
+          <li>No bed landmark on first screen</li>
+        </ul>
+      </section>
+
+      <section class="wide">
+        <h2>World model</h2>
+        <div class="world">
+          <div class="world-card">
+            <h3>Alley = hallway</h3>
+            <p>Wide enough to pick a door. Easy first bone. Read the block. Not where the tall game lives.</p>
+            <pre class="diagram">[sidewalk]  DELI  BAKERY  SHOP
+    A●         ▯      ▯      ▯
+             portal
+         bed landmark ↑ roof</pre>
+          </div>
+          <div class="world-card">
+            <h3>Building = vertical game</h3>
+            <p>2–3 stories + roof. Stairs/ladders, stacked rooms, come out on the roof. That’s the height a flat street lacks.</p>
+            <pre class="diagram">ROOF     C●  BED ▬
+story 3  catwalk / hatch
+story 2  B● shelf
+story 1  counter  ← portal from alley</pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="wide">
+        <h2>Room recipe</h2>
+        <div class="recipe">
+          <div><b>Opening 15%</b> Spawn, first bone plain sight</div>
+          <div><b>Skill gate 35%</b> One new lesson</div>
+          <div><b>Challenge 30%</b> Mild pressure / timing</div>
+          <div><b>Finale 20%</b> Last bone + visible bed</div>
+        </div>
+        <p class="meta" style="margin:0.55rem 0 0;font-size:0.8rem;color:var(--muted)">Teach: introduce → test → combine → reward. Bones mark the lesson.</p>
+      </section>
+
+      <section class="wide">
+        <h2>Curriculum</h2>
+        <div class="curriculum" id="curriculum">
+          <div class="row"><div class="id">R0</div><div class="body"><strong>Backyard basics</strong><span>move, jump, dig, bed</span></div><span class="badge ok" data-room="r0">PASS</span></div>
+          <div class="row"><div class="id">R1</div><div class="body"><strong>Deli block</strong><span>portal + 2–3 story interior (alley thesis)</span></div><span class="badge ok" data-room="r1">PASS</span></div>
+          <div class="row"><div class="id">R2</div><div class="body"><strong>Key shop</strong><span>key + matching door</span></div><span class="badge ok" data-room="r2">PASS</span></div>
+          <div class="row"><div class="id">R3</div><div class="body"><strong>Crate step</strong><span>push crate as a step</span></div><span class="badge ok" data-room="r3">PASS</span></div>
+          <div class="row"><div class="id">R4</div><div class="body"><strong>Plate parking</strong><span>pressure plate + door</span></div><span class="badge ok" data-room="r4">PASS</span></div>
+          <div class="row"><div class="id">R5</div><div class="body"><strong>Belt job</strong><span>conveyor (+ crate)</span></div><span class="badge ok" data-room="r5">PASS</span></div>
+          <div class="row"><div class="id">R6</div><div class="body"><strong>Lift job</strong><span>elevator</span></div><span class="badge ok" data-room="r6">PASS</span></div>
+          <div class="row"><div class="id">R7</div><div class="body"><strong>Heat</strong><span>slag + raft / readable pit</span></div><span class="badge ok" data-room="r7">PASS</span></div>
+          <div class="row"><div class="id">R8</div><div class="body"><strong>Zip / roof run</strong><span>zipline</span></div><span class="badge ok" data-room="r8">PASS</span></div>
+          <div class="row"><div class="id">R9</div><div class="body"><strong>Liftworks combine</strong><span>no new toy — full block</span></div><span class="badge ok" data-room="r9">PASS</span></div>
+        </div>
+        <p class="status ok" id="round-status" style="margin-top:0.75rem">Loading…</p>
+      </section>
+
+      <section class="wide">
+        <h2>Locked rooms (critic PASS)</h2>
+        <div class="rooms">
+          <div class="room-card">
+            <h3>R0 Backyard basics <span class="badge ok">PASS</span></h3>
+            <p class="idea">Hop up, dig one buried bone, curl up in the bed you can see from spawn.</p>
+            <p class="meta">Bones: A jump shelf · B dig mound · C higher shelf → bed on fence</p>
+            <pre class="diagram">############################
+#............TREE..........#
+#..............C...........#
+#.........====.............#
+#....B................BED..#
+#...dig....A==.........▬▬..#
+#M.........................#
+############################</pre>
+            <div class="chips"><span class="chip">teach set</span><span class="chip">no portals</span><span class="chip"><a href="/progress/doghouse/levels/room-00.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R1 Deli block <span class="badge ok">PASS</span></h3>
+            <p class="idea">Alley picks the DELI door — three stories + roof are the vertical game.</p>
+            <p class="meta">A curb · B story-2 shelf · C roof beside real bed · street shows bed landmark only</p>
+            <pre class="diagram">ALLEY:  A●   [DELI]  [BAKERY]  [SHOP]
+                   portal↑   bed landmark on facade
+
+DELI:  ROOF  C●  BED▬
+       s3    hatch ladder
+       s2    B● shelf
+       s1    counter ← enter</pre>
+            <div class="chips"><span class="chip">alley thesis</span><span class="chip">3 stories</span><span class="chip"><a href="/progress/doghouse/levels/room-01.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R2 Key shop <span class="badge ok">PASS</span></h3>
+            <p class="idea">Gold key upstairs in the locksmith — open the alley gate that shares its sightline.</p>
+            <p class="meta">A curb · key on story 2 · B past gate · C + bed on fire-escape roof</p>
+            <pre class="diagram">ALLEY: A● [LOCKSMITH] … GATE▮ … B● jumps … C● BED▬
+              portal↑         same sightline
+
+LOCKSMITH: s2  KEY◆ on rail (visible from s1)
+           s1  counter ← enter</pre>
+            <div class="chips"><span class="chip">key + door</span><span class="chip">sightline</span><span class="chip"><a href="/progress/doghouse/levels/room-02.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R3 Crate step <span class="badge ok">PASS</span></h3>
+            <p class="idea">Push on flat ground first, then park the crate under a high shelf and step up.</p>
+            <p class="meta">A curb · B shelf via crate · C loft · bed on stockroom roof</p>
+            <pre class="diagram">ALLEY: A●  [STOCKROOM]  bed landmark↑
+STOCK: s1 ▢crate → B● · s2 C● · roof BED</pre>
+            <div class="chips"><span class="chip">crate</span><span class="chip"><a href="/progress/doghouse/levels/room-03.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R4 Plate parking <span class="badge ok">PASS</span></h3>
+            <p class="idea">Park crate on plate; shutter in the same sightline stays open.</p>
+            <pre class="diagram">LOADING: ▢→PLATE · DOOR▮ · B● bay · C● loft · BED</pre>
+            <div class="chips"><span class="chip">plate</span><span class="chip"><a href="/progress/doghouse/levels/room-04.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R5 Belt job <span class="badge ok">PASS</span></h3>
+            <p class="idea">Ride the belt; crate can ride for a step.</p>
+            <pre class="diagram">FOUNDRY: >>>belt>>> B● · ▢ on belt → ledge · C● catwalk · BED</pre>
+            <div class="chips"><span class="chip">conveyor</span><span class="chip"><a href="/progress/doghouse/levels/room-05.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R6 Lift job <span class="badge ok">PASS</span></h3>
+            <p class="idea">Elevator cabin starts at lowY (top); ride stories.</p>
+            <pre class="diagram">LIFTWORKS: s1 call · lift ↕ · B● s2 · C● roof BED · lowY=top</pre>
+            <div class="chips"><span class="chip">elevator</span><span class="chip"><a href="/progress/doghouse/levels/room-06.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R7 Heat <span class="badge ok">PASS</span></h3>
+            <p class="idea">Raft across readable slag; escape ledge always.</p>
+            <pre class="diagram">SLAG: raft≈≈≈ B● shore · ledge · C● · BED</pre>
+            <div class="chips"><span class="chip">raft</span><span class="chip"><a href="/progress/doghouse/levels/room-07.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R8 Zip / roof run <span class="badge ok">PASS</span></h3>
+            <p class="idea">Safe grab zipline across roofs (no rope).</p>
+            <pre class="diagram">ROOFS: zip—— B● mid · zip—— C● BED</pre>
+            <div class="chips"><span class="chip">zipline</span><span class="chip"><a href="/progress/doghouse/levels/room-08.json">JSON</a></span></div>
+          </div>
+          <div class="room-card">
+            <h3>R9 Liftworks combine <span class="badge ok">PASS</span></h3>
+            <p class="idea">No new toy: dig key → lift → plate → zip → roof bed (rain alley).</p>
+            <pre class="diagram">dig KEY · lift+▢ · PLATE · zip · C● BED</pre>
+            <div class="chips"><span class="chip">combine</span><span class="chip"><a href="/progress/doghouse/levels/room-09.json">JSON</a></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="wide">
+        <h2>Loop log</h2>
+        <div id="log">Loading…</div>
+      </section>
+    </div>
+
+    <script>
+      async function tick() {
+        try {
+          const res = await fetch('/progress/doghouse/status.json?' + Date.now());
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data.log) document.getElementById('log').textContent = data.log;
+          if (data.overall) {
+            const el = document.getElementById('overall-status');
+            el.textContent = data.overall.text;
+            el.className = 'status ' + (data.overall.class || 'wip');
+          }
+          if (data.round) {
+            const el = document.getElementById('round-status');
+            el.textContent = data.round.text;
+            el.className = 'status ' + (data.round.class || 'wip');
+          }
+          if (data.rooms) {
+            for (const [id, info] of Object.entries(data.rooms)) {
+              document.querySelectorAll('[data-room="' + id + '"]').forEach((badge) => {
+                badge.textContent = info.label;
+                badge.className = 'badge ' + info.class;
+              });
+            }
+          }
+        } catch (_) {}
+      }
+      tick();
+      setInterval(tick, 4000);
+    </script>
+  </body>
+</html>

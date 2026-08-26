@@ -1,0 +1,94 @@
+{
+  "game": "platformer",
+  "levels": [
+    {
+      "id": "dh-r05-alley",
+      "name": "Belt Job — Alley",
+      "order": 5,
+      "coinReward": 40,
+      "theme": "city-alley",
+      "scope": "campaign",
+      "objective": "Collect 3 bones. Ride foundry belts, then curl up on the roof.",
+      "width": 42,
+      "height": 16,
+      "spawn": { "x": 2.5, "y": 12 },
+      "platforms": [
+        { "x": 0, "y": 14, "w": 42, "h": 2, "kind": "floor" },
+        { "x": 0, "y": 0, "w": 42, "h": 1, "kind": "block" },
+        { "x": 0, "y": 0, "w": 0.55, "h": 16, "kind": "wall" },
+        { "x": 41.45, "y": 0, "w": 0.55, "h": 16, "kind": "wall" },
+        { "x": 12, "y": 5, "w": 10, "h": 9, "kind": "facade", "label": "FOUNDRY" },
+        { "x": 15, "y": 3.8, "w": 3.5, "h": 0.7, "kind": "bed-landmark" },
+        { "x": 6.5, "y": 13.1, "w": 1.5, "h": 0.4, "kind": "curb" }
+      ],
+      "bones": [{ "x": 7.0, "y": 12.5 }],
+      "portals": [
+        {
+          "x": 15.5,
+          "y": 11.5,
+          "w": 2.2,
+          "h": 2.5,
+          "targetLevelId": "dh-r05-foundry",
+          "targetSpawn": { "x": 3, "y": 20 },
+          "label": "FOUNDRY"
+        }
+      ],
+      "decors": [{ "x": 13, "y": 4.5, "w": 4, "h": 1, "kind": "sign", "text": "FOUNDRY" }],
+      "rain": { "enabled": false }
+    },
+    {
+      "id": "dh-r05-foundry",
+      "name": "Belt Job — Foundry Floor",
+      "order": 5,
+      "coinReward": 0,
+      "theme": "shop-interior",
+      "scope": "interior",
+      "parentLevelId": "dh-r05-alley",
+      "objective": "Ride the belts. Use a crate on a belt to reach the high ledge bone, then the roof bed.",
+      "width": 36,
+      "height": 28,
+      "spawn": { "x": 3, "y": 20 },
+      "exit": { "x": 28, "y": 3.5, "w": 3, "h": 2 },
+      "platforms": [
+        { "x": 0, "y": 0, "w": 0.55, "h": 28, "kind": "wall" },
+        { "x": 35.45, "y": 0, "w": 0.55, "h": 28, "kind": "wall" },
+        { "x": 0, "y": 0, "w": 36, "h": 1, "kind": "block" },
+        { "x": 0, "y": 22, "w": 8, "h": 1.1, "kind": "floor" },
+        { "x": 20, "y": 22, "w": 15, "h": 1.1, "kind": "floor" },
+        { "x": 8, "y": 24.5, "w": 12, "h": 2.5, "kind": "pit" },
+        { "x": 0, "y": 12, "w": 36, "h": 1.0, "kind": "floor", "label": "story-2" },
+        { "x": 22, "y": 10.5, "w": 4, "h": 0.45, "kind": "shelf" },
+        { "x": 0, "y": 5.0, "w": 36, "h": 0.9, "kind": "floor", "label": "roof" },
+        { "x": 28, "y": 3.8, "w": 3.5, "h": 0.75, "kind": "bed" },
+        { "x": 32, "y": 13, "w": 0.7, "h": 9, "kind": "ladder", "solid": false },
+        { "x": 30, "y": 5.0, "w": 0.7, "h": 7, "kind": "ladder", "solid": false },
+        { "x": 18, "y": 18.5, "w": 3.5, "h": 0.5, "kind": "shelf", "label": "crate-landing-ledge" }
+      ],
+      "conveyors": [
+        { "id": "belt-a", "x": 8, "y": 21.5, "w": 12, "h": 0.55, "dir": "right", "speed": 3.2 },
+        { "id": "belt-b", "x": 4, "y": 21.5, "w": 10, "h": 0.55, "dir": "right", "speed": 2.6 }
+      ],
+      "boxes": [
+        { "id": "crate-1", "x": 5, "y": 20.7, "w": 1.4, "h": 1.4, "pushable": true, "gravity": true }
+      ],
+      "bones": [
+        { "x": 22.5, "y": 20.8 },
+        { "x": 19.5, "y": 17.7 }
+      ],
+      "portals": [
+        {
+          "x": 1.5,
+          "y": 19.5,
+          "w": 2.0,
+          "h": 2.5,
+          "targetLevelId": "dh-r05-alley",
+          "targetSpawn": { "x": 16.5, "y": 12 },
+          "label": "ALLEY"
+        }
+      ],
+      "decors": [
+        { "x": 10, "y": 19.5, "w": 2.5, "h": 0.7, "kind": "sign", "text": "RIDE" }
+      ]
+    }
+  ]
+}
