@@ -1,0 +1,19 @@
+{
+  "overall": {
+    "text": "WIP — Round 0 scope locked PASS; Round 1 pillars ACTIVE — waiting user PASS",
+    "class": "wip"
+  },
+  "round": {
+    "text": "Active: Round 1 — Pillars & fantasy. Lock rule: user PASS before Round 2 mechanic kit.",
+    "class": "wip"
+  },
+  "phases": {
+    "p0": { "label": "PASS", "class": "ok" },
+    "p1": { "label": "WIP", "class": "wip" },
+    "p2": { "label": "TODO", "class": "gap" },
+    "p3": { "label": "TODO", "class": "gap" },
+    "p4": { "label": "TODO", "class": "gap" },
+    "p5": { "label": "TODO", "class": "gap" }
+  },
+  "log": "MvsDK Puzzle Gauntlet — Building Plan\n=====================================\nRound 0 PASS: puzzle-platformer + construction props; side-view grid rooms; key→door / Mini-Mario goal. No open sandbox builder.\n\nBuilding plan:\n  P0 Fantasy & constraints ........ PASS\n  P1 Mechanic kit ................. WIP (draft verbs listed)\n  P2 Room templates ............... TODO (T1–T8 checklist)\n  P3 World sequence ............... TODO\n  P4 Playtest gauntlet ............ TODO\n  P5 Polish & ship bar ............ TODO\n\nGauntlet loop:\n  R0 Scope lock ................... PASS\n  R1 Pillars & fantasy ............ ACTIVE ← need user PASS\n  R2 Mechanic kit ................. queued\n  R3 Room templates ............... queued\n  R4 Sequence & curve ............. queued\n  R5 Playtest gate ................ queued\n\nNext: confirm Round 1 pillars (readable, one idea/room, fair fails, short loop) or revise.\nPage: /progress/mvdk/"
+}
