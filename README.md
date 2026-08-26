@@ -9,7 +9,7 @@ pnpm install
 pnpm dev
 ```
 
-Open the URL Vite prints (default `http://localhost:5173`).
+Open the URL Vite prints (default `http://localhost:5288`).
 
 Other scripts:
 

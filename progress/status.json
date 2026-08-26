@@ -1,22 +1,22 @@
 {
   "infra": {
-    "text": "PASS: materials, select/drag/scale, minimize, 66+ creatables",
+    "text": "PASS: materials, select/drag/scale, minimize, 66+ creatables + evolution timeline",
     "class": "ok"
   },
   "fire": {
-    "text": "Round3 critic: still PREFER bar. Gaps: chaotic asymmetric tongues, smoke/embers, less radial glow sticker.",
-    "class": "gap",
+    "text": "PASS (user): soft luminous fire locked \u2014 no fuel logs/wood; flame + bloom only.",
+    "class": "ok",
     "capture": "/progress/captures/fire.png"
   },
   "smoke": {
-    "text": "Round5: dense soft-particle plume (no concentric discs). Still vs photo bar.",
-    "class": "gap",
+    "text": "PASS (user): soft industrial plume \u2014 locked.",
+    "class": "ok",
     "capture": "/progress/captures/smoke.png"
   },
   "water": {
-    "text": "Round3 critic: still PREFER bar. Gaps: shoreline contact, true mirror, Fresnel \u2014 not oval gradient blob.",
-    "class": "gap",
+    "text": "PASS (user): reflective river locked \u2014 sky/shore mirror + irregular flow ripples at max quality for this pass.",
+    "class": "ok",
     "capture": "/progress/captures/water.png"
   },
-  "log": "Gauntlet ACTIVE \u2014 critics still prefer photo bar 0/3.\n- Multiple builder passes on fire/smoke/water\n- Smoke: particle mass + wind shear; fire: logs+luminous mass; water: mirror/sheen\n- Gate: blind A/B must prefer our captures over refs/"
+  "log": "Gauntlet: fire/smoke/water all user-locked PASS\n- FIRE: soft luminous mass, no wood logs\n- SMOKE: soft industrial plume\n- WATER: reflective river\n- Timeline: /progress/timeline/"
 }

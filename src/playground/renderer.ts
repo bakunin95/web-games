@@ -1,6 +1,8 @@
 import type { BaseEffectParams, EffectModule, SceneContext } from '../core/types';
 import { drawMockScene } from './mockScene';
 import { getPlacedBounds, getScale, isPlacedParams } from '../core/placed';
+import { drawSoilGizmo, isSoilParams } from '../effects/soil';
+import { drawGrassPathGizmo, isGrassPathParams } from '../effects/grassPath';
 import type { EffectMaterial } from '../core/material';
 
 export interface RendererHandles {
@@ -21,6 +23,8 @@ export interface RenderOptions {
   selectedId: string | null;
   cssIntensity: number;
   cssEnabled: boolean;
+  pathHoverNode?: number;
+  pathHoverTangent?: { index: number; side: 'left' | 'right' } | null;
 }
 
 /**
@@ -156,7 +160,40 @@ export function createRenderer(handles: RendererHandles) {
 
     if (opts.selectedId) {
       const selected = effects.find((e) => e.id === opts.selectedId);
-      if (selected) drawSelectionGizmo(worldCtx, selected, t, camera.zoom);
+      if (selected) {
+        drawSelectionGizmo(worldCtx, selected, t, camera.zoom);
+        if (isPlacedParams(selected.params) && isSoilParams(selected.params)) {
+          drawSoilGizmo(
+            worldCtx,
+            selected.params,
+            camera.zoom,
+            true,
+            opts.pathHoverNode ?? -1,
+            opts.pathHoverTangent ?? null,
+          );
+        }
+        if (isPlacedParams(selected.params) && isGrassPathParams(selected.params)) {
+          drawGrassPathGizmo(
+            worldCtx,
+            selected.params,
+            camera.zoom,
+            true,
+            opts.pathHoverNode ?? -1,
+            opts.pathHoverTangent ?? null,
+          );
+        }
+      }
+    }
+
+    for (const fx of effects) {
+      if (fx.id === opts.selectedId) continue;
+      if (!isPlacedParams(fx.params)) continue;
+      if (isSoilParams(fx.params) && fx.params.points.length >= 1) {
+        drawSoilGizmo(worldCtx, fx.params, camera.zoom, false);
+      }
+      if (isGrassPathParams(fx.params) && fx.params.points.length >= 1) {
+        drawGrassPathGizmo(worldCtx, fx.params, camera.zoom, false);
+      }
     }
     worldCtx.restore();
 

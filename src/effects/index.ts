@@ -22,6 +22,9 @@ import { toxicGasEffect, disposeToxicGasInstance } from './toxicGas';
 import { bloodMistEffect, disposeBloodMistInstance } from './bloodMist';
 import { leavesEffect, disposeLeavesInstance } from './leaves';
 import { firefliesEffect, disposeFirefliesInstance } from './fireflies';
+import { grassEffect, disposeGrassInstance } from './grass';
+import { grassPathEffect, disposeGrassPathInstance } from './grassPath';
+import { soilEffect, disposeSoilInstance } from './soil';
 import { causticsEffect, disposeCausticsInstance } from './caustics';
 import { frostEffect, disposeFrostInstance } from './frost';
 import { meteorEffect, disposeMeteorInstance } from './meteor';
@@ -63,6 +66,9 @@ export const CREATABLE_EFFECTS: EffectModule[] = [
   bloodMistEffect as unknown as EffectModule,
   leavesEffect as unknown as EffectModule,
   firefliesEffect as unknown as EffectModule,
+  grassEffect as unknown as EffectModule,
+  grassPathEffect as unknown as EffectModule,
+  soilEffect as unknown as EffectModule,
   causticsEffect as unknown as EffectModule,
   frostEffect as unknown as EffectModule,
   meteorEffect as unknown as EffectModule,
@@ -99,6 +105,9 @@ const DISPOSE: Record<string, (id: string) => void> = {
   'blood-mist': disposeBloodMistInstance,
   leaves: disposeLeavesInstance,
   fireflies: disposeFirefliesInstance,
+  grass: disposeGrassInstance,
+  'grass-path': disposeGrassPathInstance,
+  soil: disposeSoilInstance,
   caustics: disposeCausticsInstance,
   frost: disposeFrostInstance,
   meteor: disposeMeteorInstance,
@@ -174,9 +183,16 @@ export function createRandomizedParams(
     module.id === 'fog-bank' ||
     module.id === 'heat-haze' ||
     module.id === 'caustics' ||
-    module.id === 'small-animals'
+    module.id === 'small-animals' ||
+    module.id === 'grass' ||
+    module.id === 'grass-path' ||
+    module.id === 'soil'
   ) {
     base.y = Math.min(scene.worldHeight - 60, Math.max(760, scene.camera.y + 160));
+  }
+  if (module.id === 'soil' || module.id === 'grass-path') {
+    (base as Record<string, unknown>).pathDrawing = true;
+    (base as Record<string, unknown>).points = [];
   }
   if (module.id === 'thunderclouds' || module.id === 'god-rays') {
     base.y = Math.max(280, scene.camera.y - 80 + jitterY * 0.3);
@@ -207,6 +223,9 @@ export {
   bloodMistEffect,
   leavesEffect,
   firefliesEffect,
+  grassEffect,
+  grassPathEffect,
+  soilEffect,
   causticsEffect,
   frostEffect,
   meteorEffect,

@@ -12,7 +12,7 @@ const ROOT = new URL('..', import.meta.url).pathname;
 const OUT_PROGRESS = join(ROOT, 'progress', 'captures');
 const OUT_PUBLIC = join(ROOT, 'public', 'progress', 'captures');
 const PORT = 9222;
-const BASE = 'http://127.0.0.1:5173';
+const BASE = 'http://127.0.0.1:5288';
 
 const targets = process.argv[2] && process.argv[2] !== 'all'
   ? [process.argv[2]]
@@ -55,13 +55,44 @@ async function cdpSend(ws, id, method, params = {}) {
   });
 }
 
-async function captureOne(fx) {
-  const { default: WebSocket } = await import('ws').catch(() => ({ default: null }));
-  // Prefer undici/native: use CDP HTTP /json/new then connect via websockets package if present.
-  // Fallback: chrome --screenshot after page settles using a tiny evaluate via remote interface.
+/**
+ * Minimal `ws`-compatible shim over the runtime's native WebSocket so the
+ * capture harness has no npm dependency (Node >= 21 ships global WebSocket).
+ */
+function openSocket(url) {
+  const sock = new globalThis.WebSocket(url);
+  const listeners = new Map();
+  sock.addEventListener('message', (ev) => {
+    for (const fn of listeners.get('message') ?? []) fn(ev.data);
+  });
+  return {
+    raw: sock,
+    on(evt, fn) {
+      if (!listeners.has(evt)) listeners.set(evt, new Set());
+      listeners.get(evt).add(fn);
+    },
+    off(evt, fn) {
+      listeners.get(evt)?.delete(fn);
+    },
+    send(payload) {
+      sock.send(payload);
+    },
+    close() {
+      sock.close();
+    },
+    opened() {
+      return new Promise((res, rej) => {
+        if (sock.readyState === 1) return res();
+        sock.addEventListener('open', () => res(), { once: true });
+        sock.addEventListener('error', (e) => rej(e), { once: true });
+      });
+    },
+  };
+}
 
+async function captureOne(fx) {
   // Smoke needs longer settle for wind-sheared plume to fill the frame
-  const settle = fx === 'smoke' ? 5600 : 3200;
+  const settle = fx === 'smoke' ? 7800 : 3200;
   const pageUrl = `${BASE}/capture.html?fx=${fx}&settle=${settle}`;
 
   // Create target
@@ -75,24 +106,8 @@ async function captureOne(fx) {
   const wsUrl = created.webSocketDebuggerUrl;
   if (!wsUrl) throw new Error('No webSocketDebuggerUrl: ' + JSON.stringify(created));
 
-  // Dynamic import of ws — install if missing
-  let WS;
-  try {
-    WS = (await import('ws')).default;
-  } catch {
-    console.log('Installing ws…');
-    await new Promise((resolve, reject) => {
-      const p = spawn('pnpm', ['add', '-D', 'ws'], { cwd: ROOT, stdio: 'inherit' });
-      p.on('exit', (c) => (c === 0 ? resolve() : reject(new Error('pnpm add ws failed'))));
-    });
-    WS = (await import('ws')).default;
-  }
-
-  const ws = new WS(wsUrl);
-  await new Promise((res, rej) => {
-    ws.once('open', res);
-    ws.once('error', rej);
-  });
+  const ws = openSocket(wsUrl);
+  await ws.opened();
 
   let nextId = 1;
   const send = (method, params) => cdpSend(ws, nextId++, method, params);

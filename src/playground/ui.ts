@@ -8,6 +8,7 @@ import {
   disposeInstancePools,
 } from '../effects';
 import { isPlacedParams } from '../core/placed';
+import { autoFitHandles, type PathPoint } from '../core/path';
 import { MATERIAL_PRESETS, copyMaterial, type BlendMode } from '../core/material';
 
 type PaneWithFolders = Pane & {
@@ -43,7 +44,7 @@ type LoopApi = {
   setSpeed: (speed: number) => void;
 };
 
-const SKIP_KEYS = new Set(['enabled', 'intensity', 'instanceId', 'material']);
+const SKIP_KEYS = new Set(['enabled', 'intensity', 'instanceId', 'material', 'points', 'pathDrawing', 'smooth', 'fillHill']);
 
 /**
  * Playground UI: globals, Create VFX, selected-instance editor (transform + material),
@@ -290,7 +291,93 @@ export function createPlaygroundUI(
       }
     }
 
+    // Soil closed spline editor
+    if (rt.module.id === 'soil' && isPlacedParams(rt.params)) {
+      addPathEditorFolder(folder, rt.params as unknown as Record<string, unknown>, 3, 'Close shape & fill (Enter)');
+    }
+
+    // Grass Path — open line editor (never closed like Soil)
+    if (rt.module.id === 'grass-path' && isPlacedParams(rt.params)) {
+      const pathBag = rt.params as unknown as Record<string, unknown> & {
+        points: { ox: number; oy: number }[];
+        pathDrawing: boolean;
+        fillHill: boolean;
+      };
+      const pathFolder = folder.addFolder({ title: 'Open path', expanded: true });
+      pathFolder.addBinding(pathBag, 'pathDrawing', { label: 'Click stage to add points' });
+      pathFolder.addBinding(pathBag, 'fillHill', { label: 'Fill hill below path' });
+      pathFolder.addBinding(pathBag, 'smooth', { min: 0, max: 1, step: 0.05, label: 'Spline smooth' });
+      pathFolder
+        .addButton({ title: 'Done path (Enter)' })
+        .on('click', () => {
+          if (pathBag.points.length >= 2) pathBag.pathDrawing = false;
+        });
+      pathFolder
+        .addButton({ title: 'Remove last point' })
+        .on('click', () => {
+          pathBag.points.pop();
+        });
+      pathFolder
+        .addButton({ title: 'Clear all points' })
+        .on('click', () => {
+          pathBag.points.length = 0;
+          pathBag.pathDrawing = true;
+        });
+      pathFolder
+        .addButton({ title: 'Add points again' })
+        .on('click', () => {
+          pathBag.pathDrawing = true;
+        });
+      pathFolder
+        .addButton({ title: 'Auto-fit angle handles' })
+        .on('click', () => {
+          autoFitHandles(pathBag.points as PathPoint[], false);
+        });
+    }
+
     folder.addButton({ title: 'Remove instance' }).on('click', () => removeRuntime(rt));
+  }
+
+  function addPathEditorFolder(
+    parent: FolderWithBindings,
+    params: Record<string, unknown>,
+    minNodes: number,
+    closeLabel: string,
+  ): void {
+    const pathBag = params as Record<string, unknown> & {
+      points: { ox: number; oy: number }[];
+      pathDrawing: boolean;
+    };
+    const pathFolder = parent.addFolder({ title: 'Path nodes', expanded: true });
+    pathFolder.addBinding(pathBag, 'pathDrawing', { label: 'Add nodes (click stage)' });
+    pathFolder.addBinding(pathBag, 'smooth', { min: 0, max: 1, step: 0.05, label: 'Spline smooth' });
+    pathFolder
+      .addButton({ title: closeLabel })
+      .on('click', () => {
+        if (pathBag.points.length >= minNodes) pathBag.pathDrawing = false;
+      });
+    pathFolder
+      .addButton({ title: 'Remove last node' })
+      .on('click', () => {
+        pathBag.points.pop();
+      });
+    pathFolder
+      .addButton({ title: 'Clear all nodes' })
+      .on('click', () => {
+        pathBag.points.length = 0;
+        pathBag.pathDrawing = true;
+      });
+    pathFolder
+      .addButton({ title: 'Edit nodes again' })
+      .on('click', () => {
+        pathBag.pathDrawing = true;
+      });
+    pathFolder
+      .addButton({ title: 'Auto-fit angle handles' })
+      .on('click', () => {
+        autoFitHandles(pathBag.points as PathPoint[], minNodes >= 3);
+      });
+    pathFolder.addButton({ title: 'Tip: drag light handles to bend · Alt breaks mirror' });
   }
 
   function addSimpleEffectFolder(host: FolderWithBindings, rt: EffectRuntime): void {

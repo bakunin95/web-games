@@ -1,6 +1,7 @@
 import type { BaseEffectParams } from './types';
 import type { EffectMaterial } from './material';
 import { createDefaultMaterial } from './material';
+import { pathBounds, type PathPoint } from './path';
 
 /** Params shared by placeable / selectable creatable VFX. */
 export interface PlacedEffectParams extends BaseEffectParams {
@@ -82,6 +83,24 @@ export function getPlacedBounds(
   } else if (typeId === 'fire') {
     const s = Number(params.size ?? 1) * 80;
     raw = { x: params.x - s * 0.7, y: params.y - s * 2.2, w: s * 1.4, h: s * 2.5 };
+  } else if (typeId === 'soil' || typeId === 'grass-path') {
+    const pts = params.points as PathPoint[] | undefined;
+    if (pts && pts.length > 0) {
+      raw = pathBounds(
+        { ...params, points: pts } as PlacedEffectParams & { points: PathPoint[] },
+        24,
+      );
+    } else {
+      raw = { x: params.x - 80, y: params.y - 80, w: 160, h: 160 };
+    }
+  } else if (typeId === 'grass' || typeId === 'flowers') {
+    const spread = Number(params.spread ?? 1) * 120;
+    raw = {
+      x: params.x - spread,
+      y: params.y - 80 * Number(params.height ?? 1),
+      w: spread * 2,
+      h: 90 * Number(params.height ?? 1),
+    };
   } else if (typeId === 'meteor') {
     const s = Number(params.size ?? 1) * 100;
     raw = { x: params.x - s, y: params.y - s * 1.5, w: s * 2, h: s * 1.8 };
