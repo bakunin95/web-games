@@ -22,11 +22,11 @@ const ROOMS = [
       '#..........H...........#',
       '#..........H...........#',
       '#..........H...........#',
-      '#......................#',
-      '#......................#',
-      '#......................#',
-      '#......................#',
-      '#M.....................#',
+      '#..........H...........#',
+      '#..........H...........#',
+      '#..........H...........#',
+      '#..........H...........#',
+      '#M.........H...........#',
       '########################',
     ],
   },
@@ -40,13 +40,13 @@ const ROOMS = [
       '#......................#',
       '#K...................D.#',
       '#......................#',
-      '#==..............==....#',
+      '#====............====..#',
+      '#......................#',
+      '#......====....====....#',
       '#......................#',
       '#......................#',
-      '#......==......==......#',
+      '#....====........====..#',
       '#......................#',
-      '#......................#',
-      '#==..............==....#',
       '#......................#',
       '#M.....................#',
       '########################',
@@ -60,16 +60,16 @@ const ROOMS = [
     map: [
       '########################',
       '#......................#',
-      '#..........D...........#',
-      '#......................#',
-      '#====S~~~~====.........#',
+      '#....................D.#',
       '#......................#',
       '#......................#',
+      '#====S~~~~========.....#',
       '#......................#',
       '#......................#',
+      '#........====..........#',
       '#......................#',
       '#......................#',
-      '#......................#',
+      '#....====..............#',
       '#M.....................#',
       '########################',
     ],
@@ -261,9 +261,12 @@ function update(dt) {
 
   const midX = player.x + player.w / 2;
   const midY = player.y + player.h * 0.5;
-  player.onLadder = ladderAt(midX, midY) || ladderAt(midX, player.y + player.h - 2);
+  player.onLadder =
+    ladderAt(midX, midY) ||
+    ladderAt(midX, player.y + 4) ||
+    ladderAt(midX, player.y + player.h - 2);
 
-  const speed = hasKey ? 140 : 170;
+  const speed = hasKey ? 150 : 190;
   player.vx = 0;
   if (left) {
     player.vx = -speed;
@@ -274,20 +277,23 @@ function update(dt) {
     player.facing = 1;
   }
 
-  if (player.onLadder) {
+  if (player.onLadder && (up || down || ladderAt(midX, midY))) {
     player.vy = 0;
-    if (up) player.vy = -120;
-    if (down) player.vy = 120;
-    // allow jump-off
+    if (up) player.vy = -150;
+    if (down) player.vy = 150;
+    // slight horizontal snap toward ladder center while climbing
+    const tx = Math.floor(midX / TILE);
+    const target = tx * TILE + (TILE - player.w) / 2;
+    player.x += (target - player.x) * Math.min(1, 8 * dt);
     if (keys.has(' ') && !up) {
-      player.vy = -280;
+      player.vy = -300;
       player.onLadder = false;
     }
   } else {
-    player.vy += 980 * dt;
-    if (player.vy > 520) player.vy = 520;
+    player.vy += 1100 * dt;
+    if (player.vy > 560) player.vy = 560;
     if (jump && player.onGround) {
-      player.vy = -320;
+      player.vy = -380;
       player.onGround = false;
     }
   }
