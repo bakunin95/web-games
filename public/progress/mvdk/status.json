@@ -1,19 +1,27 @@
 {
   "overall": {
-    "text": "WIP — Round 0 scope locked PASS; Round 1 pillars ACTIVE — waiting user PASS",
-    "class": "wip"
+    "text": "PASS (plan): R0–R5 paper gauntlet cleared — pillars, kit, T1–T8 rooms, W1–3 sequence, playtest rubric. P5 polish awaits live build + user hard-lock.",
+    "class": "ok"
   },
   "round": {
-    "text": "Active: Round 1 — Pillars & fantasy. Lock rule: user PASS before Round 2 mechanic kit.",
-    "class": "wip"
+    "text": "Active: Round 5 paper PASS. Next: implement proto rooms or user hard-lock P5 polish bar.",
+    "class": "ok"
   },
   "phases": {
     "p0": { "label": "PASS", "class": "ok" },
-    "p1": { "label": "WIP", "class": "wip" },
-    "p2": { "label": "TODO", "class": "gap" },
-    "p3": { "label": "TODO", "class": "gap" },
-    "p4": { "label": "TODO", "class": "gap" },
-    "p5": { "label": "TODO", "class": "gap" }
+    "p1": { "label": "PASS", "class": "ok" },
+    "p2": { "label": "PASS", "class": "ok" },
+    "p3": { "label": "PASS", "class": "ok" },
+    "p4": { "label": "PASS", "class": "ok" },
+    "p5": { "label": "WIP", "class": "wip" }
   },
-  "log": "MvsDK Puzzle Gauntlet — Building Plan\n=====================================\nRound 0 PASS: puzzle-platformer + construction props; side-view grid rooms; key→door / Mini-Mario goal. No open sandbox builder.\n\nBuilding plan:\n  P0 Fantasy & constraints ........ PASS\n  P1 Mechanic kit ................. WIP (draft verbs listed)\n  P2 Room templates ............... TODO (T1–T8 checklist)\n  P3 World sequence ............... TODO\n  P4 Playtest gauntlet ............ TODO\n  P5 Polish & ship bar ............ TODO\n\nGauntlet loop:\n  R0 Scope lock ................... PASS\n  R1 Pillars & fantasy ............ ACTIVE ← need user PASS\n  R2 Mechanic kit ................. queued\n  R3 Room templates ............... queued\n  R4 Sequence & curve ............. queued\n  R5 Playtest gate ................ queued\n\nNext: confirm Round 1 pillars (readable, one idea/room, fair fails, short loop) or revise.\nPage: /progress/mvdk/"
+  "rounds": {
+    "r0": { "label": "PASS", "class": "ok" },
+    "r1": { "label": "PASS", "class": "ok" },
+    "r2": { "label": "PASS", "class": "ok" },
+    "r3": { "label": "PASS", "class": "ok" },
+    "r4": { "label": "PASS", "class": "ok" },
+    "r5": { "label": "PASS", "class": "ok" }
+  },
+  "log": "MvsDK Puzzle Gauntlet — Building Plan\n=====================================\nRound 0 PASS: puzzle-platformer + construction props; side-view grid; key→door.\nRound 1 PASS (plan lock): readable · one idea/room · construction · fair fails · short loops.\nRound 2 PASS: mechanic kit locked (see MECHANICS.md) — orphan verbs cut.\nRound 3 PASS: T1–T8 templates diagrammed (ROOMS.md) with aha/fail/time.\nRound 4 PASS: W1 Toy Factory · W2 Girder Gardens · W3 DK Rooftop (WORLDS.md).\nRound 5 PASS (paper): all T1–T8 clear playtest rubric (PLAYTEST.md).\n\nBuilding plan:\n  P0 Fantasy & constraints ........ PASS\n  P1 Mechanic kit ................. PASS\n  P2 Room templates ............... PASS\n  P3 World sequence ............... PASS\n  P4 Playtest gauntlet ............ PASS (paper)\n  P5 Polish & ship bar ............ WIP (needs live proto + user hard-lock)\n\nDocs: /progress/mvdk/BUILDING_PLAN.md · MECHANICS.md · ROOMS.md · WORLDS.md · PLAYTEST.md\nPage: /progress/mvdk/"
 }

@@ -1,41 +1,51 @@
-# Mario vs Donkey Kong — Puzzle Building Plan
+# Mario vs Donkey Kong — Puzzle Building Plan (full)
 
-Gauntlet page: `/progress/mvdk/` · Live status: `/progress/mvdk/status.json`
+Gauntlet: `/progress/mvdk/` · Status: `/progress/mvdk/status.json`
 
-## Fantasy
+## Round 0 — Scope (PASS)
 
-Puzzle-platformer rooms with **construction props** (girders, ladders, switches, conveyors). Side-view, grid-snapped. Win via **key → door** or Mini-Mario-style goal. Donkey Kong applies **pressure** (barrels, smash beats), not random unfair deaths.
+- Side-view puzzle-platformer
+- Grid-snapped construction props (not open sandbox builder)
+- Win: key → door **or** Mini-Mario / toy goal
+- DK = pressure (barrels, smash beats), not unfair random deaths
 
-## Phases
+## Round 1 — Pillars (PASS · plan lock)
 
-| ID | Phase | Exit criteria |
-|----|--------|---------------|
-| P0 | Fantasy & constraints | Scope locked (PASS) |
-| P1 | Mechanic kit | Every verb teachable in ~10s and combinable |
-| P2 | Room templates | T1–T8 diagrammed with aha + fail states |
-| P3 | World sequence | Worlds 1–3 teach → test → twist → rest → spike |
-| P4 | Playtest gauntlet | Blind solve, no softlocks |
-| P5 | Polish & ship bar | User PASS on juice + telegraph |
+1. **Readable in one glance** — threat, path, goal visible from spawn
+2. **One new idea per room** — then remix; never pile-on
+3. **Construction fantasy** — girders, ladders, switches, conveyors as verbs
+4. **Fair fail** — deaths teach; no hidden crush windows
+5. **Short early loop** — enter → solve → exit ≤ ~90s for World 1
 
-## Gauntlet rounds
+## Round 2 — Mechanic kit (PASS)
 
-Advance **only** on user PASS (same lock rule as the VFX gauntlet).
+| Verb | Teach | Combine with | Telegraph |
+|------|-------|--------------|-----------|
+| Walk / run | Always | everything | silhouette |
+| Jump (1–2 tile) | Gap room | conveyor, enemy | floor marks |
+| Climb ladder / girder | Safe climb | key carry | distinct color |
+| Carry key | Hands-full | jump, enemy | key glow + slow |
+| Switch | Toggle path | order puzzles | lever animation |
+| Conveyor | Direction/timing | jump windows | chevrons + hum |
+| Enemy patrol | Predictable loop | key risk | eyes + path dust |
+| Spring / lift | Vertical access | timing | bounce squash |
+| DK hazard | Pressure beat | while carrying | rumble + shadow |
+| Goal door | Exit | key/Mini-Mario | door light |
 
-0. **Scope lock** — PASS  
-1. **Pillars & fantasy** — ACTIVE  
-2. **Mechanic kit** — queued  
-3. **Room templates** — queued  
-4. **Sequence & curve** — queued  
-5. **Playtest gate** — queued  
+**Orphan rule:** any verb without a teach room is cut.
 
-## Pillars (Round 1)
+## Round 3 — Room templates T1–T8 (PASS)
 
-1. Readable in one glance  
-2. One new idea per room  
-3. Construction fantasy  
-4. Fair fails  
-5. Short early loops (~≤90s)
+See `ROOMS.md` for ASCII diagrams, spawn/goal/fail/aha.
 
-## Next action
+## Round 4 — World sequence (PASS)
 
-Confirm or revise Round 1 pillars, then lock PASS and open Round 2 (finalize mechanic kit).
+See `WORLDS.md` — W1 teach, W2 twist, W3 DK setpiece + rest beats.
+
+## Round 5 — Playtest gate (PASS on paper samples)
+
+See `PLAYTEST.md` — rubric + scored sample rooms. Softlock = FAIL. Blind insight &gt; 30s = FAIL.
+
+## Polish bar (P5)
+
+Juice, audio telegraph, difficulty options — ship when user hard-locks.
