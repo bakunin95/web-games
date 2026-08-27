@@ -36,12 +36,18 @@ import { embersEffect } from './embers';
 import { shatterEffect, disposeShatterInstance } from './shatter';
 import { windowGlassShatterEffect, disposeWindowGlassShatterInstance } from './windowGlassShatter';
 import { neonSignEffect, disposeNeonSignInstance } from './neonSign';
+import { manholeSteamEffect } from './manholeSteam';
+import { caveLightRaysEffect } from './caveLightRays';
+import { outdoorFogEffect } from './outdoorFog';
 
 export const BUILTIN_EFFECTS: EffectModule[] = [
   rainEffect as unknown as EffectModule,
   hazardAtmosphereEffect as unknown as EffectModule,
   embersEffect as unknown as EffectModule,
   neonBloomEffect as unknown as EffectModule,
+  manholeSteamEffect as unknown as EffectModule,
+  caveLightRaysEffect as unknown as EffectModule,
+  outdoorFogEffect as unknown as EffectModule,
 ];
 
 export const CREATABLE_EFFECTS: EffectModule[] = [
@@ -226,4 +232,7 @@ export {
   shatterEffect,
   windowGlassShatterEffect,
   neonSignEffect,
+  manholeSteamEffect,
+  caveLightRaysEffect,
+  outdoorFogEffect,
 };
