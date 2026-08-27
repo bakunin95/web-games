@@ -35,6 +35,7 @@ import { neonBloomEffect } from './neonBloom';
 import { embersEffect } from './embers';
 import { shatterEffect, disposeShatterInstance } from './shatter';
 import { windowGlassShatterEffect, disposeWindowGlassShatterInstance } from './windowGlassShatter';
+import { neonSignEffect, disposeNeonSignInstance } from './neonSign';
 
 export const BUILTIN_EFFECTS: EffectModule[] = [
   rainEffect as unknown as EffectModule,
@@ -44,6 +45,7 @@ export const BUILTIN_EFFECTS: EffectModule[] = [
 ];
 
 export const CREATABLE_EFFECTS: EffectModule[] = [
+  neonSignEffect as unknown as EffectModule,
   windowGlassShatterEffect as unknown as EffectModule,
   fireEffect as unknown as EffectModule,
   smokeEffect as unknown as EffectModule,
@@ -108,6 +110,7 @@ const DISPOSE: Record<string, (id: string) => void> = {
   meteor: disposeMeteorInstance,
   shatter: disposeShatterInstance,
   'window-glass-shatter': disposeWindowGlassShatterInstance,
+  'neon-sign': disposeNeonSignInstance,
   ...PACK2_DISPOSE,
   ...PACK3_DISPOSE,
   ...CREATURE_DISPOSE,
@@ -222,4 +225,5 @@ export {
   embersEffect,
   shatterEffect,
   windowGlassShatterEffect,
+  neonSignEffect,
 };
