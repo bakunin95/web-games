@@ -1,8 +1,9 @@
 {
-  "name": "web-games-vfx-playground",
+  "name": "gauntlet-playground",
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "description": "Gauntlet — atmospheric Canvas 2D VFX playground with live parameter tweaking",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

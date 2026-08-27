@@ -1,6 +1,8 @@
-# VFX Playground
+# Gauntlet Playground
 
 Standalone HTML/TypeScript playground for designing atmospheric and world visual effects for HTML5 Canvas games. Live parameter tweaking, modular effect files, Canvas 2D baseline — no game engine lock-in.
+
+**Flagship demo**: Building Window (Rain→Shatter) — a chained interactive sequence where rain drops slide down glass, then the window shatters into physics-driven shards on click. Place fire or neon behind the window to see effects composite through wet glass.
 
 ## Quick start
 
