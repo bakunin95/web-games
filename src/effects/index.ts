@@ -33,12 +33,15 @@ import { rainEffect } from './rain';
 import { hazardAtmosphereEffect } from './hazardAtmosphere';
 import { neonBloomEffect } from './neonBloom';
 import { embersEffect } from './embers';
+import { rainOnGlassEffect } from './rainOnGlass';
+import { shatterEffect, disposeShatterInstance } from './shatter';
 
 export const BUILTIN_EFFECTS: EffectModule[] = [
   rainEffect as unknown as EffectModule,
   hazardAtmosphereEffect as unknown as EffectModule,
   embersEffect as unknown as EffectModule,
   neonBloomEffect as unknown as EffectModule,
+  rainOnGlassEffect as unknown as EffectModule,
 ];
 
 export const CREATABLE_EFFECTS: EffectModule[] = [
@@ -66,6 +69,7 @@ export const CREATABLE_EFFECTS: EffectModule[] = [
   causticsEffect as unknown as EffectModule,
   frostEffect as unknown as EffectModule,
   meteorEffect as unknown as EffectModule,
+  shatterEffect as unknown as EffectModule,
   ...PACK2_EFFECTS,
   ...PACK3_EFFECTS,
   ...CREATURE_EFFECTS,
@@ -102,6 +106,7 @@ const DISPOSE: Record<string, (id: string) => void> = {
   caustics: disposeCausticsInstance,
   frost: disposeFrostInstance,
   meteor: disposeMeteorInstance,
+  shatter: disposeShatterInstance,
   ...PACK2_DISPOSE,
   ...PACK3_DISPOSE,
   ...CREATURE_DISPOSE,
@@ -214,4 +219,6 @@ export {
   hazardAtmosphereEffect,
   neonBloomEffect,
   embersEffect,
+  rainOnGlassEffect,
+  shatterEffect,
 };
