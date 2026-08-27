@@ -61,14 +61,15 @@ const interactions = attachStageInteractions(stage, scene, runtimes, (id) => {
 
 function onKeyDown(e: KeyboardEvent): void {
   if (e.code === 'Space' && !e.repeat) {
-    const rgShatterRuntime = runtimes.find(rt => rt.module.id === 'rain-glass-shatter');
-    if (rgShatterRuntime && rgShatterRuntime.params.enabled) {
-      import('./effects/rainGlassShatter').then(({ triggerShatter }) => {
-        const centerX = scene.viewportWidth / 2;
-        const centerY = scene.viewportHeight / 2;
-        triggerShatter(centerX, centerY, Date.now(), scene, rgShatterRuntime.params as never, scene.time);
-      });
-      e.preventDefault();
+    for (const rt of runtimes) {
+      if (rt.module.id === 'window-glass-shatter' && rt.params.enabled) {
+        import('./effects/windowGlassShatter').then(({ triggerWindowShatter }) => {
+          const params = rt.params as any;
+          triggerWindowShatter(params.instanceId, params.x, params.y, params, scene.time);
+        });
+        e.preventDefault();
+        break;
+      }
     }
   }
 }
@@ -78,16 +79,25 @@ function onStageClick(e: MouseEvent): void {
     return;
   }
   
-  const rgShatterRuntime = runtimes.find(rt => rt.module.id === 'rain-glass-shatter');
-  if (rgShatterRuntime && rgShatterRuntime.params.enabled) {
-    const rect = stage.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    import('./effects/rainGlassShatter').then(({ triggerShatter }) => {
-      triggerShatter(x, y, Date.now(), scene, rgShatterRuntime.params as never, scene.time);
-    });
-  }
+  const rect = stage.getBoundingClientRect();
+  const sx = e.clientX - rect.left;
+  const sy = e.clientY - rect.top;
+  const world = { 
+    x: (sx - scene.viewportWidth / 2) / scene.camera.zoom + scene.camera.x,
+    y: (sy - scene.viewportHeight / 2) / scene.camera.zoom + scene.camera.y,
+  };
+  
+  import('./effects/windowGlassShatter').then(({ triggerWindowShatter, hitTestWindow }) => {
+    for (const rt of runtimes) {
+      if (rt.module.id === 'window-glass-shatter' && rt.params.enabled) {
+        const params = rt.params as any;
+        if (hitTestWindow(params, world.x, world.y)) {
+          triggerWindowShatter(params.instanceId, world.x, world.y, params, scene.time);
+          break;
+        }
+      }
+    }
+  });
 }
 
 window.addEventListener('keydown', onKeyDown);
