@@ -36,19 +36,21 @@ Other scripts:
 | Hazard Atmosphere | world | `src/effects/hazardAtmosphere.ts` |
 | Embers / Smoke | world | `src/effects/embers.ts` |
 | Neon Bloom Overlay | screen | `src/effects/neonBloom.ts` |
-| Rain on Glass | screen | `src/effects/rainOnGlass.ts` |
 | Fire *(creatable)* | world | `src/effects/fire.ts` |
 | Smoke *(creatable)* | world | `src/effects/smoke.ts` |
 | Sparks *(creatable)* | world | `src/effects/sparks.ts` |
 | Water *(creatable)* | world | `src/effects/water.ts` |
+| Building Window *(creatable)* | world | `src/effects/windowGlassShatter.ts` |
 
 ### Create new VFX
 
 Use the **+ Create VFX** button (or panel **Create VFX** folder). Types include:
 
-Fire, Smoke, Sparks, Water, Lightning, Thunderclouds, Snow / Blizzard, Fog Bank, Heat Haze, Sandstorm, Dust Motes, God Rays, Explosion, Shockwave, Magic Aura, Portal / Rift, Electric Arcs, Toxic Gas, Blood Mist, Leaves / Debris, Fireflies, Caustics, Ice / Frost, Meteor, **Object Shatter**.
+**Building Window (Rain→Shatter)**, Fire, Smoke, Sparks, Water, Lightning, Thunderclouds, Snow / Blizzard, Fog Bank, Heat Haze, Sandstorm, Dust Motes, God Rays, Explosion, Shockwave, Magic Aura, Portal / Rift, Electric Arcs, Toxic Gas, Blood Mist, Leaves / Debris, Fireflies, Caustics, Ice / Frost, Meteor, Object Shatter.
 
 Each spawn gets randomized seed/placement and uses an **EffectMaterial** (baseColor, emissive, opacity, roughness, metalness, blend). Click to select, drag to move, Minimize editor to hide the pane.
+
+**Building Window** is a special interactive sequence: rain drops slide down glass with coalescence → click to shatter with Voronoi fracture → shards fall with physics → auto-reset. Place other VFX behind it so they show through the wet glass.
 
 
 
