@@ -59,6 +59,81 @@ const interactions = attachStageInteractions(stage, scene, runtimes, (id) => {
   ui.selectRuntime(id);
 });
 
+function onKeyDown(e: KeyboardEvent): void {
+  if (e.code === 'Space' && !e.repeat) {
+    for (const rt of runtimes) {
+      if (rt.module.id === 'window-glass-shatter' && rt.params.enabled) {
+        import('./effects/windowGlassShatter').then(({ triggerWindowShatter }) => {
+          const params = rt.params as any;
+          triggerWindowShatter(params.instanceId, params.x, params.y, params, scene.time);
+        });
+        e.preventDefault();
+        break;
+      }
+    }
+  }
+}
+
+function onStageClick(e: MouseEvent): void {
+  if ((e.target as HTMLElement).closest('.tp-dfwv, #panel, .create-menu, .chrome, .create-btn, .ghost-btn, .reset-btn')) {
+    return;
+  }
+  
+  const rect = stage.getBoundingClientRect();
+  const sx = e.clientX - rect.left;
+  const sy = e.clientY - rect.top;
+  const world = { 
+    x: (sx - scene.viewportWidth / 2) / scene.camera.zoom + scene.camera.x,
+    y: (sy - scene.viewportHeight / 2) / scene.camera.zoom + scene.camera.y,
+  };
+  
+  import('./effects/windowGlassShatter').then(({ triggerWindowShatter, hitTestWindow }) => {
+    for (const rt of runtimes) {
+      if (rt.module.id === 'window-glass-shatter' && rt.params.enabled) {
+        const params = rt.params as any;
+        if (hitTestWindow(params, world.x, world.y)) {
+          triggerWindowShatter(params.instanceId, world.x, world.y, params, scene.time);
+          break;
+        }
+      }
+    }
+  });
+}
+
+window.addEventListener('keydown', onKeyDown);
+stage.addEventListener('click', onStageClick);
+
+const scenePresets: Record<string, string[]> = {
+  'neon-mill': ['neon-sign', 'window-glass-shatter', 'rain', 'embers', 'neon-bloom'],
+  'manhole': ['manhole-steam', 'hazard-atmosphere'],
+  'cave-rays': ['cave-light-rays'],
+  'forest-fog': ['outdoor-fog', 'embers'],
+};
+
+function loadScenePreset(sceneId: string): void {
+  const effectIds = scenePresets[sceneId];
+  if (!effectIds) return;
+  
+  for (const rt of runtimes) {
+    rt.params.enabled = effectIds.includes(rt.module.id);
+  }
+  
+  ui.selectRuntime(null);
+  
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-scene') === sceneId);
+  });
+}
+
+document.querySelectorAll('.view-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const sceneId = btn.getAttribute('data-scene');
+    if (sceneId) loadScenePreset(sceneId);
+  });
+});
+
+loadScenePreset('neon-mill');
+
 function onResize(): void {
   renderer.resize(scene);
   clampCamera(scene.camera, scene);

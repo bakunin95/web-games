@@ -33,15 +33,26 @@ import { rainEffect } from './rain';
 import { hazardAtmosphereEffect } from './hazardAtmosphere';
 import { neonBloomEffect } from './neonBloom';
 import { embersEffect } from './embers';
+import { shatterEffect, disposeShatterInstance } from './shatter';
+import { windowGlassShatterEffect, disposeWindowGlassShatterInstance } from './windowGlassShatter';
+import { neonSignEffect, disposeNeonSignInstance } from './neonSign';
+import { manholeSteamEffect } from './manholeSteam';
+import { caveLightRaysEffect } from './caveLightRays';
+import { outdoorFogEffect } from './outdoorFog';
 
 export const BUILTIN_EFFECTS: EffectModule[] = [
   rainEffect as unknown as EffectModule,
   hazardAtmosphereEffect as unknown as EffectModule,
   embersEffect as unknown as EffectModule,
   neonBloomEffect as unknown as EffectModule,
+  manholeSteamEffect as unknown as EffectModule,
+  caveLightRaysEffect as unknown as EffectModule,
+  outdoorFogEffect as unknown as EffectModule,
 ];
 
 export const CREATABLE_EFFECTS: EffectModule[] = [
+  neonSignEffect as unknown as EffectModule,
+  windowGlassShatterEffect as unknown as EffectModule,
   fireEffect as unknown as EffectModule,
   smokeEffect as unknown as EffectModule,
   sparksEffect as unknown as EffectModule,
@@ -66,6 +77,7 @@ export const CREATABLE_EFFECTS: EffectModule[] = [
   causticsEffect as unknown as EffectModule,
   frostEffect as unknown as EffectModule,
   meteorEffect as unknown as EffectModule,
+  shatterEffect as unknown as EffectModule,
   ...PACK2_EFFECTS,
   ...PACK3_EFFECTS,
   ...CREATURE_EFFECTS,
@@ -102,6 +114,9 @@ const DISPOSE: Record<string, (id: string) => void> = {
   caustics: disposeCausticsInstance,
   frost: disposeFrostInstance,
   meteor: disposeMeteorInstance,
+  shatter: disposeShatterInstance,
+  'window-glass-shatter': disposeWindowGlassShatterInstance,
+  'neon-sign': disposeNeonSignInstance,
   ...PACK2_DISPOSE,
   ...PACK3_DISPOSE,
   ...CREATURE_DISPOSE,
@@ -214,4 +229,10 @@ export {
   hazardAtmosphereEffect,
   neonBloomEffect,
   embersEffect,
+  shatterEffect,
+  windowGlassShatterEffect,
+  neonSignEffect,
+  manholeSteamEffect,
+  caveLightRaysEffect,
+  outdoorFogEffect,
 };

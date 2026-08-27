@@ -1,6 +1,13 @@
-# VFX Playground
+# Gauntlet Playground
 
 Standalone HTML/TypeScript playground for designing atmospheric and world visual effects for HTML5 Canvas games. Live parameter tweaking, modular effect files, Canvas 2D baseline — no game engine lock-in.
+
+**Flagship gauntlet demos**:
+- **Neon Sign (Text)**: Montreal's Five Roses mill sign — FARINE / FIVE ROSES with authentic 22s night cycle, real neon tube rendering (not fillText), flicker, broken letters
+- **Building Window (Rain→Shatter)**: Rain drops slide down glass, then window shatters into physics-driven shards on click. Place fire or neon behind window to see effects composite through wet glass
+- **Manhole Steam**: Cast-iron NYC sewer manhole on asphalt, wispy translucent steam venting from holes with slow rise and drift
+- **Cave Light Rays**: Volumetric pale-blue light shafts through atmospheric mist in a dark teal cave, soft edges, no hard triangles
+- **Outdoor Fog**: Layered teal forest silhouettes with distance fog, low ground mist, and soft haze glow
 
 ## Quick start
 
@@ -24,6 +31,7 @@ Other scripts:
 
 - Full-bleed dual-canvas preview (`requestAnimationFrame` clock with pause / scrub / speed)
 - Mock night-city scene context: camera pan+zoom, world size, neon lights, rain/wet flag, wind, hazard zones
+- **View switcher** for gauntlet scenes: Neon Mill, Manhole, Cave Rays, Forest Fog
 - Modular effects (`one file ≈ one draw function`) with a consistent API
 - World-space FX and screen-space overlays (second canvas + optional CSS layer)
 - Live Tweakpane UI for enable, intensity, colors, wind, time, and per-effect knobs
@@ -36,18 +44,27 @@ Other scripts:
 | Hazard Atmosphere | world | `src/effects/hazardAtmosphere.ts` |
 | Embers / Smoke | world | `src/effects/embers.ts` |
 | Neon Bloom Overlay | screen | `src/effects/neonBloom.ts` |
+| **Manhole Steam** | world | `src/effects/manholeSteam.ts` |
+| **Cave Light Rays** | screen | `src/effects/caveLightRays.ts` |
+| **Outdoor Fog** | screen | `src/effects/outdoorFog.ts` |
 | Fire *(creatable)* | world | `src/effects/fire.ts` |
 | Smoke *(creatable)* | world | `src/effects/smoke.ts` |
 | Sparks *(creatable)* | world | `src/effects/sparks.ts` |
 | Water *(creatable)* | world | `src/effects/water.ts` |
+| Building Window *(creatable)* | world | `src/effects/windowGlassShatter.ts` |
+| Neon Sign *(creatable)* | world | `src/effects/neonSign.ts` |
 
 ### Create new VFX
 
 Use the **+ Create VFX** button (or panel **Create VFX** folder). Types include:
 
-Fire, Smoke, Sparks, Water, Lightning, Thunderclouds, Snow / Blizzard, Fog Bank, Heat Haze, Sandstorm, Dust Motes, God Rays, Explosion, Shockwave, Magic Aura, Portal / Rift, Electric Arcs, Toxic Gas, Blood Mist, Leaves / Debris, Fireflies, Caustics, Ice / Frost, Meteor.
+**Neon Sign (Text)**, **Building Window (Rain→Shatter)**, Fire, Smoke, Sparks, Water, Lightning, Thunderclouds, Snow / Blizzard, Fog Bank, Heat Haze, Sandstorm, Dust Motes, God Rays, Explosion, Shockwave, Magic Aura, Portal / Rift, Electric Arcs, Toxic Gas, Blood Mist, Leaves / Debris, Fireflies, Caustics, Ice / Frost, Meteor, Object Shatter.
 
 Each spawn gets randomized seed/placement and uses an **EffectMaterial** (baseColor, emissive, opacity, roughness, metalness, blend). Click to select, drag to move, Minimize editor to hide the pane.
+
+**Neon Sign** renders editable text as real neon tubes with Montreal Five Roses mill cycle: FARINE (outline) / FIVE ROSES (3 tubes wide), cycling on/off pattern, flicker, broken letters.
+
+**Building Window** is an interactive sequence: rain drops slide down glass with coalescence → click to shatter with Voronoi fracture → shards fall with physics → auto-reset. Place other VFX behind it so they show through the wet glass.
 
 
 

@@ -99,6 +99,12 @@ export function getPlacedBounds(
   } else if (typeId === 'comet-trail' || typeId === 'laser-grid') {
     const s = Number(params.size ?? 1) * 120;
     raw = { x: params.x - s, y: params.y - s * 0.6, w: s * 2, h: s * 1.2 };
+  } else if (typeId === 'neon-sign') {
+    const fontSize = Number(params.fontSize ?? 72);
+    const lineSpacing = Number(params.lineSpacing ?? 120);
+    const estimatedWidth = fontSize * 12;
+    const estimatedHeight = lineSpacing + fontSize;
+    raw = { x: params.x - estimatedWidth / 2, y: params.y - estimatedHeight / 2, w: estimatedWidth, h: estimatedHeight };
   } else {
     const s = Number(params.size ?? 1) * 80;
     raw = { x: params.x - s, y: params.y - s * 1.4, w: s * 2, h: s * 2 };
