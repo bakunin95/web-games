@@ -2,7 +2,9 @@
 
 Standalone HTML/TypeScript playground for designing atmospheric and world visual effects for HTML5 Canvas games. Live parameter tweaking, modular effect files, Canvas 2D baseline — no game engine lock-in.
 
-**Flagship demo**: Building Window (Rain→Shatter) — a chained interactive sequence where rain drops slide down glass, then the window shatters into physics-driven shards on click. Place fire or neon behind the window to see effects composite through wet glass.
+**Flagship gauntlet demos**:
+- **Neon Sign (Text)**: Montreal's Five Roses mill sign — FARINE / FIVE ROSES with authentic 22s night cycle, real neon tube rendering (not fillText), flicker, broken letters
+- **Building Window (Rain→Shatter)**: Rain drops slide down glass, then window shatters into physics-driven shards on click. Place fire or neon behind window to see effects composite through wet glass
 
 ## Quick start
 
@@ -48,11 +50,13 @@ Other scripts:
 
 Use the **+ Create VFX** button (or panel **Create VFX** folder). Types include:
 
-**Building Window (Rain→Shatter)**, Fire, Smoke, Sparks, Water, Lightning, Thunderclouds, Snow / Blizzard, Fog Bank, Heat Haze, Sandstorm, Dust Motes, God Rays, Explosion, Shockwave, Magic Aura, Portal / Rift, Electric Arcs, Toxic Gas, Blood Mist, Leaves / Debris, Fireflies, Caustics, Ice / Frost, Meteor, Object Shatter.
+**Neon Sign (Text)**, **Building Window (Rain→Shatter)**, Fire, Smoke, Sparks, Water, Lightning, Thunderclouds, Snow / Blizzard, Fog Bank, Heat Haze, Sandstorm, Dust Motes, God Rays, Explosion, Shockwave, Magic Aura, Portal / Rift, Electric Arcs, Toxic Gas, Blood Mist, Leaves / Debris, Fireflies, Caustics, Ice / Frost, Meteor, Object Shatter.
 
 Each spawn gets randomized seed/placement and uses an **EffectMaterial** (baseColor, emissive, opacity, roughness, metalness, blend). Click to select, drag to move, Minimize editor to hide the pane.
 
-**Building Window** is a special interactive sequence: rain drops slide down glass with coalescence → click to shatter with Voronoi fracture → shards fall with physics → auto-reset. Place other VFX behind it so they show through the wet glass.
+**Neon Sign** renders editable text as real neon tubes with Montreal Five Roses mill cycle: FARINE (outline) / FIVE ROSES (3 tubes wide), cycling on/off pattern, flicker, broken letters.
+
+**Building Window** is an interactive sequence: rain drops slide down glass with coalescence → click to shatter with Voronoi fracture → shards fall with physics → auto-reset. Place other VFX behind it so they show through the wet glass.
 
 
 
