@@ -59,6 +59,40 @@ const interactions = attachStageInteractions(stage, scene, runtimes, (id) => {
   ui.selectRuntime(id);
 });
 
+function onKeyDown(e: KeyboardEvent): void {
+  if (e.code === 'Space' && !e.repeat) {
+    const rgShatterRuntime = runtimes.find(rt => rt.module.id === 'rain-glass-shatter');
+    if (rgShatterRuntime && rgShatterRuntime.params.enabled) {
+      import('./effects/rainGlassShatter').then(({ triggerShatter }) => {
+        const centerX = scene.viewportWidth / 2;
+        const centerY = scene.viewportHeight / 2;
+        triggerShatter(centerX, centerY, Date.now(), scene, rgShatterRuntime.params as never, scene.time);
+      });
+      e.preventDefault();
+    }
+  }
+}
+
+function onStageClick(e: MouseEvent): void {
+  if ((e.target as HTMLElement).closest('.tp-dfwv, #panel, .create-menu, .chrome, .create-btn, .ghost-btn, .reset-btn')) {
+    return;
+  }
+  
+  const rgShatterRuntime = runtimes.find(rt => rt.module.id === 'rain-glass-shatter');
+  if (rgShatterRuntime && rgShatterRuntime.params.enabled) {
+    const rect = stage.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    import('./effects/rainGlassShatter').then(({ triggerShatter }) => {
+      triggerShatter(x, y, Date.now(), scene, rgShatterRuntime.params as never, scene.time);
+    });
+  }
+}
+
+window.addEventListener('keydown', onKeyDown);
+stage.addEventListener('click', onStageClick);
+
 function onResize(): void {
   renderer.resize(scene);
   clampCamera(scene.camera, scene);

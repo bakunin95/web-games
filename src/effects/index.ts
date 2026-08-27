@@ -35,8 +35,10 @@ import { neonBloomEffect } from './neonBloom';
 import { embersEffect } from './embers';
 import { rainOnGlassEffect } from './rainOnGlass';
 import { shatterEffect, disposeShatterInstance } from './shatter';
+import { rainGlassShatterEffect } from './rainGlassShatter';
 
 export const BUILTIN_EFFECTS: EffectModule[] = [
+  rainGlassShatterEffect as unknown as EffectModule,
   rainEffect as unknown as EffectModule,
   hazardAtmosphereEffect as unknown as EffectModule,
   embersEffect as unknown as EffectModule,
@@ -221,4 +223,5 @@ export {
   embersEffect,
   rainOnGlassEffect,
   shatterEffect,
+  rainGlassShatterEffect,
 };
